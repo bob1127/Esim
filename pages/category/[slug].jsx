@@ -61,12 +61,8 @@ export async function getStaticProps({ params }) {
 const CategoryPage = ({ slug, products }) => {
   return (
     <Layout>
-      <div data-aos="fade-up" className=" flex flex-col">
-        <section
-          className="section_Hero w-full mx-auto  "
-          data-aos-delay="7000"
-          data-aos="fade-up"
-        >
+      <div className=" flex flex-col">
+        <section className="section_Hero w-full mx-auto  ">
           <SwiperCarousel />
         </section>
         <div className="top-navgation mt-[100px] border-b-1 border-gray-200  pb-4 mx-0 sm:mx-[50px] lg:mx-[100px] 2xl:mx-[200px] pl-10">

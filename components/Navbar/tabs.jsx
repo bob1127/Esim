@@ -60,18 +60,18 @@ export const SlideTabsExample = () => {
             </Link>
           </div>
           <div className="middle w-[80%] flex justify-center items-center">
-            <Link href={`/category/all-product/`}>
-              {" "}
-              <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
-                <span className="relative inline-flex overflow-hidden">
-                  <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
-                    Esim 產品
-                  </div>
-                  <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                    Esim 產品
-                  </div>
-                </span>
-              </button>
+            <Link
+              href="/category/all-product/"
+              className="group block py-3 hover:bg-[#4badf4] relative rounded-full bg-transparent px-4 text-neutral-950"
+            >
+              <span className="relative inline-flex overflow-hidden">
+                <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                  Esim 產品
+                </div>
+                <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
+                  Esim 產品
+                </div>
+              </span>
             </Link>
 
             <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
