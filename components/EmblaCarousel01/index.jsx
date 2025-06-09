@@ -8,29 +8,34 @@ const OPTIONS = { dragFree: true, loop: true };
 // Define an array of slide objects with iframe content
 const SLIDES = [
   {
-    image: "/images/untitled拷貝.png", // Image for the first slide
-    title: "First Slide",
-    description: "Description for the first slide.",
+    image: "/images/japan.jpg", // Image for the first slide
+    title: "Japan",
+    description: "日本eSIM│5G高速固定流量│5、7、15、30天",
   },
   {
-    image: "/images/IMG_5587.jpg",
-    title: "Fourth Slide",
-    description: "Description for the fourth slide.",
+    image: "/images/japan.jpg", // Image for the first slide
+    title: "Japan",
+    description: "日本eSIM│5G高速固定流量│5、7、15、30天",
   },
   {
-    image: "/images/7878.png",
-    title: "Fourth Slide",
-    description: "Description for the fourth slide.",
+    image: "/images/japan.jpg", // Image for the first slide
+    title: "Japan",
+    description: "日本eSIM│5G高速固定流量│5、7、15、30天",
   },
   {
-    image: "/images/7878.png",
-    title: "Fourth Slide",
-    description: "Description for the fourth slide.",
+    image: "/images/japan.jpg", // Image for the first slide
+    title: "Japan",
+    description: "日本eSIM│5G高速固定流量│5、7、15、30天",
   },
   {
-    image: "/images/untitl55ed拷貝.png",
-    title: "Fifth Slide",
-    description: "Description for the fifth slide.",
+    image: "/images/japan.jpg", // Image for the first slide
+    title: "Japan",
+    description: "日本eSIM│5G高速固定流量│5、7、15、30天",
+  },
+  {
+    image: "/images/japan.jpg", // Image for the first slide
+    title: "Japan",
+    description: "日本eSIM│5G高速固定流量│5、7、15、30天",
   },
 ];
 

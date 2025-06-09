@@ -98,15 +98,10 @@ export default function ProductCarousel() {
                       {/* 顯示產品名稱 */}
                       <div className="p-4 flex flex-col">
                         <b className="text-black">{product.name}</b>
-                        <b className="text-black">Price: ${product.price}</b>
+                        <div className="text-black bg-[#1993e5] inline-flex  ">
+                          Price: ${product.price}
+                        </div>
                       </div>
-
-                      <a
-                        href="#"
-                        className="border  border-gray-400 text-black p-1 text-[12px] font-bold rounded-[30px] w-1/2 mx-auto mt-4 text-center bg-[#91AD9E]"
-                      >
-                        BUY NOW
-                      </a>
                     </div>
                   </CardBody>
                 </Card>

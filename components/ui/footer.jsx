@@ -15,5 +15,5 @@ const myLoader = ({ src, width, quality, placeholder }) => {
 };
 
 export default function Footer() {
-  return <footer className="bg-[#3894d6] h-[700px]"></footer>;
+  return <footer className="bg-[#1757ff] h-[700px]"></footer>;
 }

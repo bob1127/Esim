@@ -54,17 +54,21 @@ export const SlideTabsExample = () => {
   bg-white/50 backdrop-blur-md backdrop-saturate-150 border-b border-white/30 rounded-none shadow-md"
       >
         <div className="flex w-full  py-4">
-          <div className="left w-[20%] border"></div>
-          <div className="middle w-[60%] flex justify-center items-center">
+          <div className="left w-[10%]  flex justify-center items-center">
+            <Link href="/">
+              <b className="text-[#20a3cf] font-bold text-[18px]">ESIM</b>
+            </Link>
+          </div>
+          <div className="middle w-[80%] flex justify-center items-center">
             <Link href={`/category/all-product/`}>
               {" "}
               <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
                 <span className="relative inline-flex overflow-hidden">
-                  <div className="translate-y-0 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                  <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
                     Esim 產品
                   </div>
                   <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                    Hover me
+                    Esim 產品
                   </div>
                 </span>
               </button>
@@ -72,26 +76,36 @@ export const SlideTabsExample = () => {
 
             <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
               <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
-                  Hover me
+                <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                  使用教學
                 </div>
                 <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                  Hover me
+                  使用教學
                 </div>
               </span>
             </button>
             <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
               <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
-                  Hover me
+                <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                  關於我們
                 </div>
                 <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                  Hover me
+                  關於我們
+                </div>
+              </span>
+            </button>
+            <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
+              <span className="relative inline-flex overflow-hidden">
+                <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                  相關資訊
+                </div>
+                <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
+                  相關資訊
                 </div>
               </span>
             </button>
           </div>
-          <div className="right w-[20%]"></div>
+          <div className="right w-[10%]"></div>
         </div>
       </div>
     </>

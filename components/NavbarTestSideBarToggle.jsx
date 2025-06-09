@@ -16,13 +16,13 @@ const Navbar = () => {
       let allCategories = [];
       let page = 1;
       const perPage = 100;
-      const consumerKey = "ck_ec41b174efc5977249ffb5ef854f6c1fdba1844b";
-      const consumerSecret = "cs_d6c8d7ba3031b522ca93e6ee7fb56397b8781d1f";
+      const consumerKey = "ck_0ed8acaab9f0bc4cd27c71c2e7ae9ccc3ca45b04";
+      const consumerSecret = "cs_50ad8ba137c027d45615b0f6dc2d2d7ffcf97947";
 
       try {
         while (true) {
           const response = await axios.get(
-            "https://starislandbaby.com/test/wp-json/wc/v3/products/categories",
+            "https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/products/categories",
             {
               params: {
                 consumer_key: consumerKey,
@@ -85,10 +85,41 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="relative overflow-x-scroll scrollbar-none scrollbar-hidden">
-      <ul className="flex flex-row lg:flex-col space-y-4">
-        {categories.length > 0 ? (
-          categories
+    <nav className="relative w-full">
+      {isMobile ? (
+        // ✅ 手機版下拉式選單
+        <div className="w-full px-4">
+          <select
+            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => {
+              const selectedSlug = e.target.value;
+              if (selectedSlug) router.push(`/category/${selectedSlug}`);
+            }}
+            defaultValue=""
+          >
+            <option value="" disabled>
+              請選擇分類
+            </option>
+            {categories
+              .filter((category) => category.parent === 0)
+              .map((category) => (
+                <optgroup label={category.name} key={category.id}>
+                  <option value={category.slug}>{category.name}</option>
+                  {categories
+                    .filter((sub) => sub.parent === category.id)
+                    .map((sub) => (
+                      <option key={sub.id} value={sub.slug}>
+                        └ {sub.name}
+                      </option>
+                    ))}
+                </optgroup>
+              ))}
+          </select>
+        </div>
+      ) : (
+        // ✅ 桌面版分類
+        <ul className="flex flex-row lg:flex-col space-y-4 overflow-x-scroll lg:overflow-visible scrollbar-none">
+          {categories
             .filter((category) => category.parent === 0)
             .map((category) => {
               const subCategories = categories.filter(
@@ -99,12 +130,11 @@ const Navbar = () => {
               return (
                 <li
                   key={category.id}
-                  className={`relative lg:bg-transparent  rounded-full p-1 h duration-150 pr-3 inline-block w-[180px] mx-2 group`}
+                  className="relative rounded-full p-1 pr-3 inline-block w-[180px] mx-2 group"
                 >
                   <button
                     onClick={() => toggleSubcategories(category.id)}
-                    className="py-1 rounded-full px-3 flex justify-between w-full text-center lg:w-auto lg:bg-transparent font-bold bg-white"
-                    disabled={isMobile}
+                    className="py-1 rounded-full px-3 flex justify-between w-full text-center font-bold bg-white"
                   >
                     <span className="whitespace-nowrap text-[15px] group-hover:text-gray-900 font-bold">
                       {category.name}
@@ -120,17 +150,15 @@ const Navbar = () => {
                     )}
                   </button>
                   {activeCategory === category.id && (
-                    <div className="mt-2  !text-[14px]">
+                    <div className="mt-2 text-[14px]">
                       {renderCategories(category.id)}
                     </div>
                   )}
                 </li>
               );
-            })
-        ) : (
-          <li className="px-3 py-2 text-gray-500"></li>
-        )}
-      </ul>
+            })}
+        </ul>
+      )}
     </nav>
   );
 };

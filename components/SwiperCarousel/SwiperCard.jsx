@@ -62,55 +62,37 @@ export default () => {
           onSlideChange={() => console.log("slide change")}
         >
           <SwiperSlide className="  ">
-            <Image
-              src="/images/banner01_1920x768.jpg"
-              alt="hero-img"
-              placeholder="empty"
-              loading="lazy"
-              width={1920}
-              height={600}
-              className="mx-auto h-auto w-full hidden sm:block"
-            ></Image>
-            <Image
-              src="/images/banner02_600x600.jpg"
-              alt="hero-img"
-              placeholder="empty"
-              loading="lazy"
-              width={1920}
-              height={768}
-              className=" mx-auto h-auto w-full block sm:hidden"
-            ></Image>
+            <div className="relative w-full aspect-[21/9] hidden sm:block">
+              <Image
+                src="/images/categories/banner01.png"
+                alt="hero-img"
+                fill
+                className="object-cover"
+                sizes="100vw"
+              />
+            </div>
           </SwiperSlide>
           <SwiperSlide className="  ">
-            <Image
-              src="/images/S__491513.jpg"
-              alt="hero-img"
-              placeholder="empty"
-              loading="lazy"
-              width={1920}
-              height={600}
-              className="mx-auto hidden sm:block"
-            ></Image>
-            <Image
-              src="/images/S__4915217.jpg"
-              alt="hero-img"
-              placeholder="empty"
-              loading="lazy"
-              width={1920}
-              height={768}
-              className="mx-auto block sm:hidden"
-            ></Image>
+            <div className="relative w-full aspect-[21/9] hidden sm:block">
+              <Image
+                src="/images/categories/banner01.png"
+                alt="hero-img"
+                fill
+                className="object-cover"
+                sizes="100vw"
+              />
+            </div>
           </SwiperSlide>
           <SwiperSlide className="  ">
-            <Image
-              src="/images/banner-04.jpg"
-              alt="hero-img"
-              placeholder="empty"
-              loading="lazy"
-              width={1920}
-              height={768}
-              className=" mx-auto"
-            ></Image>
+            <div className="relative w-full aspect-[21/9] hidden sm:block">
+              <Image
+                src="/images/categories/banner01.png"
+                alt="hero-img"
+                fill
+                className="object-cover"
+                sizes="100vw"
+              />
+            </div>
           </SwiperSlide>
         </Swiper>
       </div>

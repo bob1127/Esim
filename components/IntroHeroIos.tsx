@@ -7,7 +7,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import SwiperEsim from "../components/EmblaCarousel01/index";
+import SwiperEsim from "./EmblaCarousel01/index";
 export default function IntroHero() {
   const logoControls = useAnimation();
   const phonesControls = useAnimation();
@@ -85,9 +85,8 @@ export default function IntroHero() {
           <div className="logo bg-[#1757ff] text-white rounded-[20px] flex justify-center items-center w-[180px] h-[180px] shadow-xl">
             ESIM
           </div>
-          <span className="text-[26px]">Android</span>
+          <span className="text-[26px]">IOS</span>
         </motion.div>
-
         {/* Title */}
         <motion.div
           className="font-bold text-neutral-800 text-[45px] mb-6"

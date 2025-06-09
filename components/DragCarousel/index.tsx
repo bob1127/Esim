@@ -261,7 +261,6 @@ export default function SuggestedCarousel() {
                 <motion.li
                   layout
                   key={article.title}
-                  ref={(el) => (itemsRef.current[index] = el)}
                   className={cn(
                     "group relative ml-[-8vw] shrink-0 select-none px-3 transition-opacity duration-300",
                     !active && "opacity-30"

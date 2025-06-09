@@ -94,11 +94,11 @@ const EmblaCarousel = (props) => {
 
   return (
     <div
-      className="embla w-[100%] py-[30px] m-auto"
+      className=""
       style={{
         "--slide-height": "19rem",
         "--slide-spacing": "1rem",
-        "--slide-size": "55%",
+        "--slide-size": "40%",
       }}
     >
       <div className="embla__viewport overflow-hidden" ref={emblaRef}>
@@ -124,22 +124,22 @@ const EmblaCarousel = (props) => {
                   height: "100%",
                   userSelect: "none",
                 }}
-                className="embla__slide__number  border-none  md:border py-[30px] md:border-black  flex flex-col  items-center justify-center font-semibold"
+                className="embla__slide__number  border-none !h-auto  border-gray-300 border-2 shadow-2xl md:border bg-white flex  py-[10px] md:border-black  items-center justify-center font-semibold"
               >
                 {/* {index + 1} */}
-                <div className="flex flex-col justify-center items-center ">
+                <div className="flex justify-center p-6 items-center ">
                   {slide.content ? (
                     slide.content // Render iframe or other HTML content directly
                   ) : (
                     <img
                       src={slide.image}
-                      className="w-[300px]  md:h-full rounded-xl"
+                      className="w-1/2   rounded-xl"
                       alt={`Slide ${index + 1}`}
                     />
                   )}
-                  <div className="txt mt-[20px] flex-col flex justify-center items-center w-[80%] mx-auto">
-                    <b className="text-[18px] text-center">{slide.title}</b>
-                    <p className="text-[14px] font-normal text-center">
+                  <div className="txt mt-[20px]  flex-col flex justify-center items-center w-1/2 mx-auto">
+                    <b className="text-[22px] text-center">{slide.title}</b>
+                    <p className="text-[14px] w-2/3 mx-auto font-normal text-center">
                       {slide.description}
                     </p>
                   </div>
@@ -154,18 +154,6 @@ const EmblaCarousel = (props) => {
         <div className="embla__buttons grid grid-cols-2 gap-[0.6rem] items-center">
           <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
           <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
-        </div>
-
-        <div className="embla__dots">
-          {scrollSnaps.map((_, index) => (
-            <DotButton
-              key={index}
-              onClick={() => onDotButtonClick(index)}
-              className={"embla__dot".concat(
-                index === selectedIndex ? " embla__dot--selected" : ""
-              )}
-            />
-          ))}
         </div>
       </div>
     </div>

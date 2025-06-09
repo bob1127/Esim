@@ -1,15 +1,12 @@
 import { createContext, useState, useContext, useEffect } from "react";
 
-// 创建一个空的购物车 context
 const CartContext = createContext();
 
-// CartProvider 组件，用于包裹应用并提供购物车上下文
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [isOpen, setIsOpen] = useState(false); // 侧边栏打开状态
+  const [isOpen, setIsOpen] = useState(false);
 
-  // ✅ 页面载入时从 localStorage 读取购物车数据
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");
     if (storedCartItems) {
@@ -17,12 +14,10 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  // ✅ 每次 cartItems 变化时写入 localStorage
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // ✅ 每次 cartItems 更新时重新计算总价
   useEffect(() => {
     const total = cartItems.reduce(
       (acc, item) => acc + parseFloat(item.price) * item.quantity,
@@ -32,21 +27,28 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (product) => {
-    if (!product.color || !product.size) return;
+    // 只有存在 color/size 才驗證
+    if (
+      ("color" in product && !product.color) ||
+      ("size" in product && !product.size)
+    ) {
+      return;
+    }
 
-    const existingItem = cartItems.find(
-      (item) =>
+    const existingItem = cartItems.find((item) => {
+      return (
         item.id === product.id &&
-        item.color === product.color &&
-        item.size === product.size
-    );
+        (item.color ?? null) === (product.color ?? null) &&
+        (item.size ?? null) === (product.size ?? null)
+      );
+    });
 
     if (existingItem) {
       setCartItems((prevItems) =>
         prevItems.map((item) =>
-          item.id === existingItem.id &&
-          item.color === existingItem.color &&
-          item.size === existingItem.size
+          item.id === product.id &&
+          (item.color ?? null) === (product.color ?? null) &&
+          (item.size ?? null) === (product.size ?? null)
             ? { ...item, quantity: item.quantity + product.quantity }
             : item
         )
@@ -59,19 +61,14 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (productId, color, size) => {
-    const updatedCartItems = cartItems.filter(
-      (item) =>
-        item.id !== productId ||
-        item.color !== color ||
-        item.size !== size
+    setCartItems((prevItems) =>
+      prevItems.filter(
+        (item) =>
+          item.id !== productId ||
+          (item.color ?? null) !== (color ?? null) ||
+          (item.size ?? null) !== (size ?? null)
+      )
     );
-    setCartItems(updatedCartItems);
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-    localStorage.removeItem("cartItems");
-    setIsOpen(false);
   };
 
   const updateQuantity = (productId, color, size, newQuantity) => {
@@ -80,12 +77,18 @@ export const CartProvider = ({ children }) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.id === productId &&
-        item.color === color &&
-        item.size === size
+        (item.color ?? null) === (color ?? null) &&
+        (item.size ?? null) === (size ?? null)
           ? { ...item, quantity: newQuantity }
           : item
       )
     );
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+    localStorage.removeItem("cartItems");
+    setIsOpen(false);
   };
 
   return (
@@ -106,5 +109,4 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-// 自定义 Hook，方便其他组件使用购物车数据
 export const useCart = () => useContext(CartContext);

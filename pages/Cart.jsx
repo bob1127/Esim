@@ -36,7 +36,7 @@ const CartPage = () => {
                 className="flex pb-8 pt-3  w-full border-b-1 border-gray-300 "
               >
                 <div className="w-[10%] ">
-                  <Image
+                  <img
                     src={item.image}
                     width={100}
                     height={100}

@@ -8,6 +8,8 @@ module.exports = {
   },
   darkMode: ['class'],
   content: [
+     "./pages/**/*.{js,ts,jsx,tsx}",
+    
     './pages/**/*.{js,ts,jsx,tsx}', // Update paths as needed
     './components/**/*.{js,ts,jsx,tsx}', // Keep components path
     './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}', // NextUI styles
