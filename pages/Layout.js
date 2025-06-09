@@ -43,19 +43,19 @@ export default function RootLayout({ children }) {
   return (
     <>
       <Head>
-        <title>星嶼童裝-韓系童裝｜小童、嬰幼兒服飾、兒童服飾配件｜台中童裝</title>
-        <meta name="description" content="韓系童裝｜小童、嬰幼兒服飾、兒童服飾配件｜台中童裝" />
+        <title>Speed-eSIM | 台北 International eSIM專家 </title>
+        <meta name="description" content="Speed-eSIM | International eSIM" />
         <meta name="keywords" content="產品, 購物, 優惠" />
-        <meta name="author" content="星嶼童裝" />
+        <meta name="author" content="" />
         <link rel="icon" href="/fstarislandbaby-icon.ico" />
-        <meta property="og:title" content="星嶼童裝-韓系童裝｜小童、嬰幼兒服飾、兒童服飾配件｜台中童裝" />
-        <meta property="og:description" content="星嶼童裝-韓系童裝｜小童、嬰幼兒服飾、兒童服飾配件｜台中童裝" />
+        <meta property="og:title" content="Speed-eSIM | International eSIM" />
+        <meta property="og:description" content="Speed-eSIM | International eSIM" />
         <meta property="og:image" content="/default-og-image.jpg" />
         <meta property="og:url" content="https://www.starislandbaby.com" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="星嶼童裝-韓系童裝｜小童、嬰幼兒服飾、兒童服飾配件｜台中童裝" />
-        <meta name="twitter:description" content="韓系童裝｜小童、嬰幼兒服飾、兒童服飾配件｜台中童裝" />
+        <meta name="twitter:title" content="Speed-eSIM | International eSIM" />
+        <meta name="twitter:description" content="Speed-eSIM | International eSIM" />
         <meta name="twitter:image" content="/default-og-image.jpg" />
       </Head>
 
