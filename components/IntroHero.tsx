@@ -7,7 +7,6 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import SwiperEsim from "../components/EmblaCarousel01/index";
 export default function IntroHero() {
   const logoControls = useAnimation();
   const phonesControls = useAnimation();
@@ -164,56 +163,6 @@ export default function IntroHero() {
             style={{ y: y3 }}
           />
         </div>
-      </section>
-      <section className="section-product-intro bg-[#1757ff] px-[200px] py-[100px] mx-auto">
-        <div className="title flex flex-col">
-          <h2 className="text-white font-normal text-left text-[40px]">
-            一鍵啟用全球上網
-          </h2>
-          <span className="text-white leading-snug text-[24px]">
-            即買即用．免拆SIM卡．支援全球上網服務<br></br>{" "}
-            跨國旅遊、出差、短租專用的 eSIM 解決方案
-          </span>
-          <div className="relative inline-block text-left mt-6">
-            <select className="appearance-none w-[200px] h-12 px-4 pr-10 rounded-full border border-neutral-200 bg-white text-neutral-950 font-medium focus:outline-none transition-all duration-300 shadow-sm hover:border-[#1757ff] focus:border-[#1757ff]">
-              <option disabled selected value="">
-                請選擇旅遊國家
-              </option>
-              <option value="japan">日本 Japan</option>
-              <option value="korea">韓國 Korea</option>
-              <option value="vietnam">越南 Vietnam</option>
-              <option value="thailand">泰國 Thailand</option>
-              <option value="usa">美國 USA</option>
-              <option value="france">法國 France</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-neutral-500">
-              ▼
-            </div>
-          </div>
-        </div>
-        <SwiperEsim />
-      </section>
-      <section className="w-[85%]  mx-auto">
-        <div className="left text">
-          <span className="mb-4">一鍵啟用全球上網</span>
-          <h3 className="text-[#1757ff] mt-4 font-bold text-[24px]">
-            無卡革命，暢遊世界
-          </h3>
-          <h3 className="text-[#050505] font-bold text-[24px]">
-            即買即用．免拆SIM卡．支援全球上網服務 <br></br>
-            跨國旅遊、出差、短租專用的 eSIM 解決方案
-          </h3>
-          <button className="group mt-6 relative inline-flex h-12 items-center justify-center overflow-hidden  border border-neutral-200 bg-white rounded-full font-medium">
-            <div className="inline-flex h-12 translate-y-0  items-center justify-center px-6 text-neutral-950 transition duration-500 group-hover:-translate-y-[150%]">
-              Hover me
-            </div>
-            <div className="absolute inline-flex  h-12 w-full translate-y-[100%] items-center justify-center text-neutral-50 transition duration-500 group-hover:translate-y-0">
-              <span className="absolute h-full w-full translate-y-full  skew-y-12 scale-y-0 bg-[#1757ff] transition duration-500 group-hover:translate-y-0 group-hover:scale-150"></span>
-              <span className="z-10 text-white">Hover me</span>
-            </div>
-          </button>
-        </div>
-        <div className="right phone"></div>
       </section>
     </>
   );

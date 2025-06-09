@@ -34,7 +34,7 @@ export default () => {
 
   return (
     <>
-      <div className=" e-full  m-0 p-0">
+      <div data-aos="fade-up" className=" e-full  m-0 p-0">
         <Swiper
           // install Swiper modules
 
@@ -64,7 +64,7 @@ export default () => {
           <SwiperSlide className="  ">
             <div className="relative w-full aspect-[21/9] hidden sm:block">
               <Image
-                src="/images/categories/banner01.png"
+                src="/images/banner01.jpg"
                 alt="hero-img"
                 fill
                 className="object-cover"
@@ -75,7 +75,7 @@ export default () => {
           <SwiperSlide className="  ">
             <div className="relative w-full aspect-[21/9] hidden sm:block">
               <Image
-                src="/images/categories/banner01.png"
+                src="/images/banner01.jpg"
                 alt="hero-img"
                 fill
                 className="object-cover"
@@ -86,7 +86,7 @@ export default () => {
           <SwiperSlide className="  ">
             <div className="relative w-full aspect-[21/9] hidden sm:block">
               <Image
-                src="/images/categories/banner01.png"
+                src="/images/banner01.jpg"
                 alt="hero-img"
                 fill
                 className="object-cover"

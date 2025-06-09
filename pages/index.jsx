@@ -2,6 +2,7 @@
 // import styles from "./page.module.scss";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import SwiperEsim from "../components/EmblaCarousel01/index";
 
 // import { AnimatePresence } from "framer-motion";
 // import Preloader from "../components/toys05/Preloader";
@@ -13,6 +14,7 @@ import PageTransition from "../components/PageTransition.tsx";
 import Layout from "./Layout";
 export default function Home() {
   const [showIos, setShowIos] = useState(false);
+
   return (
     <Layout>
       <PageTransition>
@@ -61,9 +63,84 @@ export default function Home() {
               </motion.div>
             )}
           </AnimatePresence>
-
-          <div className="primary w-[100px] h-[100px]">Lorem</div>
         </div>
+        <section className="relative overflow-hidden h-screen">
+          {/* 黑色遮罩 */}
+          <div className="txt w-1/2 absolute z-50 left-[10%] top-1/2 -translate-y-1/2 ">
+            <h2 className="text-white font-normal text-left text-[45px]">
+              彈性資費
+            </h2>
+            <p className="text-white font-normal text-[24px]">
+              按天 / 按流量彈性選擇，沒有合約束縛
+            </p>
+          </div>
+          <div className="mask w-full h-full bg-black opacity-15 absolute z-10 left-0 top-0 pointer-events-none"></div>
+
+          {/* SIM 卡 */}
+          <div
+            className="sim-card w-[140px] h-[200px] absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 
+    rounded-[20px] border border-white/20 backdrop-blur-md bg-white/10 shadow-xl overflow-hidden"
+          >
+            <div className="sim-card-wrap border relative w-full h-full">
+              <Image
+                src="/images/sim-card.png"
+                alt="sim-card"
+                placeholder="empty"
+                loading="lazy"
+                fill
+                className="object-contain p-4"
+              />
+            </div>
+
+            <div
+              className="absolute top-0 right-0 w-[80px] h-[80px] bg-white/20 backdrop-blur-md"
+              style={{ clipPath: "polygon(100% 0, 100% 100%, 0 0)" }}
+            ></div>
+
+            {/* 可加入模擬卡片內容 */}
+            <div className="flex flex-col justify-center items-center h-full text-white p-4"></div>
+          </div>
+
+          {/* 背景圖片 */}
+          <Image
+            src="/images/banner01.jpg"
+            alt="banner-img"
+            placeholder="empty"
+            loading="lazy"
+            width={2000}
+            height={1000}
+            className="object-cover w-full h-full"
+          />
+        </section>
+
+        <section className="section-product-intro bg-[#1757ff] px-[200px] py-[100px] mx-auto">
+          <div className="title flex flex-col">
+            <h2 className="text-white font-normal text-left text-[40px]">
+              一鍵啟用全球上網
+            </h2>
+            <span className="text-white leading-snug text-[24px]">
+              即買即用．免拆SIM卡．支援全球上網服務<br></br>{" "}
+              跨國旅遊、出差、短租專用的 eSIM 解決方案
+            </span>
+            <div className="relative inline-block text-left mt-6">
+              <select className="appearance-none w-[200px] h-12 px-4 pr-10 rounded-full border border-neutral-200 bg-white text-neutral-950 font-medium focus:outline-none transition-all duration-300 shadow-sm hover:border-[#1757ff] focus:border-[#1757ff]">
+                <option disabled selected value="">
+                  請選擇旅遊國家
+                </option>
+                <option value="japan">日本 Japan</option>
+                <option value="korea">韓國 Korea</option>
+                <option value="vietnam">越南 Vietnam</option>
+                <option value="thailand">泰國 Thailand</option>
+                <option value="usa">美國 USA</option>
+                <option value="france">法國 France</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-neutral-500">
+                ▼
+              </div>
+            </div>
+          </div>
+          <SwiperEsim />
+        </section>
         <section className="section-info px-[100px] bg-[#f9f9f9]">
           <div className="section-title text-[70px] font-normal text-black">
             DISCCOUNT
