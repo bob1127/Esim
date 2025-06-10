@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import Logo from "./Logo.jsx";
 import Image from "next/image.js";
 import Navbar01 from "../../components/NavbarTest.jsx";
-import SidebarNav from "../../components/Sidebar.jsx";
+import SidebarNav from "../../components/Sidebar.js";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -61,18 +61,18 @@ export const SlideTabsExample = () => {
               className="group block py-3 hover:bg-[#4badf4] relative rounded-full bg-transparent px-4 text-neutral-950"
             >
               <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
-                  Esim 產品
+                <div className="translate-y-0 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                  eSIM 產品
                 </div>
                 <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                  Esim 產品
+                  eSIM 產品
                 </div>
               </span>
             </Link>
 
             <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
               <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                <div className="translate-y-0 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
                   使用教學
                 </div>
                 <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
@@ -82,7 +82,7 @@ export const SlideTabsExample = () => {
             </button>
             <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
               <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                <div className="translate-y-0 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
                   關於我們
                 </div>
                 <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
@@ -93,7 +93,7 @@ export const SlideTabsExample = () => {
 
             <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
               <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 text-slate-700 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
+                <div className="translate-y-0 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
                   相關資訊
                 </div>
                 <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">

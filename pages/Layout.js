@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar/Navbar.jsx";
 import Banner from "@/components/banner";
 import Footer from "@/components/ui/footer.jsx";
 import Head from "next/head";
-import Sidebar from "@/components/Sidebar.jsx"; // 引入側邊欄組件
+import Sidebar from "@/components/Sidebar.js"; // 引入側邊欄組件
 
 export default function RootLayout({ children }) {
   const [sidebarProduct, setSidebarProduct] = useState(null); // 儲存購物車資料
