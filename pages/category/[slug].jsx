@@ -102,6 +102,7 @@ const CategoryPage = ({ slug, products }) => {
                     <Link
                       key={product.id}
                       href={`/product/${product.slug}`}
+                      prefetch={false}
                       className="mt-2 w-1/2 hover:scale-105 duration-200 group mb-3 sm:w-[260px] md:w-[280px] 2xl:w-[330px]"
                     >
                       <div className="card mx-2 overflow-hidden w-[98%] rounded-xl pr-1 md:p-8">

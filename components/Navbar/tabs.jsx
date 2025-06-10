@@ -45,8 +45,14 @@ export const SlideTabsExample = () => {
       >
         <div className="flex w-full  py-4">
           <div className="left w-[10%]  flex justify-center items-center">
-            <Link href="/">
-              <b className="text-[#20a3cf] font-bold text-[18px]">ESIM</b>
+            <Link href="/" className="block w-[38px]">
+              <Image
+                src="/images/logo/logo.svg"
+                alt="ESIM Logo"
+                width={120}
+                height={40}
+                priority
+              />
             </Link>
           </div>
           <div className="middle w-[80%] flex justify-center items-center">
