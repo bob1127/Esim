@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import Logo from "./Logo.jsx";
 import Image from "next/image.js";
 import Navbar01 from "../../components/NavbarTest.jsx";
-import SidebarNav from "../../components/SideBar.jsx";
+import SidebarNav from "../../components/Sidebar.jsx";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";

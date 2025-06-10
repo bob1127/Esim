@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Layout from "./Layout.js";
 import Link from "next/link";
 
-// import SidebarNav from "../components/SideBar.jsx";
+// import SidebarNav from "../components/Sidebar.jsx";
 // import Landing from "../components/toys05/Landing";
 // import Projects from "../components/toys05/Projects";
 // import Description from "../components/toys05/Description";

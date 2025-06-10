@@ -1,214 +1,208 @@
-import React, { Component } from "react";
-import {
-  FiBarChart,
-  FiChevronDown,
-  FiChevronsRight,
-  FiDollarSign,
-  FiHome,
-  FiMonitor,
-  FiShoppingCart,
-  FiTag,
-  FiUsers,
-} from "react-icons/fi";
+import { useEffect } from "react";
+import { useCart } from "./context/CartContext";
 import { motion } from "framer-motion";
-import NavbarTestSideBar from "../components/NavbarTestSideBar.jsx";
-class Example extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false, // 默认侧边栏是关闭的
-      selected: "Dashboard",
-    };
-  }
+import Image from "next/image";
+import { Button } from "@heroui/react"; // 按钮组件
 
-  ToggleClose = () => {
-    this.setState((prevState) => {
-      const newState = { open: !prevState.open };
-      if (newState.open) {
-        // 禁止滚动
-        document.body.style.overflow = "hidden";
-      } else {
-        // 恢复滚动
-        document.body.style.overflow = "auto";
-      }
-      return newState;
+const Sidebar = () => {
+  const {
+    cartItems,
+    totalPrice,
+    removeFromCart,
+    updateQuantity,
+    isOpen,
+    setIsOpen,
+  } = useCart(); // 从上下文中获取 isOpen 和 setIsOpen
+
+  // 切换侧边栏状态
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen); // 切换 isOpen 状态
+    console.log("Toggle Sidebar, isOpen:", !isOpen); // 调试信息
+  };
+
+  useEffect(() => {
+    console.log("Sidebar state updated, isOpen:", isOpen); // 打印 isOpen 状态变化
+  }, [isOpen]); // 监听 isOpen 变化
+
+  // 将侧边栏中的商品转换为 WooCommerce 需要的格式
+  const getWooCommerceFormData = () => {
+    const addToCartIds = [];
+    const quantities = [];
+
+    // 获取每个商品的ID和数量
+    cartItems.forEach((item) => {
+      addToCartIds.push(item.id);
+      quantities.push(item.quantity);
     });
+
+    return { addToCartIds, quantities };
   };
 
-  setSelected = (title) => {
-    this.setState({ selected: title });
+  // 生成 URL 并在提交表单前打印到 console
+  const handleSubmit = (e) => {
+    e.preventDefault(); // 防止表单实际提交
+
+    const { addToCartIds, quantities } = getWooCommerceFormData();
+
+    let url = "https://starislandbaby.com/test/cart/?add-to-cart=";
+
+    // 添加所有商品 ID 和数量到 URL 中
+    url += addToCartIds.join(",");
+    url += "&quantity=" + quantities.join(",");
+
+    console.log("生成的 URL:", url);
+
+    // 跳转到 WooCommerce 购物车页面
+    window.location.href = url;
   };
 
-  Option = ({ Icon, title, notifs }) => {
-    const { open, selected } = this.state;
-    return (
-      <motion.button
-        layout
-        onClick={() => this.setSelected(title)}
-        className={`relative flex h-10 w-full items-center rounded-md transition-colors ${
-          selected === title
-            ? "bg-indigo-100 text-indigo-800"
-            : "text-slate-500 hover:bg-slate-100"
-        }`}
-      >
+  return (
+    <div className="bg-gray-200 fixed w-[100vw] z-[99999999999] right-0 top-[0%]">
+      <div className="relative w-full flex">
         <motion.div
-          layout
-          className="grid h-full w-10 place-content-center text-lg"
+          className="sidebar absolute z-[99999999] top-0 p-5 right-0 w-full sm:w-[400px] pl-[50px] bg-white border  border-gray-100 shadow-2xl h-screen"
+          initial={{ x: "100%" }} // 初始位置在右侧以外
+          animate={{ x: isOpen ? 0 : "100%" }} // 动画根据 isOpen 状态更新
+          transition={{ duration: 0.3 }}
+          onAnimationComplete={
+            () => console.log(`Sidebar animation completed. isOpen: ${isOpen}`) // 添加动画完成的 log
+          }
         >
-          <Icon />
-        </motion.div>
-        {open && (
-          <motion.span
-            layout
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.125 }}
-            className="text-xs font-medium"
+          {/* 關閉按鈕 - X Icon */}
+          <button
+            onClick={toggleSidebar}
+            className="absolute top-4 left-4 z-50 text-gray-600 hover:text-black"
+            aria-label="關閉購物車"
           >
-            {title}
-          </motion.span>
-        )}
-
-        {notifs && open && (
-          <motion.span
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            style={{ y: "-50%" }}
-            transition={{ delay: 0.5 }}
-            className="absolute right-2 top-1/2 size-4 rounded bg-indigo-500 text-xs text-white"
-          >
-            {notifs}
-          </motion.span>
-        )}
-      </motion.button>
-    );
-  };
-
-  TitleSection = () => {
-    const { open } = this.state;
-    return (
-      <div className="mb-3  border-b border-slate-300   pb-3">
-        <div className="flex cursor-pointer pt-[40px] items-center justify-between rounded-md transition-colors hover:bg-slate-100">
-          <div className="flex items-center p-3 gap-2">
-            {open && (
-              <motion.div
-                layout
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.125 }}
-              >
-                <span className="block text-black text-xs font-semibold">
-                  商品導覽
-                </span>
-                <span className="block text-black text-xs text-slate-500">
-                  選擇您需要的商品
-                </span>
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  Logo = () => {
-    return (
-      <motion.div
-        layout
-        className="grid size-10 shrink-0 place-content-center rounded-md bg-indigo-600"
-      >
-        <svg
-          width="24"
-          height="auto"
-          viewBox="0 0 50 39"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="fill-slate-50"
-        >
-          <path
-            d="M16.4992 2H37.5808L22.0816 24.9729H1L16.4992 2Z"
-            stopColor="#000000"
-          ></path>
-          <path
-            d="M17.4224 27.102L11.4192 36H33.5008L49 13.0271H32.7024L23.2064 27.102H17.4224Z"
-            stopColor="#000000"
-          ></path>
-        </svg>
-      </motion.div>
-    );
-  };
-
-  render() {
-    const { open, selected } = this.state;
-
-    return (
-      <div className="flex">
-        {/* 独立的收起按钮 */}
-        <motion.button
-          layout
-          onClick={this.ToggleClose}
-          className="absolute top-8 right-4 mt-3 rounded-[100px] z-[999999999] border-t border-slate-300 w-[100px] h-[45px] bg-[#91AD9E] transition-colors hover:bg-[#667b70]"
-        >
-          <div className="flex items-center pb-2">
-            <motion.div
-              layout
-              className="grid size-10 place-content-center text-lg"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
             >
-              <FiChevronsRight
-                className={`transition-transform ${open && "rotate-180"}`}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
               />
-            </motion.div>
-            {open ? (
-              <motion.span
-                layout
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.125 }}
-                className="text-xs font-medium"
-              >
-                關閉
-              </motion.span>
-            ) : (
-              <motion.span
-                layout
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.125 }}
-                className="text-xs font-medium"
-              >
-                選單
-              </motion.span>
-            )}
-          </div>
-        </motion.button>
+            </svg>
+          </button>
 
-        {/* 透明黑色背景 */}
-        {open && (
-          <motion.div
-            layout
-            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-[9998]"
-            onClick={this.ToggleClose}
-          ></motion.div>
-        )}
+          {cartItems.length === 0 ? (
+            <p>您的購物車是空的</p>
+          ) : (
+            <ul className="overflow-hidden relative flex flex-col">
+              {cartItems.map((item, index) => (
+                <li
+                  key={index}
+                  className="flex px-5 justify-center items-center w-full overflow-scroll !border-gray-200 gap-4 border-b py-2"
+                >
+                  {/* 商品圖片 */}
+                  <div className="img-wrap w-1/2">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={250}
+                      height={250}
+                      className="max-w-[100px]"
+                      placeholder="empty"
+                      loading="lazy"
+                    />
+                  </div>
+                  {/* 商品名稱 */}
+                  <div className="w-1/2 flex justify-between h-full">
+                    <div className="ml-auto text-right">
+                      <div>
+                        <span className="block font-bold">{item.name}</span>
+                        <span>顏色: {item.color}</span>
+                        <span>尺寸: {item.size}</span>
+                      </div>
+                      <div>
+                        <span>${item.price}</span>
+                        <p>
+                          數量:
+                          <button
+                            onClick={() =>
+                              updateQuantity(
+                                item.id,
+                                item.color,
+                                item.size,
+                                item.quantity - 1
+                              )
+                            }
+                          >
+                            -
+                          </button>
+                          {item.quantity}
+                          <button
+                            onClick={() =>
+                              updateQuantity(
+                                item.id,
+                                item.color,
+                                item.size,
+                                item.quantity + 1
+                              )
+                            }
+                          >
+                            +
+                          </button>
+                        </p>
+                        <button
+                          onClick={() =>
+                            removeFromCart(item.id, item.color, item.size)
+                          }
+                          className="text-red-500"
+                        >
+                          刪除
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
 
-        {/* 侧边栏 */}
-        <motion.nav
-          layout
-          className="sticky top-12 h-screen shrink-0 border-r border-slate-300 bg-white z-[9999]"
-          style={{
-            width: open ? "370px" : "0px",
-          }}
-        >
-          <this.TitleSection />
-          <div className="p-5">
-            {/* 传递 ToggleClose 方法给 NavbarTestSideBar */}
-            <NavbarTestSideBar closeSidebar={this.ToggleClose} />
+          <div className="w-full text-left mt-3 pl-9 bottom-0 left-0 py-2">
+            <p className="text-[18px] font-bold text-right pr-5">
+              訂單總金額: ${totalPrice}
+            </p>
           </div>
-        </motion.nav>
-        <div className="h-[100vh] fix top-0 w-full"></div>
+
+          {/* WooCommerce 加入購物車的表單 */}
+          <form
+            onSubmit={handleSubmit}
+            className="p-4 flex justify-center pt-10"
+          >
+            <button
+              type="submit"
+              className="group relative inline-flex h-12 items-center rounded-full justify-center overflow-hidden bg-[#59a682] border-2 border-gray-400 px-6 font-medium text-white duration-500"
+            >
+              <div className="relative inline-flex -translate-x-0 items-center transition group-hover:-translate-x-6">
+                <div className="absolute translate-x-0 opacity-100 transition group-hover:-translate-x-6 group-hover:opacity-0">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 15 15"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                  >
+                    <path d="M7.22303 0.665992C7.32551 0.419604 7.67454 0.419604 7.77702 0.665992L9.41343 4.60039C9.45663 4.70426 9.55432 4.77523 9.66645 4.78422L13.914 5.12475C14.18 5.14607 14.2878 5.47802 14.0852 5.65162L10.849 8.42374C10.7636 8.49692 10.7263 8.61176 10.7524 8.72118L11.7411 12.866C11.803 13.1256 11.5206 13.3308 11.2929 13.1917L7.6564 10.9705C7.5604 10.9119 7.43965 10.9119 7.34365 10.9705L3.70718 13.1917C3.47945 13.3308 3.19708 13.1256 3.25899 12.866L4.24769 8.72118C4.2738 8.61176 4.23648 8.49692 4.15105 8.42374L0.914889 5.65162C0.712228 5.47802 0.820086 5.14607 1.08608 5.12475L5.33364 4.78422C5.44576 4.77523 5.54345 4.70426 5.58665 4.60039L7.22303 0.665992Z" />
+                  </svg>
+                </div>
+              </div>
+              <span className="group-hover:translate-x-6 text-white font-semibold text-sm">
+                結帳
+              </span>
+            </button>
+          </form>
+        </motion.div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-export default Example;
+export default Sidebar;

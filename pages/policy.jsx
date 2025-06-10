@@ -8,7 +8,7 @@ import Link from "next/link";
 import SwiperCard from "../components/SwiperCarousel/SwiperCardTravel.jsx";
 
 import Carousel from "../components/SmallChildrenProducts.jsx";
-// import SidebarNav from "../components/SideBar.jsx";
+// import SidebarNav from "../components/Sidebar.jsx";
 // import Landing from "../components/toys05/Landing";
 // import Projects from "../components/toys05/Projects";
 // import Description from "../components/toys05/Description";

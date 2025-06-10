@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar/Navbar.jsx";
 import Banner from "@/components/banner";
 import Footer from "@/components/ui/footer.jsx";
 import Head from "next/head";
-import Sidebar from "@/components/Sidebar.js"; // 引入側邊欄組件
+import Sidebar from "@/components/Sidebar.jsx"; // 引入側邊欄組件
 
 export default function RootLayout({ children }) {
   const [sidebarProduct, setSidebarProduct] = useState(null); // 儲存購物車資料
@@ -43,11 +43,11 @@ export default function RootLayout({ children }) {
   return (
     <>
       <Head>
-        <title>Speed-eSIM | 台北 International eSIM專家 </title>
+        <title>汪喵通SIM｜台北 eSIM專家｜eSIM、實體sim卡｜International 各國旅遊eSIM </title>
         <meta name="description" content="Speed-eSIM | International eSIM" />
         <meta name="keywords" content="產品, 購物, 優惠" />
         <meta name="author" content="" />
-        <link rel="icon" href="/fstarislandbaby-icon.ico" />
+        <link rel="icon" href="/logo.ico" />
         <meta property="og:title" content="Speed-eSIM | International eSIM" />
         <meta property="og:description" content="Speed-eSIM | International eSIM" />
         <meta property="og:image" content="/default-og-image.jpg" />

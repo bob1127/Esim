@@ -24,16 +24,31 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { slug } = params;
-  const res = await fetch(
-    `https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/products?slug=${slug}&consumer_key=ck_0ed8acaab9f0bc4cd27c71c2e7ae9ccc3ca45b04&consumer_secret=cs_50ad8ba137c027d45615b0f6dc2d2d7ffcf97947`
-  );
-  const data = await res.json();
-  const product = data[0];
-  if (!product) return { notFound: true };
-  return {
-    props: { product },
-    revalidate: 60,
-  };
+  const encodedSlug = encodeURIComponent(slug);
+
+  try {
+    const res = await fetch(
+      `https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/products?slug=${encodedSlug}&consumer_key=ck_0ed8acaab9f0bc4cd27c71c2e7ae9ccc3ca45b04&consumer_secret=cs_50ad8ba137c027d45615b0f6dc2d2d7ffcf97947`
+    );
+
+    if (!res.ok) {
+      console.error("API 錯誤", res.status);
+      return { notFound: true };
+    }
+
+    const data = await res.json();
+    if (!data || data.length === 0) {
+      return { notFound: true };
+    }
+
+    return {
+      props: { product: data[0] },
+      revalidate: 60,
+    };
+  } catch (err) {
+    console.error("getStaticProps 發生例外：", err);
+    return { notFound: true };
+  }
 }
 
 export default function ProductPage({ product }) {
