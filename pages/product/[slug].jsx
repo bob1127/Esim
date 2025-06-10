@@ -5,39 +5,44 @@ import { useCart } from "../../components/context/CartContext";
 import Layout from "../Layout";
 import Image from "next/image";
 
-// 🔧 ✅ 圖片擷取函式拉到外層
+// ✅ 圖片擷取函式
 const extractImageFromDescription = (html) => {
   const match = html?.match(/<img[^>]+src="([^">]+)"/);
   return match?.[1] || null;
 };
 
 export async function getStaticPaths() {
-  const res = await fetch(
-    `https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/products?consumer_key=ck_0ed8acaab9f0bc4cd27c71c2e7ae9ccc3ca45b04&consumer_secret=cs_50ad8ba137c027d45615b0f6dc2d2d7ffcf97947&per_page=100`
-  );
-  const products = await res.json();
-  const paths = products.map((product) => ({
-    params: { slug: product.slug },
-  }));
-  return { paths, fallback: "blocking" };
+  try {
+    const res = await fetch(
+      `https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/products?consumer_key=ck_0ed8acaab9f0bc4cd27c71c2e7ae9ccc3ca45b04&consumer_secret=cs_50ad8ba137c027d45615b0f6dc2d2d7ffcf97947&per_page=100`
+    );
+    const products = await res.json();
+    const paths = products.map((product) => ({
+      params: { slug: product.slug },
+    }));
+    return { paths, fallback: "blocking" };
+  } catch (err) {
+    console.error("getStaticPaths 錯誤:", err);
+    return { paths: [], fallback: "blocking" };
+  }
 }
 
 export async function getStaticProps({ params }) {
   const { slug } = params;
-  const encodedSlug = encodeURIComponent(slug);
 
   try {
     const res = await fetch(
-      `https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/products?slug=${encodedSlug}&consumer_key=ck_0ed8acaab9f0bc4cd27c71c2e7ae9ccc3ca45b04&consumer_secret=cs_50ad8ba137c027d45615b0f6dc2d2d7ffcf97947`
+      `https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/products?slug=${slug}&consumer_key=ck_0ed8acaab9f0bc4cd27c71c2e7ae9ccc3ca45b04&consumer_secret=cs_50ad8ba137c027d45615b0f6dc2d2d7ffcf97947`
     );
 
     if (!res.ok) {
-      console.error("API 錯誤", res.status);
+      console.error("API 回應失敗:", res.status);
       return { notFound: true };
     }
 
     const data = await res.json();
     if (!data || data.length === 0) {
+      console.warn("找不到對應產品 slug:", slug);
       return { notFound: true };
     }
 
@@ -46,7 +51,7 @@ export async function getStaticProps({ params }) {
       revalidate: 60,
     };
   } catch (err) {
-    console.error("getStaticProps 發生例外：", err);
+    console.error("getStaticProps 發生例外:", err);
     return { notFound: true };
   }
 }
