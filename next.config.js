@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-   images: {
+  images: {
     remotePatterns: [
       {
         protocol: "https",
@@ -11,7 +11,12 @@ module.exports = {
       {
         protocol: "https",
         hostname: "images.pexels.com",
-        pathname: "/**", // 用 /** 匹配所有路徑
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i0.wp.com",
+        pathname: "/**",
       },
     ],
   },
@@ -33,5 +38,14 @@ module.exports = {
         destination: "https://external-api.com/:path*",
       },
     ];
+  },
+
+  // ⬇️ 加入 WebGL Shader 支援設定
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.(glsl|vs|fs)$/,
+      use: ["babel-loader", "babel-plugin-glsl"],
+    });
+    return config;
   },
 };

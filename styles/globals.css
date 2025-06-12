@@ -334,10 +334,10 @@ iframe .cover{
     @apply text-[26px] text-[#333333]  font-black leading-none ;
   }
   h2 {
-    @apply text-center text-[26px] md:text-[30px] lg:text-[32px] text-[#333333]  font-extrabold  ;
+    @apply text-left text-[26px] md:text-[30px] lg:text-[32px] text-[#333333]    ;
   }
   h3 {
-    @apply text-[26px] md:text-[38px] text-orange-500 font-[700] ;
+    @apply text-[26px] md:text-[28px] text-orange-500 font-[700] ;
   }
   h3.H3_UX{
   @apply text-center text-[26px] text-orange-500  font-[700] ;

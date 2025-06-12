@@ -118,7 +118,7 @@ const Navbar = () => {
         </div>
       ) : (
         // ✅ 桌面版分類
-        <ul className="flex flex-row lg:flex-col space-y-4 overflow-x-scroll lg:overflow-visible scrollbar-none">
+        <ul className="flex   flex-row lg:flex-col space-y-4 overflow-x-scroll lg:overflow-visible scrollbar-none">
           {categories
             .filter((category) => category.parent === 0)
             .map((category) => {

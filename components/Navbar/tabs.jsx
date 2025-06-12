@@ -1,8 +1,8 @@
 // Import necessary modules and components
 
 "use client";
-
-import React, { useRef, useState } from "react";
+import { useUser } from "../../components/context/UserContext";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import NavbarMobile from "../../components/NavbarTestSideBar";
 import { motion } from "framer-motion";
@@ -23,6 +23,27 @@ import Timer from "../../components/ShiftingCountdown";
 // Define SlideTabsExample component
 export const SlideTabsExample = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { userInfo, logout } = useUser();
+
+  const { user } = useUser() || {}; // ✅ 加上容錯處理
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("https://starislandbaby.com/test/wp-json/wp/v2/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.code) setUserInfo(data);
+        })
+        .catch((err) => {
+          console.error("無法取得使用者資訊", err);
+        });
+    }
+  }, []);
 
   const menuItems = [
     "Profile",
@@ -102,7 +123,28 @@ export const SlideTabsExample = () => {
               </span>
             </button>
           </div>
-          <div className="right w-[10%]"></div>
+          <div className="right w-[10%]">
+            <div className="flex justify-end items-center gap-4 pr-6">
+              {userInfo ? (
+                <>
+                  <span className="text-sm">Hello, {userInfo.name}</span>
+                  <button
+                    onClick={logout}
+                    className="px-3 py-1 bg-gray-800 text-white rounded hover:bg-gray-700 transition"
+                  >
+                    登出
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-500 transition"
+                >
+                  登入
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

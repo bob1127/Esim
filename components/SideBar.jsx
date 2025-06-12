@@ -3,7 +3,7 @@ import { useCart } from "./context/CartContext";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Button } from "@heroui/react"; // 按钮组件
-
+import Link from "next/link";
 const Sidebar = () => {
   const {
     cartItems,
@@ -172,11 +172,10 @@ const Sidebar = () => {
           </div>
 
           {/* WooCommerce 加入購物車的表單 */}
-          <form
-            onSubmit={handleSubmit}
-            className="p-4 flex justify-center pt-10"
-          >
-            <button
+          <form className="p-4 flex justify-center pt-10">
+            <Link
+              href="/Cart"
+              target="_blank"
               type="submit"
               className="group relative inline-flex h-12 items-center rounded-full justify-center overflow-hidden bg-[#59a682] border-2 border-gray-400 px-6 font-medium text-white duration-500"
             >
@@ -197,7 +196,7 @@ const Sidebar = () => {
               <span className="group-hover:translate-x-6 text-white font-semibold text-sm">
                 結帳
               </span>
-            </button>
+            </Link>
           </form>
         </motion.div>
       </div>

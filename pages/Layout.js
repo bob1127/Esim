@@ -8,7 +8,7 @@ import Banner from "@/components/banner";
 import Footer from "@/components/ui/footer.jsx";
 import Head from "next/head";
 import Sidebar from "@/components/Sidebar.js"; // 引入側邊欄組件
-
+import { UserProvider } from "../components/context/UserContext";
 export default function RootLayout({ children }) {
   const [sidebarProduct, setSidebarProduct] = useState(null); // 儲存購物車資料
 
@@ -63,19 +63,16 @@ export default function RootLayout({ children }) {
       <div className=" min-h-screen ">
          
 
-        <NextUIProvider>
-          <NextThemesProvider attribute="class" defaultTheme="light">
-            <Navbar />
-         
-               <Sidebar sidebarProduct={sidebarProduct} onAddToCart={handleAddToCart} />
+      <NextUIProvider>
+  <NextThemesProvider attribute="class" defaultTheme="light">
+    <UserProvider>  {/* ✅ 提早包住所有元件 */}
+      <Navbar />
+      <Sidebar sidebarProduct={sidebarProduct} onAddToCart={handleAddToCart} />
+      {children}
+    </UserProvider>
+  </NextThemesProvider>
+</NextUIProvider>
 
-            {/* 顯示 Sidebar 組件 */}
-     
-            {/* 這裡渲染 children，這部分會根據當前頁面的路由動態顯示 */}
-            {children}
-           
-          </NextThemesProvider>
-        </NextUIProvider>
         <Banner />
         <Footer />
       </div>

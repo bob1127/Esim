@@ -102,26 +102,36 @@ export default function IntroHero() {
           initial={{ opacity: 0, y: 100, scale: 1.1 }}
           animate={phonesControls}
         >
-          <img
-            src="https://mobile-magicui.vercel.app/Device-5.png"
-            alt="Phone 1"
-            className="w-[80px] md:w-[220px] translate-x-[20px]"
-          />
-          <img
-            src="https://mobile-magicui.vercel.app/Device-4.png"
-            alt="Phone 2"
-            className="w-[80px] md:w-[220px]"
-          />
-          <img
-            src="https://mobile-magicui.vercel.app/Device-3.png"
-            alt="Phone 3"
-            className="w-[80px] md:w-[220px]"
-          />
-          <img
-            src="https://mobile-magicui.vercel.app/Device-2.png"
-            alt="Phone 4"
-            className="w-[80px] md:w-[220px] -translate-x-[20px]"
-          />
+          <div className="group relative">
+            <img
+              src="/images/step/step01.png"
+              alt="Phone 1"
+              className="w-[80px] md:w-[220px] translate-x-[20px]"
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white text-slate-800 text-sm rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              Step 1：點擊設定裡的行動服務選項
+            </div>
+          </div>
+          <div className="group relative">
+            <img
+              src="/images/step/step02.png"
+              alt="Phone 1"
+              className="w-[80px] md:w-[220px] translate-x-[20px]"
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white text-slate-800 text-sm rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              Step 2：點擊加入eSIM
+            </div>
+          </div>
+          <div className="group relative">
+            <img
+              src="/images/step/step03.png"
+              alt="Phone 1"
+              className="w-[80px] md:w-[220px] translate-x-[20px]"
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white text-slate-800 text-sm rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              Step 3：掃描QR Code
+            </div>
+          </div>
         </motion.div>
 
         {/* 底部文字 */}
@@ -141,27 +151,155 @@ export default function IntroHero() {
         className="bg-white mt-[80px] pt-[60px] pb-[160px] flex flex-col items-center"
       >
         <h2 className="text-4xl font-bold mb-12 text-center">
-          Experience <br /> An app unlike any other
+          eSIM Tutorail <br />
+          出國當日可於有網路的狀態下完成1-7步驟
         </h2>
         <div className="flex gap-8">
-          <motion.img
-            src="https://mobile-magicui.vercel.app/Device-6.png"
-            alt="Phone 1"
-            className="w-[200px] md:w-[280px] will-change-transform"
-            style={{ y: y1 }}
-          />
-          <motion.img
-            src="https://mobile-magicui.vercel.app/Device-7.png"
-            alt="Phone 2"
-            className="w-[200px] md:w-[280px] will-change-transform"
-            style={{ y: y2 }}
-          />
-          <motion.img
-            src="https://mobile-magicui.vercel.app/Device-8.png"
-            alt="Phone 3"
-            className="w-[200px] md:w-[280px] will-change-transform"
-            style={{ y: y3 }}
-          />
+          {/* Step 1 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step01.png"
+              alt="Phone 1"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y1 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 1：點擊設定裡的行動服務選項
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step02.png"
+              alt="Phone 2"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y2 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 2：選擇加入 eSIM
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step03.png"
+              alt="Phone 3"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y3 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 3：掃描 QR Code 完成設定
+            </div>
+          </div>
+        </div>
+      </section>
+      <section
+        ref={ref}
+        className="bg-white mt-[80px] pt-[60px] pb-[160px] flex flex-col items-center"
+      >
+        <h2 className="text-4xl font-bold mb-12 text-center">
+          啟用eSIM <br /> eSIm 安裝及設定
+        </h2>
+        <div className="flex gap-8">
+          {/* Step 1 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step01.png"
+              alt="Phone 1"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y1 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 1：點擊設定裡的行動服務選項
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step02.png"
+              alt="Phone 2"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y2 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 2：選擇加入 eSIM
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step03.png"
+              alt="Phone 3"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y3 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 3：掃描 QR Code 完成設定
+            </div>
+          </div>
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step03.png"
+              alt="Phone 3"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y3 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 3：掃描 QR Code 完成設定
+            </div>
+          </div>
+        </div>
+      </section>
+      <section
+        ref={ref}
+        className="bg-white mt-[80px] pt-[60px] pb-[160px] flex flex-col items-center"
+      >
+        <h2 className="text-4xl font-bold mb-12 text-center">
+          切換eSIM <br /> 抵達目的地後再進行 ⑧~10步驟
+        </h2>
+        <div className="flex gap-8">
+          {/* Step 1 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step01.png"
+              alt="Phone 1"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y1 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 1：點擊設定裡的行動服務選項
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step02.png"
+              alt="Phone 2"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y2 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 2：選擇加入 eSIM
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="relative group">
+            <motion.img
+              src="/images/step/step03.png"
+              alt="Phone 3"
+              className="w-[200px] md:w-[280px] will-change-transform"
+              style={{ y: y3 }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-white text-slate-800 text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              Step 3：掃描 QR Code 完成設定
+            </div>
+          </div>
         </div>
       </section>
     </>

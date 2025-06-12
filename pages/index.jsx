@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SwiperEsim from "../components/EmblaCarousel01/index";
-
+import Liquid from "../components/LiquidGlassHome.jsx";
 // import { AnimatePresence } from "framer-motion";
 // import Preloader from "../components/toys05/Preloader";
 import Image from "next/image";
@@ -18,8 +18,9 @@ export default function Home() {
   return (
     <Layout>
       <PageTransition>
+        <Liquid />
         <div className="pt-[280px] relative">
-          <div className="flex w-screen justify-center bottom-2 fixed z-50 mb-[50px] gap-4">
+          <div className="flex w-screen justify-center fixed z-50 bottom-3 gap-4">
             <div className="w-full flex justify-center">
               <button
                 onClick={() => setShowIos(false)}
@@ -113,48 +114,50 @@ export default function Home() {
           />
         </section>
 
-        <section className="section-product-intro bg-[#1757ff] px-[200px] py-[100px] mx-auto">
-          <div className="title flex flex-col">
-            <h2 className="text-white font-normal text-left text-[40px]">
-              一鍵啟用全球上網
-            </h2>
-            <span className="text-white leading-snug text-[24px]">
-              即買即用．免拆SIM卡．支援全球上網服務<br></br>{" "}
-              跨國旅遊、出差、短租專用的 eSIM 解決方案
-            </span>
-            <div className="relative inline-block text-left mt-6">
-              <select className="appearance-none w-[200px] h-12 px-4 pr-10 rounded-full border border-neutral-200 bg-white text-neutral-950 font-medium focus:outline-none transition-all duration-300 shadow-sm hover:border-[#1757ff] focus:border-[#1757ff]">
-                <option disabled selected value="">
-                  請選擇旅遊國家
-                </option>
-                <option value="japan">日本 Japan</option>
-                <option value="korea">韓國 Korea</option>
-                <option value="vietnam">越南 Vietnam</option>
-                <option value="thailand">泰國 Thailand</option>
-                <option value="usa">美國 USA</option>
-                <option value="france">法國 France</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-neutral-500">
-                ▼
+        <section className="section-product-intro bg-[#1757ff] sm:px-[60px] px-0 xl:px-[200px] py-[100px] mx-auto">
+          <div className="title px-5 flex flex-col lg:flex-row justify-between">
+            <div className="flex flex-col sm:justify-start sm:items-start lg:justify-start lg:items-start justify-center items-center">
+              <h2 className="text-white">一鍵啟用全球上網</h2>
+              <h3 className="text-white leading-snug ">
+                即買即用．免拆SIM卡．支援全球上網服務<br></br>{" "}
+                跨國旅遊、出差、短租專用的 eSIM 解決方案
+              </h3>
+            </div>
+            <div className="flex flex-col sm:justify-start sm:items-start lg:justify-end lg:items-end justify-center items-center">
+              <p className="text-white  font-normal sm:text-[24px] text-[22px] lg:text-[50px]">
+                Hot Sale eSIM
+              </p>
+              <br></br>
+              <div className="relative inline-block text-left mt-6">
+                <select className="appearance-none w-[200px] h-12 px-4 pr-10 rounded-full border border-neutral-200 bg-white text-neutral-950 font-medium focus:outline-none transition-all duration-300 shadow-sm hover:border-[#1757ff] focus:border-[#1757ff]">
+                  <option disabled selected value="">
+                    請選擇旅遊國家
+                  </option>
+                  <option value="japan">日本 Japan</option>
+                  <option value="korea">韓國 Korea</option>
+                  <option value="vietnam">越南 Vietnam</option>
+                  <option value="thailand">泰國 Thailand</option>
+                  <option value="usa">美國 USA</option>
+                  <option value="france">法國 France</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-neutral-500">
+                  ▼
+                </div>
               </div>
             </div>
           </div>
           <SwiperEsim />
         </section>
-        <section className="section-info px-[100px] bg-[#f9f9f9]">
+        <section className="section-info py-[50px] px-[100px] bg-[#f9f9f9]">
           <div className="section-title text-[70px] font-normal text-black">
             DISCCOUNT
           </div>
           <div className="flex-row flex ">
             <div className="left w-1/2">
               <div className="bg-white h-[330px] p-5">
-                <span className="">title discount</span>
-                <div className="font-light text-black text-[50px]">88%</div>
-                <span className="">
-                  {" "}
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                  Quasi, error?
-                </span>
+                <span className="">全館任兩件</span>
+                <div className="font-light text-black text-[70px]">88折</div>
+                <span className="text-[24px]">六月瘋日韓</span>
               </div>
               <ul className="p-5 flex flex-col ">
                 <li className="border-b-1 mt-4 group flex justify-between pb-3">

@@ -18,21 +18,27 @@ const AccountPage = () => {
     }
 
     // ✅ 取得使用者資訊
-    fetch("https://starislandbaby.com/test/wp-json/wp/v2/users/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      "https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wp/v2/users/me",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then(setUserInfo)
       .catch(() => router.push("/login"));
 
     // ✅ 取得 WooCommerce 訂單
-    fetch("https://starislandbaby.com/test/wp-json/wc/v3/orders?customer=me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      "https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/orders?customer=me",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then(setOrders);
 
@@ -59,7 +65,7 @@ const AccountPage = () => {
               {favorites.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-4 border p-4 rounded shadow-sm"
+                  className="flex items-center gap-4  p-4 rounded shadow-sm"
                 >
                   <Image
                     src={item.image || "/images/default.jpg"}

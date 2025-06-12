@@ -1,14 +1,43 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import {
-  NextButton,
-  PrevButton,
-  usePrevNextButtons,
-} from "./EmblaCarouselArrowButtons";
+import { NextButton, PrevButton } from "./EmblaCarouselArrowButtons"; // ✅ 只留 Button，不要 import hook
+
 import { DotButton, useDotButton } from "./EmblaCarouselDotButton";
 // import Styles from "../../styles/embla.module.css";
 
 const TWEEN_FACTOR_BASE = 0.52;
+const usePrevNextButtons = (emblaApi) => {
+  const [prevBtnDisabled, setPrevBtnDisabled] = React.useState(true);
+  const [nextBtnDisabled, setNextBtnDisabled] = React.useState(true);
+
+  const onSelect = React.useCallback(() => {
+    if (!emblaApi) return;
+    setPrevBtnDisabled(!emblaApi.canScrollPrev());
+    setNextBtnDisabled(!emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  const onPrevButtonClick = React.useCallback(
+    () => emblaApi && emblaApi.scrollPrev(),
+    [emblaApi]
+  );
+  const onNextButtonClick = React.useCallback(
+    () => emblaApi && emblaApi.scrollNext(),
+    [emblaApi]
+  );
+
+  React.useEffect(() => {
+    if (!emblaApi) return;
+    onSelect(); // 初始狀態
+    emblaApi.on("select", onSelect).on("reInit", onSelect);
+  }, [emblaApi, onSelect]);
+
+  return {
+    prevBtnDisabled,
+    nextBtnDisabled,
+    onPrevButtonClick,
+    onNextButtonClick,
+  };
+};
 
 const numberWithinRange = (number, min, max) =>
   Math.min(Math.max(number, min), max);
@@ -98,9 +127,15 @@ const EmblaCarousel = (props) => {
       style={{
         "--slide-height": "19rem",
         "--slide-spacing": "1rem",
-        "--slide-size": "40%",
+        "--slide-size": "55%",
       }}
     >
+      <div className="embla__controls  grid grid-cols-[auto_1fr] justify-between gap-[1.2rem] mt-[1.8rem]">
+        <div className="embla__buttons sm:grid hidden   grid-cols-2 gap-[0.6rem] items-center">
+          <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
+          <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
+        </div>
+      </div>
       <div className="embla__viewport overflow-hidden" ref={emblaRef}>
         <div
           className="embla__container flex touch-pan-y touch-pinch-zoom h-[400px] "
@@ -124,7 +159,7 @@ const EmblaCarousel = (props) => {
                   height: "100%",
                   userSelect: "none",
                 }}
-                className="embla__slide__number  border-none !h-auto  border-gray-300 border-2 shadow-2xl md:border bg-white flex  py-[10px] md:border-black  items-center justify-center font-semibold"
+                className="embla__slide__number  border-none !h-auto  border-gray-300 border-2 shadow-2xl md:border bg-[#e6f0ff] flex  py-[10px] md:border-black  items-center justify-center font-semibold"
               >
                 {/* {index + 1} */}
                 <div className="flex justify-center p-6 items-center ">
@@ -147,13 +182,6 @@ const EmblaCarousel = (props) => {
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className="embla__controls grid grid-cols-[auto_1fr] justify-between gap-[1.2rem] mt-[1.8rem]">
-        <div className="embla__buttons grid grid-cols-2 gap-[0.6rem] items-center">
-          <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
-          <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
         </div>
       </div>
     </div>

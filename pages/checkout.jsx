@@ -73,9 +73,9 @@ const CheckoutPage = () => {
       <div className="pt-[200px] px-[30px] w-full mx-auto">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-row max-w-[1920px] w-[95%] mx-auto"
+          className="flex flex-col lg:flex-row max-w-[1920px] w-[95%] mx-auto"
         >
-          <div className="w-1/2 flex flex-col">
+          <div className=" w-full lg:w-1/2 flex flex-col">
             <h2 className="text-xl font-bold">結帳資訊</h2>
             <input
               name="name"
@@ -145,7 +145,7 @@ const CheckoutPage = () => {
               </>
             )}
           </div>
-          <div className="w-1/2 p-10 bg-gray-100">
+          <div className=" w-full lg:w-1/2 p-10 ">
             <div className="border-t pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 購物車內容
@@ -157,7 +157,7 @@ const CheckoutPage = () => {
                   {cartItems.map((item, index) => (
                     <li
                       key={index}
-                      className="flex items-center gap-4 border-b pb-4"
+                      className=" bg-[#f8f8fa] p-8 border-gray-200 border-2 flex flex-row rounded-[20px] items-center gap-4 border-b pb-4"
                     >
                       <Image
                         src={item.image}
@@ -166,10 +166,10 @@ const CheckoutPage = () => {
                         height={80}
                         className="rounded-xl max-w-[200px]"
                       />
-                      <div className="flex flex-col w-full">
+                      <div className="flex flex-col w-full pl-5">
                         <span className="font-bold">{item.name}</span>
                         <span className="text-sm text-gray-600">
-                          顏色：{item.color} / 尺寸：{item.size}
+                          國家：{item.color} / 規格：{item.size}
                         </span>
                         <div className="flex items-center gap-2 mt-1">
                           <label className="text-sm">數量：</label>
@@ -185,7 +185,7 @@ const CheckoutPage = () => {
                                 parseInt(e.target.value)
                               )
                             }
-                            className="w-16 px-2 py-1 text-sm border rounded"
+                            className="w-16 rounded-[10px] px-2 py-1 text-sm border "
                           />
                           <button
                             type="button"
@@ -210,7 +210,7 @@ const CheckoutPage = () => {
 
             <button
               type="submit"
-              className="bg-gray-800 text-white px-6 py-2 rounded mt-4"
+              className="hover:bg-gray-900 bg-gray-800 text-white px-6 py-2 rounded-[10px] mt-4"
             >
               確認送出並前往付款
             </button>

@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import RegisterForm from "../components/RegisterForm";
-import React from "react";
-import { Tabs, Tab, Input, Link, Button, Card, CardBody } from "@heroui/react";
 import Layout from "./Layout";
+import RegisterForm from "../components/RegisterForm";
 
 const LoginRegisterPage = () => {
   const router = useRouter();
-
   const [selected, setSelected] = useState("login");
   const [form, setForm] = useState({ username: "", password: "" });
   const [token, setToken] = useState(null);
@@ -25,7 +22,7 @@ const LoginRegisterPage = () => {
   useEffect(() => {
     if (token && userInfo) {
       const timer = setTimeout(() => {
-        router.push("/"); // 三秒後跳轉首頁
+        router.push("/");
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -34,10 +31,9 @@ const LoginRegisterPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setMessage("登入中...");
-
     try {
       const res = await fetch(
-        "https://starislandbaby.com/test/wp-json/jwt-auth/v1/token",
+        "https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/jwt-auth/v1/token",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -61,7 +57,7 @@ const LoginRegisterPage = () => {
   const fetchUser = async (jwt) => {
     try {
       const res = await fetch(
-        "https://starislandbaby.com/test/wp-json/wp/v2/users/me",
+        "https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wp/v2/users/me",
         {
           headers: { Authorization: `Bearer ${jwt}` },
         }
@@ -73,88 +69,91 @@ const LoginRegisterPage = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-    setUserInfo(null);
-    setMessage("已登出");
-  };
-
   return (
     <Layout>
-      <div className="flex mt-[100px] flex-col items-center justify-center min-h-screen">
-        <div className="p-8 h-[450px] shadow-lg border rounded-xl border-gray-200">
+      <div className="flex flex-col items-center justify-center min-h-screen pt-[100px]">
+        <div className="w-full max-w-md p-8 border rounded-xl shadow-lg">
           {!token ? (
-            <Card className="max-w-full w-[340px]">
-              <CardBody className="overflow-hidden">
-                <Tabs
-                  fullWidth
-                  aria-label="Tabs form"
-                  selectedKey={selected}
-                  size="md"
-                  onSelectionChange={setSelected}
+            <div>
+              <div className="flex justify-around mb-6">
+                <button
+                  onClick={() => setSelected("login")}
+                  className={`px-4 py-2 rounded-t-lg font-bold transition-all duration-200 ${
+                    selected === "login"
+                      ? "bg-gray-800 text-white"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
                 >
-                  <Tab key="login" title="登入">
-                    <form
-                      onSubmit={handleLogin}
-                      className="flex flex-col gap-4"
-                    >
-                      <Input
-                        isRequired
-                        label="帳號"
-                        name="username"
-                        placeholder="請輸入帳號"
-                        value={form.username}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            username: e.target.value,
-                          }))
-                        }
-                      />
-                      <Input
-                        isRequired
-                        className="!border-none"
-                        label="密碼"
-                        type="password"
-                        name="password"
-                        placeholder="請輸入密碼"
-                        value={form.password}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            password: e.target.value,
-                          }))
-                        }
-                      />
-                      <p className="text-center text-small">
-                        還沒有帳號？
-                        <Link size="sm" onPress={() => setSelected("sign-up")}>
-                          註冊
-                        </Link>
-                      </p>
-                      <div className="flex gap-2 justify-end">
-                        <Button type="submit" fullWidth color="primary">
-                          登入
-                        </Button>
-                      </div>
-                      {message && (
-                        <p className="text-sm text-center text-red-500">
-                          {message}
-                        </p>
-                      )}
-                    </form>
-                  </Tab>
-                  <Tab key="sign-up" title="註冊">
-                    <RegisterForm onSuccess={() => setSelected("login")} />
-                  </Tab>
-                </Tabs>
-              </CardBody>
-            </Card>
+                  登入
+                </button>
+                <button
+                  onClick={() => setSelected("sign-up")}
+                  className={`px-4 py-2 rounded-t-lg font-bold transition-all duration-200 ${
+                    selected === "sign-up"
+                      ? "bg-gray-800 text-white"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  註冊
+                </button>
+              </div>
+              {selected === "login" ? (
+                <form onSubmit={handleLogin} className="flex flex-col gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      帳號
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={form.username}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          username: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-gray-600 focus:outline-none"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      密碼
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={form.password}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-gray-600 focus:outline-none"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-gray-800 text-white py-2 rounded-md hover:bg-gray-900 transition"
+                  >
+                    登入
+                  </button>
+                  {message && (
+                    <p className="text-sm text-center text-red-500">
+                      {message}
+                    </p>
+                  )}
+                </form>
+              ) : (
+                <RegisterForm onSuccess={() => setSelected("login")} />
+              )}
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="text-center space-y-4">
               <h2 className="text-xl font-bold">歡迎回來，{userInfo?.name}</h2>
-
               {message && <p className="text-sm text-center">{message}</p>}
               <span>等待跳轉至首頁，繼續購物</span>
             </div>
