@@ -39,22 +39,33 @@ const CheckoutPage = () => {
       return;
     }
 
+    if (cartItems.length === 0) {
+      alert("購物車為空，無法結帳");
+      return;
+    }
+
+    console.log("🧾 購物車項目：", cartItems);
+    console.log("📦 結帳資料：", formData);
+
     const newWindow = window.open("about:blank");
 
     try {
-      const res = await fetch("/api/generate-form", {
+      const res = await fetch("/api/newebpay-generate-form", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ items: cartItems, orderInfo: formData }),
+        body: JSON.stringify({
+          items: cartItems,
+          orderInfo: formData,
+        }),
       });
 
       const html = await res.text();
       newWindow.document.write(html);
       newWindow.document.close();
     } catch (err) {
-      console.error("建立訂單失敗", err);
+      console.error("❌ 建立訂單失敗", err);
       newWindow.close();
       alert("送出失敗，請稍後再試");
     }
