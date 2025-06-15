@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
-import querystring from "querystring";
 
 const MERCHANT_ID = "MS3788816305"; // 測試帳號
 const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx";
@@ -27,30 +26,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { items, orderInfo } = req.body;
 
-  // ✅ 驗證商品金額與數量是否正確
-  console.log("🛒 購物車內容：", items);
-  const amount = items.reduce(
-    (total: number, item: any) => {
-      const itemTotal = Number(item.price) * Number(item.quantity);
-      console.log(`🧮 ${item.name}: ${item.price} x ${item.quantity} = ${itemTotal}`);
-      return total + itemTotal;
-    },
-    0
+  // ✅ 總金額必須為整數
+  const amount = Math.round(
+    items.reduce((total: number, item: any) => {
+      const subtotal = Number(item.price) * Number(item.quantity);
+      return total + subtotal;
+    }, 0)
   );
-  console.log("💰 計算後總金額 Amt：", amount);
 
-  const itemDesc = encodeURIComponent("虛擬商品訂單");
-  console.log("📦 ItemDesc（編碼後）：", itemDesc);
-
-  const tradeInfo: Record<string, string> = {
+  // ✅ 構建 TradeInfo 原始資料
+  const tradeInfoObj = {
     MerchantID: MERCHANT_ID,
     RespondType: "JSON",
     TimeStamp: `${Math.floor(Date.now() / 1000)}`,
     Version: "2.0",
     MerchantOrderNo: `ORDER${Date.now()}`,
-    Amt: `${amount}`,
-    ItemDesc: itemDesc,
-    Email: orderInfo.email,
+    Amt: String(amount),
+    ItemDesc: "虛擬商品訂單",
+    Email: orderInfo.email || "test@example.com", // 避免空值
     LoginType: "0",
     ReturnURL: "https://esim-beta.vercel.app/api/newebpay-callback",
     NotifyURL: "https://esim-beta.vercel.app/api/newebpay-notify",
@@ -58,14 +51,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     PaymentMethod: "ALL",
   };
 
-  const tradeInfoStr = querystring.stringify(tradeInfo);
+  // ✅ 使用 URLSearchParams 處理編碼（正確順序與格式）
+  const tradeInfoStr = new URLSearchParams(tradeInfoObj).toString();
   const encrypted = aesEncrypt(tradeInfoStr, HASH_KEY, HASH_IV);
   const tradeSha = shaEncrypt(encrypted, HASH_KEY, HASH_IV);
 
-  // ✅ 印出所有加密流程中間結果
-  console.log("🔗 TradeInfo 原始資料（encoded）：", tradeInfoStr);
-  console.log("🔐 Encrypted TradeInfo（AES）：", encrypted);
-  console.log("🔒 TradeSha（SHA256）：", tradeSha);
+  console.log("📦 原始 TradeInfo：", tradeInfoObj);
+  console.log("🔗 字串化後 TradeInfo：", tradeInfoStr);
+  console.log("🔐 Encrypted TradeInfo：", encrypted);
+  console.log("🔒 TradeSha：", tradeSha);
 
   const html = `
     <form id="newebpay-form" method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
