@@ -2,9 +2,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
 import querystring from "querystring";
 
-const MERCHANT_ID = "MS3788816305";
-const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx"; // ❗請替換為正式金鑰
-const HASH_IV = "PKetlaZYZcZvlMmC";                 // ❗請替換為正式金鑰
+const MERCHANT_ID = "20434"; // 測試帳號
+const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx"; // 測試金鑰
+const HASH_IV = "PKetlaZYZcZvlMmC"; // 測試金鑰
 
 function aesEncrypt(data: string, key: string, iv: string) {
   const cipher = crypto.createCipheriv(
@@ -42,9 +42,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ItemDesc: encodeURIComponent("虛擬商品訂單"),
     Email: orderInfo.email,
     LoginType: "0",
-    ReturnURL: "https://esim-beta.vercel.app/api/newebpay-callback",
-    NotifyURL: "https://esim-beta.vercel.app/api/newebpay-notify",
-    ClientBackURL: "https://esim-beta.vercel.app/thank-you",
+    ReturnURL: "https://esim-beta.vercel.app/api/newebpay-callback", // ✅ 改為 vercel
+    NotifyURL: "https://esim-beta.vercel.app/api/newebpay-notify",   // ✅ 改為 vercel
+    ClientBackURL: "https://esim-beta.vercel.app/thank-you",         // ✅ 推薦使用 https
     PaymentMethod: "ALL",
   };
 
