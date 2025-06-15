@@ -3,8 +3,8 @@ import crypto from "crypto";
 import querystring from "querystring";
 
 const MERCHANT_ID = "MS3788816305"; // 測試帳號
-const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx"; // 測試金鑰
-const HASH_IV = "PKetlaZYZcZvlMmC"; // 測試金鑰
+const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx";
+const HASH_IV = "PKetlaZYZcZvlMmC";
 
 function aesEncrypt(data: string, key: string, iv: string) {
   const cipher = crypto.createCipheriv(
@@ -27,10 +27,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { items, orderInfo } = req.body;
 
+  // ✅ 驗證商品金額與數量是否正確
+  console.log("🛒 購物車內容：", items);
   const amount = items.reduce(
-    (total: number, item: any) => total + Number(item.price) * item.quantity,
+    (total: number, item: any) => {
+      const itemTotal = Number(item.price) * Number(item.quantity);
+      console.log(`🧮 ${item.name}: ${item.price} x ${item.quantity} = ${itemTotal}`);
+      return total + itemTotal;
+    },
     0
   );
+  console.log("💰 計算後總金額 Amt：", amount);
+
+  const itemDesc = encodeURIComponent("虛擬商品訂單");
+  console.log("📦 ItemDesc（編碼後）：", itemDesc);
 
   const tradeInfo: Record<string, string> = {
     MerchantID: MERCHANT_ID,
@@ -39,12 +49,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     Version: "2.0",
     MerchantOrderNo: `ORDER${Date.now()}`,
     Amt: `${amount}`,
-    ItemDesc: encodeURIComponent("虛擬商品訂單"),
+    ItemDesc: itemDesc,
     Email: orderInfo.email,
     LoginType: "0",
-    ReturnURL: "https://esim-beta.vercel.app/api/newebpay-callback", // ✅ 改為 vercel
-    NotifyURL: "https://esim-beta.vercel.app/api/newebpay-notify",   // ✅ 改為 vercel
-    ClientBackURL: "https://esim-beta.vercel.app/thank-you",         // ✅ 推薦使用 https
+    ReturnURL: "https://esim-beta.vercel.app/api/newebpay-callback",
+    NotifyURL: "https://esim-beta.vercel.app/api/newebpay-notify",
+    ClientBackURL: "https://esim-beta.vercel.app/thank-you",
     PaymentMethod: "ALL",
   };
 
@@ -52,10 +62,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const encrypted = aesEncrypt(tradeInfoStr, HASH_KEY, HASH_IV);
   const tradeSha = shaEncrypt(encrypted, HASH_KEY, HASH_IV);
 
-  console.log("🧾 原始訂單資料：", tradeInfo);
-  console.log("🔗 Encoded：", tradeInfoStr);
-  console.log("🔐 Encrypted TradeInfo：", encrypted);
-  console.log("🔒 TradeSha：", tradeSha);
+  // ✅ 印出所有加密流程中間結果
+  console.log("🔗 TradeInfo 原始資料（encoded）：", tradeInfoStr);
+  console.log("🔐 Encrypted TradeInfo（AES）：", encrypted);
+  console.log("🔒 TradeSha（SHA256）：", tradeSha);
 
   const html = `
     <form id="newebpay-form" method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
