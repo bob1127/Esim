@@ -60,7 +60,7 @@ export default function RootLayout({ children }) {
       </Head>
 
         
-      <div className=" min-h-screen ">
+      <div className=" w-full overflow-hidden">
          
 
       <NextUIProvider>

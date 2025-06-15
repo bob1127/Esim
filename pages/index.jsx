@@ -19,7 +19,7 @@ export default function Home() {
       <PageTransition>
         <Liquid />
 
-        <div className="pt-[280px] relative">
+        <div className="pt-[280px] px-5 relative">
           <div className="flex w-screen justify-center fixed z-50 bottom-3 gap-4">
             <div className="w-full flex justify-center">
               <button

@@ -60,7 +60,7 @@ const Sidebar = () => {
     <div className="bg-gray-200 fixed w-[100vw] z-[99999999999] right-0 top-[0%]">
       <div className="relative w-full flex">
         <motion.div
-          className="sidebar absolute z-[99999999] top-0 p-5 right-0 w-full sm:w-[400px] pl-[50px] bg-white border  border-gray-100 shadow-2xl h-screen"
+          className="sidebar absolute z-[99999999] top-0 p-5 right-[-10%] w-full sm:w-[400px] pl-[50px] bg-white border  border-gray-100 shadow-2xl h-screen"
           initial={{ x: "100%" }} // 初始位置在右侧以外
           animate={{ x: isOpen ? 0 : "100%" }} // 动画根据 isOpen 状态更新
           transition={{ duration: 0.3 }}

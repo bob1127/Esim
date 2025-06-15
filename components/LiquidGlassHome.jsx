@@ -1,3 +1,5 @@
+"use client";
+
 import * as THREE from "three";
 import { useRef, useState } from "react";
 import { Canvas, createPortal, useFrame, useThree } from "@react-three/fiber";
@@ -13,41 +15,55 @@ import {
   ContactShadows,
 } from "@react-three/drei";
 import { easing } from "maath";
-import "tailwindcss/tailwind.css";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function LiquidGlassHome() {
+  const [visible, setVisible] = useState(true);
+
   return (
-    <div className="w-full h-screen bg-[#f0f0f0] font-sans">
-      <Canvas camera={{ position: [0, 0, 20], fov: 15 }} dpr={[1, 2]}>
-        <ScrollControls damping={0.2} pages={1} distance={0.5}>
-          <Lens>
-            <Scroll>
-              <Typography />
-            </Scroll>
-            <Scroll html>
-              <div className="absolute top-[50vh] left-[50vw] -translate-x-1/2 -translate-y-1/2 z-50">
-                <button
-                  className="px-6 py-3 backdrop-blur-md bg-white/10 border border-white/30 text-black rounded-full shadow-lg hover:bg-white/20 transition-all duration-300"
-                  onClick={() => alert("Enter clicked")}
-                >
-                  Enter
-                </button>
-              </div>
-            </Scroll>
-            <Preload />
-          </Lens>
-        </ScrollControls>
-        <Environment preset="sunset" background />
-        <ambientLight intensity={0.6} />
-        <pointLight position={[10, 10, 10]} intensity={0.8} />
-        <ContactShadows
-          position={[0, -3, 0]}
-          opacity={0.4}
-          scale={10}
-          blur={2}
-          far={4}
-        />
-      </Canvas>
+    <div className="fixed inset-0 z-[999999999] overflow-hidden">
+      <AnimatePresence>
+        {visible && (
+          <motion.div
+            className="w-full h-full bg-[#f0f0f0] font-sans"
+            initial={{ y: 0 }}
+            animate={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+          >
+            <Canvas camera={{ position: [0, 0, 20], fov: 15 }} dpr={[1, 2]}>
+              <ScrollControls damping={0.2} pages={1} distance={0.5}>
+                <Lens>
+                  <Scroll>
+                    <Typography />
+                  </Scroll>
+                  <Scroll html>
+                    <div className="absolute top-[80vh] sm:top-[90vh] left-[50vw] -translate-x-1/2 -translate-y-1/2 z-50">
+                      <button
+                        className="px-6 py-3 backdrop-blur-md bg-white/10 border border-white/30 text-black rounded-full shadow-lg hover:bg-white/20 transition-all duration-300"
+                        onClick={() => setVisible(false)}
+                      >
+                        Enter
+                      </button>
+                    </div>
+                  </Scroll>
+                  <Preload />
+                </Lens>
+              </ScrollControls>
+              <Environment preset="sunset" background />
+              <ambientLight intensity={0.6} />
+              <pointLight position={[10, 10, 10]} intensity={0.8} />
+              <ContactShadows
+                position={[0, -3, 0]}
+                opacity={0.4}
+                scale={10}
+                blur={2}
+                far={4}
+              />
+            </Canvas>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -126,14 +142,17 @@ function Lens({ children, damping = 0.15, ...props }) {
 }
 
 function Typography() {
-  const { width, height } = useThree((state) =>
+  const { width } = useThree((state) =>
     state.viewport.getCurrentViewport(state.camera, [0, 0, 12])
   );
+
+  const fontSize = width * 0.3;
 
   return (
     <Text
       children="e-SIM"
       font="/Inter-Regular.woff"
+      fontSize={fontSize}
       letterSpacing={-0.1}
       color="#227eff"
       anchorX="center"
