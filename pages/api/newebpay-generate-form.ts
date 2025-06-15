@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
 import querystring from "querystring";
 
-const MERCHANT_ID = "20434"; // 測試帳號
+const MERCHANT_ID = "MS3788816305"; // 測試帳號
 const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx"; // 測試金鑰
 const HASH_IV = "PKetlaZYZcZvlMmC"; // 測試金鑰
 
