@@ -127,7 +127,7 @@ const EmblaCarousel = (props) => {
       style={{
         "--slide-height": "19rem",
         "--slide-spacing": "1rem",
-        "--slide-size": "55%",
+        "--slide-size": "70%",
       }}
     >
       <div className="embla__controls  grid grid-cols-[auto_1fr] justify-between gap-[1.2rem] mt-[1.8rem]">
@@ -162,19 +162,19 @@ const EmblaCarousel = (props) => {
                 className="embla__slide__number  border-none !h-auto  border-gray-300 border-2 shadow-2xl md:border bg-[#e6f0ff] flex  py-[10px] md:border-black  items-center justify-center font-semibold"
               >
                 {/* {index + 1} */}
-                <div className="flex justify-center p-6 items-center ">
+                <div className="flex flex-col md:flex-row justify-center p-6 items-center ">
                   {slide.content ? (
                     slide.content // Render iframe or other HTML content directly
                   ) : (
                     <img
                       src={slide.image}
-                      className="w-1/2   rounded-xl"
+                      className="w-full md:w-1/2   rounded-xl"
                       alt={`Slide ${index + 1}`}
                     />
                   )}
-                  <div className="txt mt-[20px]  flex-col flex justify-center items-center w-1/2 mx-auto">
+                  <div className="txt mt-[20px]  flex-col flex justify-center items-center w-full md:w-1/2 mx-auto">
                     <b className="text-[22px] text-center">{slide.title}</b>
-                    <p className="text-[14px] w-2/3 mx-auto font-normal text-center">
+                    <p className="text-[14px] w-ful md:w-2/3 mx-auto font-normal text-center">
                       {slide.description}
                     </p>
                   </div>

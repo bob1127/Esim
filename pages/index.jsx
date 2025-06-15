@@ -110,7 +110,7 @@ export default function Home() {
 
         <section className="section-product-intro bg-[#1757ff] px-4 sm:px-[60px] xl:px-[200px] py-[100px] mx-auto">
           <div className="title flex flex-col lg:flex-row justify-between gap-10 px-4">
-            <div className="flex flex-col items-start text-center lg:text-left">
+            <div className="flex flex-col items-center md:items-start text-center lg:text-left">
               <h2 className="text-white text-[2rem] md:text-[3.4rem] font-bold">
                 一鍵啟用全球上網
               </h2>

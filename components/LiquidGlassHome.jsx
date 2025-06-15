@@ -19,10 +19,19 @@ import { AnimatePresence, motion } from "framer-motion";
 
 export default function LiquidGlassHome() {
   const [visible, setVisible] = useState(true);
+  const [zIndexActive, setZIndexActive] = useState(true); // 控制 z-index
 
   return (
-    <div className="fixed inset-0 z-[999999999] overflow-hidden">
-      <AnimatePresence>
+    <div
+      className={`fixed inset-0 overflow-hidden transition-all duration-500 ${
+        zIndexActive ? "z-[99999999]" : "z-0"
+      }`}
+    >
+      <AnimatePresence
+        onExitComplete={() => {
+          setZIndexActive(false);
+        }}
+      >
         {visible && (
           <motion.div
             className="w-full h-full bg-[#f0f0f0] font-sans"
@@ -145,7 +154,6 @@ function Typography() {
   const { width } = useThree((state) =>
     state.viewport.getCurrentViewport(state.camera, [0, 0, 12])
   );
-
   const fontSize = width * 0.3;
 
   return (

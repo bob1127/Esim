@@ -1,31 +1,15 @@
-// Import necessary modules and components
-
 "use client";
-import { useUser } from "../../components/context/UserContext";
-import React, { useRef, useState, useEffect } from "react";
-import Link from "next/link";
-import NavbarMobile from "../../components/NavbarTestSideBar";
-import { motion } from "framer-motion";
-import Logo from "./Logo.jsx";
-import Image from "next/image.js";
-import Navbar01 from "../../components/NavbarTest.jsx";
-import SidebarNav from "../../components/Sidebar.js";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/autoplay";
-import { Autoplay } from "swiper/modules";
-import Icons from "./icons.jsx";
-// import MobileMenu from "../mobileMenu/index.jsx";
-import Marquee from "react-fast-marquee";
-import DropDown from "../../components/DropdownMenu.jsx";
-import Timer from "../../components/ShiftingCountdown";
-// Define SlideTabsExample component
-export const SlideTabsExample = () => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const { userInfo, logout } = useUser();
 
-  const { user } = useUser() || {}; // ✅ 加上容錯處理
+import { useUser } from "../../components/context/UserContext";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
+
+export const SlideTabsExample = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { userInfo, logout } = useUser();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -45,92 +29,118 @@ export const SlideTabsExample = () => {
     }
   }, []);
 
-  const menuItems = [
-    "Profile",
-    "Dashboard",
-    "Activity",
-    "Analytics",
-    "System",
-    "Deployments",
-    "My Settings",
-    "Team Settings",
-    "Help & Feedback",
-    "Log Out",
+  const navLinks = [
+    { label: "eSIM 產品", href: "/category/all-product/" },
+    { label: "使用教學", href: "#" },
+    { label: "關於我們", href: "#" },
+    { label: "相關資訊", href: "#" },
   ];
 
   return (
     <>
-      <div
-        className="top-0 mt-[-40px] pt-8 flex mx-auto left-[40%] justify-center items-center fixed w-full z-[999999]
-  bg-white/50 backdrop-blur-md backdrop-saturate-150 border-b border-white/30 rounded-none shadow-md"
-      >
-        <div className="flex w-full items-center  py-4">
-          <div className="left w-[20%]  flex justify-center items-center">
-            <Link href="/" className="block w-[38px]">
-              <Image
-                src="/images/logo/logo.svg"
-                alt="ESIM Logo"
-                width={120}
-                height={40}
-                priority
-              />
-            </Link>
-          </div>
-          <div className="middle w-[60%] flex justify-center items-center">
-            <Link
-              href="/category/all-product/"
-              className="group block py-3 hover:bg-[#4badf4] relative rounded-full bg-transparent px-4 text-neutral-950"
-            >
-              <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
-                  eSIM 產品
-                </div>
-                <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                  eSIM 產品
-                </div>
-              </span>
-            </Link>
+      {/* ✅ 手機選單開啟時的背景遮罩 */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setIsMenuOpen(false)}
+            className="fixed inset-0 z-[999] bg-white/70 backdrop-blur-lg md:hidden"
+          />
+        )}
+      </AnimatePresence>
 
-            <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
-              <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
-                  使用教學
-                </div>
-                <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                  使用教學
-                </div>
-              </span>
-            </button>
-            <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
-              <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
-                  關於我們
-                </div>
-                <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                  關於我們
-                </div>
-              </span>
-            </button>
+      {/* ✅ Navbar 主區塊（高於遮罩） */}
+      <div className="fixed top-0 left-0 w-full z-[1000] bg-white/50 backdrop-blur-md border-b border-white/30 shadow-md">
+        <div className="flex justify-between items-center px-4 py-3 md:py-4">
+          <Link href="/" className="w-[38px] md:w-[40px]">
+            <Image
+              src="/images/logo/logo.svg"
+              alt="ESIM Logo"
+              width={120}
+              height={40}
+              priority
+            />
+          </Link>
 
-            <button className="group hover:bg-[#4badf4] relative h-12 rounded-full bg-transparent px-4 text-neutral-950">
-              <span className="relative inline-flex overflow-hidden">
-                <div className="translate-y-0 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[110%] group-hover:skew-y-12">
-                  相關資訊
-                </div>
-                <div className="absolute translate-y-[110%] group-hover:text-white skew-y-12 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
-                  相關資訊
-                </div>
-              </span>
-            </button>
+          {/* Desktop Nav */}
+          <div className="hidden md:flex gap-6 items-center">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-neutral-950 hover:text-blue-500 transition"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
-          <div className="right w-[20%]">
-            <div className="flex justify-end items-center gap-4 pr-6">
+
+          {/* Desktop User Info */}
+          <div className="hidden md:flex items-center gap-4">
+            {userInfo ? (
+              <>
+                <span className="text-sm">Hello, {userInfo.name}</span>
+                <button
+                  onClick={logout}
+                  className="px-3 py-1 bg-[#3b57ff] text-white rounded hover:bg-[#2f3dd3] transition"
+                >
+                  登出
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-500 transition"
+              >
+                登入
+              </Link>
+            )}
+          </div>
+
+          {/* Mobile Menu Icon */}
+          <button
+            className="md:hidden text-black z-[1001]"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+      </div>
+
+      {/* ✅ Mobile Menu（置於 navbar 下方） */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: "auto" }}
+            exit={{ height: 0 }}
+            className="md:hidden overflow-hidden px-4 pb-4 fixed top-[64px] left-0 right-0 z-[1000] bg-[#3b57ff] text-white shadow-lg py-6 rounded-b-lg"
+          >
+            <div className="flex flex-col gap-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="py-2 border-b border-white/20"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
               {userInfo ? (
                 <>
-                  <span className="text-sm">Hello, {userInfo.name}</span>
+                  <span className="text-sm text-slate-400 sm:text-slate-800">
+                    Hello, {userInfo.name}
+                  </span>
                   <button
-                    onClick={logout}
-                    className="px-3 py-1 bg-[#3b57ff] text-white rounded hover:bg-[#2f3dd3] transition"
+                    onClick={() => {
+                      logout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="px-3 py-1 bg-white text-[#3b57ff] rounded hover:bg-gray-100 transition"
                   >
                     登出
                   </button>
@@ -138,15 +148,16 @@ export const SlideTabsExample = () => {
               ) : (
                 <Link
                   href="/login"
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-500 transition"
+                  className="px-3 py-1 bg-white text-[#3b57ff] rounded hover:bg-gray-100 transition"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   登入
                 </Link>
               )}
             </div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

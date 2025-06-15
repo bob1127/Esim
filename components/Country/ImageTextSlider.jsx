@@ -56,7 +56,7 @@ export default function ImageTextSlider() {
         />
       </div>
 
-      <div className="w-full py-10 lg:py-0 lg:w-1/2 px-10 pb-4 flex flex-col items-start justify-end relative">
+      <div className="w-full py-10 lg:py-0 lg:w-1/2 px-0 md:px-10 pb-4 flex flex-col items-start justify-end relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={item.title}
