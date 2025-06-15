@@ -127,7 +127,7 @@ const EmblaCarousel = (props) => {
       style={{
         "--slide-height": "19rem",
         "--slide-spacing": "1rem",
-        "--slide-size": "70%",
+        "--slide-size": "60%",
       }}
     >
       <div className="embla__controls  grid grid-cols-[auto_1fr] justify-between gap-[1.2rem] mt-[1.8rem]">

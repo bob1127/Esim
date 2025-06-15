@@ -96,7 +96,7 @@ export default function Home() {
           </div>
 
           <Image
-            src="/images/banner01.jpg"
+            src="/images/banner04.png"
             alt="banner-img"
             placeholder="empty"
             loading="lazy"
