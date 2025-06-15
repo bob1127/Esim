@@ -1,20 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
+import querystring from "querystring";
 
-// ✅ 測試環境參數（上線前記得改為正式參數）
 const MERCHANT_ID = "20434";
 const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx";
 const HASH_IV = "PKetlaZYZcZvlMmC";
 
-// ✅ 加密 TradeInfo
 function aesEncrypt(data: string, key: string, iv: string) {
-  const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
+  const cipher = crypto.createCipheriv(
+    "aes-256-cbc",
+    Buffer.from(key, "utf8"),
+    Buffer.from(iv, "utf8")
+  );
   let encrypted = cipher.update(data, "utf8", "hex");
   encrypted += cipher.final("hex");
   return encrypted;
 }
 
-// ✅ 生成 TradeSha
 function shaEncrypt(encryptedText: string, key: string, iv: string) {
   const plainText = `HashKey=${key}&${encryptedText}&HashIV=${iv}`;
   return crypto.createHash("sha256").update(plainText).digest("hex").toUpperCase();
@@ -26,25 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { items, orderInfo } = req.body;
 
   const amount = items.reduce(
-    (total: number, item: any) => total + item.price * item.quantity,
+    (total: number, item: any) => total + Number(item.price) * item.quantity,
     0
   );
-
-  // ✅ 根據前端傳來的 paymentMethod 設定對應藍新參數
-  let paymentMethod = "";
-  switch (orderInfo.paymentMethod) {
-    case "Credit":
-      paymentMethod = "CREDIT";
-      break;
-    case "LinePay":
-      paymentMethod = "LINEPAY";
-      break;
-    case "ATM":
-      paymentMethod = "VACC";
-      break;
-    default:
-      paymentMethod = "ALL";
-  }
 
   const tradeInfo: Record<string, string> = {
     MerchantID: MERCHANT_ID,
@@ -53,22 +39,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     Version: "2.0",
     MerchantOrderNo: `ORDER${Date.now()}`,
     Amt: `${amount}`,
-    ItemDesc: "網站訂單商品",
+    ItemDesc: encodeURIComponent("虛擬商品訂單"),
     Email: orderInfo.email,
     LoginType: "0",
-    ReturnURL: "https://esim-beta.vercel.app/api/newebpay-callback",
-    NotifyURL: "https://esim-beta.vercel.app/api/newebpay-notify",
-    ClientBackURL: "https://esim-beta.vercel.app/thank-you",
-    PaymentMethod: paymentMethod,
+    ReturnURL: "https://a487-2001-b011-800b-7cfc-9827-5203-54ec-8039.ngrok-free.app/api/newebpay-callback",
+    NotifyURL: "https://a487-2001-b011-800b-7cfc-9827-5203-54ec-8039.ngrok-free.app/api/newebpay-notify",
+    ClientBackURL: "http://localhost:3000/thank-you", // ✅ 測試階段 OK，正式上線請改為 https
+    PaymentMethod: "ALL",
   };
 
-  const tradeInfoStr = new URLSearchParams(tradeInfo).toString();
+  const tradeInfoStr = querystring.stringify(tradeInfo);
   const encrypted = aesEncrypt(tradeInfoStr, HASH_KEY, HASH_IV);
   const tradeSha = shaEncrypt(encrypted, HASH_KEY, HASH_IV);
 
-  // ✅ 除錯 log
-  console.log("🧾 建立藍新金流表單");
-  console.log("✅ 送出的原始資料：", tradeInfo);
+  console.log("🧾 原始訂單資料：", tradeInfo);
+  console.log("🔗 Encoded：", tradeInfoStr);
   console.log("🔐 Encrypted TradeInfo：", encrypted);
   console.log("🔒 TradeSha：", tradeSha);
 

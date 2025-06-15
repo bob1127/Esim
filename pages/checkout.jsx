@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Layout from "./Layout";
 import { useCart } from "../components/context/CartContext";
 import Image from "next/image";
-
 const CheckoutPage = () => {
   const { cartItems, totalPrice, removeFromCart, updateQuantity } = useCart();
   const [formData, setFormData] = useState({
@@ -87,13 +86,13 @@ const CheckoutPage = () => {
           className="flex flex-col lg:flex-row max-w-[1920px] w-[95%] mx-auto"
         >
           <div className=" w-full lg:w-1/2 flex flex-col">
-            <h2 className="text-xl font-bold">結帳資訊</h2>
+            <h2 className="text-xl font-bold mb-4">結帳資訊</h2>
             <input
               name="name"
               value={formData.name}
               onChange={handleChange}
               placeholder="姓名"
-              className="border p-2 rounded"
+              className="border p-2 rounded mb-2"
               required
             />
             <input
@@ -101,7 +100,7 @@ const CheckoutPage = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email"
-              className="border p-2 rounded"
+              className="border p-2 rounded mb-2"
               required
             />
             <input
@@ -109,53 +108,11 @@ const CheckoutPage = () => {
               value={formData.phone}
               onChange={handleChange}
               placeholder="手機號碼"
-              className="border p-2 rounded"
+              className="border p-2 rounded mb-2"
               required
             />
-
-            <select
-              name="shippingMethod"
-              value={formData.shippingMethod}
-              onChange={handleChange}
-              className="border p-2 rounded"
-            >
-              <option value="宅配">宅配</option>
-              <option value="超商取貨">超商取貨</option>
-            </select>
-
-            {formData.shippingMethod === "超商取貨" && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.open(
-                      "/api/ecpay-cvs-map-redirect",
-                      "_blank",
-                      "width=800,height=600"
-                    );
-                  }}
-                  className="bg-gray-800 text-white px-4 py-2 rounded"
-                >
-                  選擇超商門市
-                </button>
-                {formData.storeInfo && (
-                  <div className="border p-2 rounded text-sm">
-                    <p>選擇門市：{formData.storeInfo.StoreName}</p>
-                    <p>地址：{formData.storeInfo.StoreAddress}</p>
-                    <p>電話：{formData.storeInfo.StoreTel}</p>
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  onClick={handleLogisticsTest}
-                  className="mt-2 bg-gray-800 text-white px-4 py-2 rounded"
-                >
-                  產生測試物流訂單（超商B2C）
-                </button>
-              </>
-            )}
           </div>
+
           <div className=" w-full lg:w-1/2 p-10 ">
             <div className="border-t pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">

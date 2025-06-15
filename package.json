@@ -55,7 +55,7 @@
     "framer-motion": "^10.18.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.0",
-    "gsap": "^3.12.7",
+    "gsap": "^3.13.0",
     "hover-effect": "^1.2.1",
     "html-entities": "^2.4.0",
     "html-react-parser": "^5.2.2",

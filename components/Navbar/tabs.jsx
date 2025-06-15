@@ -61,11 +61,11 @@ export const SlideTabsExample = () => {
   return (
     <>
       <div
-        className="top-0 mt-[-40px] pt-8 flex mx-auto left-[40%] justify-center fixed w-full z-[999999]
+        className="top-0 mt-[-40px] pt-8 flex mx-auto left-[40%] justify-center items-center fixed w-full z-[999999]
   bg-white/50 backdrop-blur-md backdrop-saturate-150 border-b border-white/30 rounded-none shadow-md"
       >
-        <div className="flex w-full  py-4">
-          <div className="left w-[10%]  flex justify-center items-center">
+        <div className="flex w-full items-center  py-4">
+          <div className="left w-[20%]  flex justify-center items-center">
             <Link href="/" className="block w-[38px]">
               <Image
                 src="/images/logo/logo.svg"
@@ -76,7 +76,7 @@ export const SlideTabsExample = () => {
               />
             </Link>
           </div>
-          <div className="middle w-[80%] flex justify-center items-center">
+          <div className="middle w-[60%] flex justify-center items-center">
             <Link
               href="/category/all-product/"
               className="group block py-3 hover:bg-[#4badf4] relative rounded-full bg-transparent px-4 text-neutral-950"
@@ -123,14 +123,14 @@ export const SlideTabsExample = () => {
               </span>
             </button>
           </div>
-          <div className="right w-[10%]">
+          <div className="right w-[20%]">
             <div className="flex justify-end items-center gap-4 pr-6">
               {userInfo ? (
                 <>
                   <span className="text-sm">Hello, {userInfo.name}</span>
                   <button
                     onClick={logout}
-                    className="px-3 py-1 bg-gray-800 text-white rounded hover:bg-gray-700 transition"
+                    className="px-3 py-1 bg-[#3b57ff] text-white rounded hover:bg-[#2f3dd3] transition"
                   >
                     登出
                   </button>
