@@ -48,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ReturnURL: "https://esim-beta.vercel.app/api/newebpay-callback",
     NotifyURL: "https://esim-beta.vercel.app/api/newebpay-notify",
     ClientBackURL: "https://esim-beta.vercel.app/thank-you",
-    PaymentMethod: "ALL",
+    PaymentMethod: "CREDIT",
   };
 
   // ✅ 使用 URLSearchParams 處理編碼（正確順序與格式）
@@ -62,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   console.log("🔒 TradeSha：", tradeSha);
 
   const html = `
-    <form id="newebpay-form" method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
+    <form id="newebpay-form" method="post" action="https://core.newebpay.com/MPG/mpg_gateway">
       <input type="hidden" name="MerchantID" value="${MERCHANT_ID}" />
       <input type="hidden" name="TradeInfo" value="${encrypted}" />
       <input type="hidden" name="TradeSha" value="${tradeSha}" />
