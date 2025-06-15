@@ -23,7 +23,7 @@ const Sidebar = () => {
   }, [isOpen]);
 
   return (
-    <div className="fixed inset-0 z-[99999999999]">
+    <div className="fixed inset-0 ">
       <div className="relative w-full h-full">
         <motion.div
           className="absolute right-0 top-0 h-full w-full sm:w-[400px] bg-white shadow-2xl border-l border-gray-200 z-50 flex flex-col"

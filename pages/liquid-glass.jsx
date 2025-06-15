@@ -15,7 +15,7 @@ import {
 import { easing } from "maath";
 import "tailwindcss/tailwind.css";
 
-export default function App() {
+export default function LiquidGlassHome() {
   return (
     <div className="w-full h-screen bg-[#f0f0f0] font-sans">
       <Canvas camera={{ position: [0, 0, 20], fov: 15 }} dpr={[1, 2]}>
@@ -24,16 +24,7 @@ export default function App() {
             <Scroll>
               <Typography />
             </Scroll>
-            <Scroll html>
-              <div className="absolute top-[50vh] left-[50vw] -translate-x-1/2 -translate-y-1/2 z-50">
-                <button
-                  className="px-6 py-3 backdrop-blur-md bg-white/10 border border-white/30 text-black rounded-full shadow-lg hover:bg-white/20 transition-all duration-300"
-                  onClick={() => alert("Enter clicked")}
-                >
-                  Enter
-                </button>
-              </div>
-            </Scroll>
+            <Scroll html></Scroll>
             <Preload />
           </Lens>
         </ScrollControls>
@@ -126,19 +117,19 @@ function Lens({ children, damping = 0.15, ...props }) {
 }
 
 function Typography() {
-  const state = useThree();
-  const { width, height } = state.viewport.getCurrentViewport(
-    state.camera,
-    [0, 0, 12]
+  const { width, height } = useThree((state) =>
+    state.viewport.getCurrentViewport(state.camera, [0, 0, 12])
   );
+
   return (
     <Text
       children="e-SIM"
-      anchorX="left"
-      position={[-width / 2.5, -height / 10, 12]}
       font="/Inter-Regular.woff"
       letterSpacing={-0.1}
       color="#227eff"
+      anchorX="center"
+      anchorY="middle"
+      position={[0, 0, 12]}
     />
   );
 }
