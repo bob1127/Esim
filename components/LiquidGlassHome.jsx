@@ -1,7 +1,7 @@
 "use client";
 
 import * as THREE from "three";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Canvas, createPortal, useFrame, useThree } from "@react-three/fiber";
 import {
   useFBO,
@@ -18,18 +18,36 @@ import { easing } from "maath";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function LiquidGlassHome() {
-  const [visible, setVisible] = useState(true);
-  const [zIndexActive, setZIndexActive] = useState(true); // 控制 z-index
+  const [visible, setVisible] = useState(false);
+  const [zIndexActive, setZIndexActive] = useState(true);
+  const [hidden, setHidden] = useState(false); // ✅ 新增狀態控制 display none
+
+  useEffect(() => {
+    const hasSeen = localStorage.getItem("hasSeenLiquidGlass");
+    if (!hasSeen) {
+      setVisible(true);
+    } else {
+      setHidden(true); // ✅ 初次讀取就隱藏整個元件
+    }
+  }, []);
+
+  const handleEnter = () => {
+    localStorage.setItem("hasSeenLiquidGlass", "true");
+    setVisible(false);
+  };
+
+  if (hidden) return null; // ✅ 完全移除整個畫面元件
 
   return (
     <div
       className={`fixed inset-0 overflow-hidden transition-all duration-500 ${
-        zIndexActive ? "z-[99999999]" : "z-0"
+        zIndexActive ? "z-[9999]" : "z-0"
       }`}
     >
       <AnimatePresence
         onExitComplete={() => {
           setZIndexActive(false);
+          setHidden(true); // ✅ 動畫結束後再完全 display: none
         }}
       >
         {visible && (
@@ -50,7 +68,7 @@ export default function LiquidGlassHome() {
                     <div className="absolute top-[80vh] sm:top-[90vh] left-[50vw] -translate-x-1/2 -translate-y-1/2 z-50">
                       <button
                         className="px-6 py-3 backdrop-blur-md bg-white/10 border border-white/30 text-black rounded-full shadow-lg hover:bg-white/20 transition-all duration-300"
-                        onClick={() => setVisible(false)}
+                        onClick={handleEnter}
                       >
                         Enter
                       </button>

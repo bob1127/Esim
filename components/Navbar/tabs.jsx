@@ -42,17 +42,17 @@ export const SlideTabsExample = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[900] pointer-events-none"
+            initial={false}
+            animate={{ opacity: isMenuOpen ? 1 : 0 }}
             transition={{ duration: 0.3 }}
-            onClick={() => setIsMenuOpen(false)}
-            className="fixed inset-0 z-[999] bg-white/70 backdrop-blur-lg md:hidden"
-          />
+          >
+            <div className="w-full h-full bg-white/30 backdrop-blur-md pointer-events-auto" />
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ✅ Navbar 主區塊（高於遮罩） */}
+      {/* ✅ Navbar 主區塊（LOGO 與 X 在上方） */}
       <div className="fixed top-0 left-0 w-full z-[1000] bg-white/50 backdrop-blur-md border-b border-white/30 shadow-md">
         <div className="flex justify-between items-center px-4 py-3 md:py-4">
           <Link href="/" className="w-[38px] md:w-[40px]">
@@ -110,14 +110,14 @@ export const SlideTabsExample = () => {
         </div>
       </div>
 
-      {/* ✅ Mobile Menu（置於 navbar 下方） */}
+      {/* ✅ Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            className="md:hidden overflow-hidden px-4 pb-4 fixed top-[64px] left-0 right-0 z-[1000] bg-[#3b57ff] text-white shadow-lg py-6 rounded-b-lg"
+            className="md:hidden overflow-hidden px-4 pb-4 fixed top-[64px] left-0 right-0 z-[950] bg-[#3b57ff] text-white shadow-lg py-6 rounded-b-lg"
           >
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
