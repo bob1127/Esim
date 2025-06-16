@@ -1,9 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
+import axios, { AxiosError } from "axios";
 
-const MERCHANT_ID = "MS3788816305"; // 測試帳號
+const MERCHANT_ID = "MS3788816305";
 const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx";
 const HASH_IV = "PKetlaZYZcZvlMmC";
+
+const WOOCOMMERCE_API_URL = "https://dyx.wxv.mybluehost.me/website_a8bfc44c/wp-json/wc/v3/orders";
+const CONSUMER_KEY = "ck_0ed8acaab9f0bc4cd27c71c2e7ae9ccc3ca45b04";
+const CONSUMER_SECRET = "cs_50ad8ba137c027d45615b0f6dc2d2d7ffcf97947";
 
 function aesEncrypt(data: string, key: string, iv: string) {
   const cipher = crypto.createCipheriv(
@@ -26,7 +31,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { items, orderInfo } = req.body;
 
-  // ✅ 總金額必須為整數
   const amount = Math.round(
     items.reduce((total: number, item: any) => {
       const subtotal = Number(item.price) * Number(item.quantity);
@@ -34,16 +38,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }, 0)
   );
 
-  // ✅ 構建 TradeInfo 原始資料
+  const orderNo = `ORDER${Date.now()}`;
+
+  // ✅ 建立 WooCommerce 訂單
+  try {
+    await axios.post(
+      WOOCOMMERCE_API_URL,
+      {
+        payment_method: "newebpay",
+        payment_method_title: "藍新金流",
+        set_paid: false,
+        billing: {
+          first_name: orderInfo.name,
+          email: orderInfo.email,
+          phone: orderInfo.phone,
+        },
+        line_items: items.map((item: any) => {
+          const lineItem: any = {
+            product_id: item.id,
+            quantity: item.quantity,
+          };
+
+          if (item.variation_id) lineItem.variation_id = item.variation_id;
+          if (item.meta_data) lineItem.meta_data = item.meta_data;
+
+          return lineItem;
+        }),
+        meta_data: [{ key: "newebpay_order_no", value: orderNo }],
+      },
+      {
+        auth: {
+          username: CONSUMER_KEY,
+          password: CONSUMER_SECRET,
+        },
+      }
+    );
+  } catch (error: any) {
+    const axiosError = error as AxiosError;
+    console.error(
+      "❌ Woo 訂單建立失敗",
+      axiosError.response?.data || axiosError.message || error
+    );
+    return res.status(500).json({ error: "WooCommerce 訂單建立失敗" });
+  }
+
+  // ✅ 建立藍新付款參數
   const tradeInfoObj = {
     MerchantID: MERCHANT_ID,
     RespondType: "JSON",
     TimeStamp: `${Math.floor(Date.now() / 1000)}`,
     Version: "2.0",
-    MerchantOrderNo: `ORDER${Date.now()}`,
+    MerchantOrderNo: orderNo,
     Amt: String(amount),
     ItemDesc: "虛擬商品訂單",
-    Email: orderInfo.email || "test@example.com", // 避免空值
+    Email: orderInfo.email || "test@example.com",
     LoginType: "0",
     ReturnURL: "https://esim-beta.vercel.app/api/newebpay-callback",
     NotifyURL: "https://esim-beta.vercel.app/api/newebpay-notify",
@@ -51,16 +99,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     PaymentMethod: "CREDIT",
   };
 
-  // ✅ 使用 URLSearchParams 處理編碼（正確順序與格式）
   const tradeInfoStr = new URLSearchParams(tradeInfoObj).toString();
   const encrypted = aesEncrypt(tradeInfoStr, HASH_KEY, HASH_IV);
   const tradeSha = shaEncrypt(encrypted, HASH_KEY, HASH_IV);
 
-  console.log("📦 原始 TradeInfo：", tradeInfoObj);
-  console.log("🔗 字串化後 TradeInfo：", tradeInfoStr);
-  console.log("🔐 Encrypted TradeInfo：", encrypted);
-  console.log("🔒 TradeSha：", tradeSha);
-
+  // ✅ 回傳自動送出的藍新付款表單
   const html = `
     <form id="newebpay-form" method="post" action="https://core.newebpay.com/MPG/mpg_gateway">
       <input type="hidden" name="MerchantID" value="${MERCHANT_ID}" />
