@@ -42,35 +42,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // ✅ 建立 WooCommerce 訂單
   try {
-    await axios.post(
-      WOOCOMMERCE_API_URL,
-      {
-        payment_method: "newebpay",
-        payment_method_title: "藍新金流",
-        set_paid: false,
-        billing: {
-          first_name: orderInfo.name,
-          email: orderInfo.email,
-          phone: orderInfo.phone,
-        },
-        line_items: items.map((item: any) => {
-          const lineItem: any = {
-            product_id: item.id,
-            quantity: item.quantity,
-          };
-          if (item.variation_id) lineItem.variation_id = item.variation_id;
-          if (item.meta_data) lineItem.meta_data = item.meta_data;
-          return lineItem;
-        }),
-        meta_data: [{ key: "newebpay_order_no", value: orderNo }],
-      },
-      {
-        auth: {
-          username: CONSUMER_KEY,
-          password: CONSUMER_SECRET,
-        },
-      }
-    );
+   await axios.post(
+  WOOCOMMERCE_API_URL,
+  {
+    payment_method: "newebpay",
+    payment_method_title: "藍新金流",
+    set_paid: false,
+    billing: {
+      first_name: orderInfo.name,
+      email: orderInfo.email,
+      phone: orderInfo.phone,
+    },
+    line_items: items.map((item: any) => {
+      const lineItem: any = {
+        product_id: item.id,
+        quantity: item.quantity,
+        total: (item.price * item.quantity).toString(), // ✅ 重點：手動指定 total 金額
+      };
+      if (item.variation_id) lineItem.variation_id = item.variation_id;
+      if (item.meta_data) lineItem.meta_data = item.meta_data;
+      return lineItem;
+    }),
+    meta_data: [{ key: "newebpay_order_no", value: orderNo }],
+  },
+  {
+    auth: {
+      username: CONSUMER_KEY,
+      password: CONSUMER_SECRET,
+    },
+  }
+);
+
   } catch (err) {
     const error = err as AxiosError;
     const details = error.response?.data || error.message || error;
