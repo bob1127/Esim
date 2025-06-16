@@ -58,10 +58,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             product_id: item.id,
             quantity: item.quantity,
           };
-
           if (item.variation_id) lineItem.variation_id = item.variation_id;
           if (item.meta_data) lineItem.meta_data = item.meta_data;
-
           return lineItem;
         }),
         meta_data: [{ key: "newebpay_order_no", value: orderNo }],
@@ -73,13 +71,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       }
     );
-  } catch (error: any) {
-    const axiosError = error as AxiosError;
-    console.error(
-      "❌ Woo 訂單建立失敗",
-      axiosError.response?.data || axiosError.message || error
-    );
-    return res.status(500).json({ error: "WooCommerce 訂單建立失敗" });
+  } catch (err) {
+    const error = err as AxiosError;
+    const details = error.response?.data || error.message || error;
+
+    console.error("❌ Woo 訂單建立失敗：", details);
+
+    return res.status(500).json({
+      error: "WooCommerce 訂單建立失敗",
+      details,
+    });
   }
 
   // ✅ 建立藍新付款參數
@@ -103,7 +104,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const encrypted = aesEncrypt(tradeInfoStr, HASH_KEY, HASH_IV);
   const tradeSha = shaEncrypt(encrypted, HASH_KEY, HASH_IV);
 
-  // ✅ 回傳自動送出的藍新付款表單
   const html = `
     <form id="newebpay-form" method="post" action="https://core.newebpay.com/MPG/mpg_gateway">
       <input type="hidden" name="MerchantID" value="${MERCHANT_ID}" />
