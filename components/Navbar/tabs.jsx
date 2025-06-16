@@ -53,7 +53,7 @@ export const SlideTabsExample = () => {
       </AnimatePresence>
 
       {/* ✅ Navbar 主區塊（LOGO 與 X 在上方） */}
-      <div className="fixed top-0 left-0 w-full z-[1000] bg-white/50 backdrop-blur-md border-b border-white/30 shadow-md">
+      <div className="fixed top-0 px-8 left-0 w-full z-[1000] bg-white/50 backdrop-blur-md border-b border-white/30 shadow-md">
         <div className="flex justify-between items-center px-4 py-3 md:py-4">
           <Link href="/" className="w-[38px] md:w-[40px]">
             <Image
@@ -71,9 +71,16 @@ export const SlideTabsExample = () => {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-neutral-950 hover:text-blue-500 transition"
+                className="group hover:bg-[#4badf4] relative h-10 rounded-full bg-transparent px-4 text-neutral-950"
               >
-                {link.label}
+                <span className="relative  inline-flex overflow-hidden">
+                  <div className="translate-y-0 mt-2 text-slate-500 skew-y-0 transition duration-500 group-hover:-translate-y-[150%] group-hover:skew-y-12">
+                    {link.label}
+                  </div>
+                  <div className="absolute translate-y-[110%] mt-2 group-hover:text-white skew-y-2 transition duration-500 group-hover:translate-y-0 group-hover:skew-y-0">
+                    {link.label}
+                  </div>
+                </span>
               </Link>
             ))}
           </div>

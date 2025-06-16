@@ -150,14 +150,98 @@ export default function Home() {
             最新消息
           </div>
           <div className="flex flex-col lg:flex-row">
-            <div className="left w-full lg:w-1/2">
-              <div className="bg-white h-[330px] p-5">
+            <div className="left w-full lg:w-1/2 px-0 md:px-8">
+              <div className="bg-[#e0e4e8] rounded-xl sm:rounded-none sm:bg-white h-[330px] p-5">
                 <span className="">全館任兩件</span>
                 <div className="font-light text-black text-[70px]">88折</div>
                 <span className="text-[24px]">六月瘋日韓</span>
               </div>
-              <ul className="p-5 flex flex-col">
-                <li className="border-b mt-4 items-center group flex justify-between pb-3">
+              <ul className="px-5 bg-[#e0e4e8] sm:rounded-none rounded-xl my-4  py-10 flex flex-col">
+                <li className="border-b mt-4 items-center group flex justify-between py-4">
+                  <h4 className="text-[1.9rem]">NEWS</h4>
+                  <span className="text-[16px] w-2/3">
+                    最新消息上架中，請耐心等候更多提供資訊
+                  </span>
+                  <button className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-neutral-950 group-hover:bg-[#1757ff] font-medium text-neutral-200">
+                    <div className="translate-x-0 transition group-hover:translate-x-[300%]">
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 15 15"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                      >
+                        <path
+                          d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+                          fill="currentColor"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                        ></path>
+                      </svg>
+                    </div>
+                    <div className="absolute -translate-x-[300%] transition group-hover:translate-x-0">
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 15 15"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                      >
+                        <path
+                          d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+                          fill="currentColor"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                        ></path>
+                      </svg>
+                    </div>
+                  </button>
+                </li>
+                <li className="border-b mt-4 items-center group flex justify-between py-4">
+                  <h4 className="text-[1.9rem]">NEWS</h4>
+                  <span className="text-[16px] w-2/3">
+                    最新消息上架中，請耐心等候更多提供資訊
+                  </span>
+                  <button className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-neutral-950 group-hover:bg-[#1757ff] font-medium text-neutral-200">
+                    <div className="translate-x-0 transition group-hover:translate-x-[300%]">
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 15 15"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                      >
+                        <path
+                          d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+                          fill="currentColor"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                        ></path>
+                      </svg>
+                    </div>
+                    <div className="absolute -translate-x-[300%] transition group-hover:translate-x-0">
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 15 15"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                      >
+                        <path
+                          d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+                          fill="currentColor"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                        ></path>
+                      </svg>
+                    </div>
+                  </button>
+                </li>
+                <li className="border-b mt-4 items-center group flex justify-between py-4">
                   <h4 className="text-[1.9rem]">NEWS</h4>
                   <span className="text-[16px] w-2/3">
                     最新消息上架中，請耐心等候更多提供資訊
