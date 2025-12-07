@@ -23,14 +23,31 @@ const getWooCommerceUrl = (endpoint, params = {}) => {
   return `${baseUrl}/wp-json/wc/v3/${endpoint}?${queryString}`;
 };
 
+// 修改 pages/category/[slug].js 的 getStaticPaths 區塊
+
 export async function getStaticPaths() {
   try {
-    // 抓取所有分類以生成路徑
     const apiUrl = getWooCommerceUrl("products/categories", { per_page: 100 });
     const res = await fetch(apiUrl);
 
-    if (!res.ok) throw new Error("Failed to fetch categories");
+    // 1. 先檢查 API 回傳狀態
+    if (!res.ok) {
+      console.error(`❌ API 請求失敗: ${res.status} ${res.statusText}`);
+      // 遇到錯誤，回傳空陣列讓 Build 繼續通過 (前端會轉為 fallback)
+      return { paths: [], fallback: "blocking" };
+    }
+
     const categories = await res.json();
+
+    // 2. 關鍵修正：檢查 categories 到底是不是陣列
+    if (!Array.isArray(categories)) {
+      console.error(
+        "❌ API 回傳格式錯誤 (不是陣列):",
+        JSON.stringify(categories, null, 2)
+      );
+      // 如果 API 回傳錯誤訊息 (例如 401 Unauthorized)，不要讓 .map() 炸掉程式
+      return { paths: [], fallback: "blocking" };
+    }
 
     const paths = categories.map((cat) => ({
       params: { slug: cat.slug },
@@ -38,11 +55,10 @@ export async function getStaticPaths() {
 
     return { paths, fallback: "blocking" };
   } catch (error) {
-    console.error("getStaticPaths Error:", error);
+    console.error("❌ getStaticPaths 發生例外錯誤:", error);
     return { paths: [], fallback: "blocking" };
   }
 }
-
 export async function getStaticProps({ params }) {
   try {
     // 1. 抓取所有分類
