@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
-const WC_API_URL = "https://fegoesim.com/wp-json/wc/v3/orders";
+const WC_API_URL = "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wc/v3/orders";
 
 // 建議在 .env 內用非 NEXT_PUBLIC 前綴（避免意外被前端引用）
 const CONSUMER_KEY = process.env.NEXT_PUBLIC_WC_CONSUMER_KEY!;

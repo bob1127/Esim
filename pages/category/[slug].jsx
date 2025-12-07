@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import Layout from "../Layout";
@@ -9,87 +8,107 @@ import SwiperCarousel from "../../components/SwiperCarousel/SwiperCard.jsx";
 import FilterSideBar from "../../components/FilterSideBar";
 import { motion } from "framer-motion";
 
-const CATEGORY_API_URL = `https://fegoesim.com/wp-json/wc/v3/products/categories?consumer_key=ck_ef9f4379124655ad946616864633bd37e3174bc2&consumer_secret=cs_3da596e08887d9c7ccbf8ee15213f83866c160d4&per_page=100`;
+// 輔助函式：建立 WooCommerce API 請求 URL (僅在伺服器端使用)
+const getWooCommerceUrl = (endpoint, params = {}) => {
+  const baseUrl = process.env.WORDPRESS_URL;
+  const ck = process.env.WOOCOMMERCE_CONSUMER_KEY;
+  const cs = process.env.WOOCOMMERCE_CONSUMER_SECRET;
+
+  const queryString = new URLSearchParams({
+    consumer_key: ck,
+    consumer_secret: cs,
+    ...params,
+  }).toString();
+
+  return `${baseUrl}/wp-json/wc/v3/${endpoint}?${queryString}`;
+};
 
 export async function getStaticPaths() {
-  const categoryRes = await fetch(CATEGORY_API_URL);
-  const categories = await categoryRes.json();
+  try {
+    // 抓取所有分類以生成路徑
+    const apiUrl = getWooCommerceUrl("products/categories", { per_page: 100 });
+    const res = await fetch(apiUrl);
 
-  const paths = categories.map((cat) => ({
-    params: { slug: cat.slug },
-  }));
+    if (!res.ok) throw new Error("Failed to fetch categories");
+    const categories = await res.json();
 
-  return { paths, fallback: "blocking" };
+    const paths = categories.map((cat) => ({
+      params: { slug: cat.slug },
+    }));
+
+    return { paths, fallback: "blocking" };
+  } catch (error) {
+    console.error("getStaticPaths Error:", error);
+    return { paths: [], fallback: "blocking" };
+  }
 }
 
 export async function getStaticProps({ params }) {
   try {
-    const categoryRes = await fetch(CATEGORY_API_URL);
-    const categories = await categoryRes.json();
+    // 1. 抓取所有分類
+    const categoryUrl = getWooCommerceUrl("products/categories", {
+      per_page: 100,
+    });
+    const catRes = await fetch(categoryUrl);
+    const categories = await catRes.json();
 
+    // 2. 找到當前 Slug 對應的分類 ID
     const matchedCategory = categories.find((cat) => cat.slug === params.slug);
+
+    // 如果找不到分類，回傳 404
     if (!matchedCategory) return { notFound: true };
 
-    const productRes = await fetch(
-      `https://fegoesim.com/wp-json/wc/v3/products?category=${matchedCategory.id}&consumer_key=...&consumer_secret=...`
-    );
-    const data = await productRes.json();
+    // 3. 根據分類 ID 抓取產品
+    const productUrl = getWooCommerceUrl("products", {
+      category: matchedCategory.id,
+      per_page: 50, // 可以根據需求調整數量
+    });
+
+    const productRes = await fetch(productUrl);
+    const products = await productRes.json();
 
     return {
       props: {
         slug: params.slug,
         categories,
-        initialProducts: data,
+        initialProducts: products,
       },
-      revalidate: 10,
+      revalidate: 60, // 每 60 秒重新驗證一次資料 (ISR)
     };
   } catch (e) {
-    console.error("❌ ISR 錯誤：", e);
+    console.error("❌ getStaticProps 錯誤：", e);
     return { notFound: true };
   }
 }
 
-const CategoryPage = ({ slug, categories }) => {
+const CategoryPage = ({ slug, categories, initialProducts }) => {
   const router = useRouter();
-  const [fetchedProducts, setFetchedProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  // 使用 initialProducts 作為初始資料，避免在前端再次 fetch 暴露金鑰
+  const [filteredProducts, setFilteredProducts] = useState(
+    initialProducts || []
+  );
   const [activeTags, setActiveTags] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const PRODUCTS_PER_PAGE = 12;
 
+  // 當路由變更時，確保產品列表更新 (主要依賴 getStaticProps 的資料)
   useEffect(() => {
-    const matchedCategory = categories.find((cat) => cat.slug === slug);
-    if (!matchedCategory) {
-      setFetchedProducts([]);
-      return;
-    }
-
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(
-          `https://fegoesim.com/wp-json/wc/v3/products?category=${matchedCategory.id}&consumer_key=ck_ef9f4379124655ad946616864633bd37e3174bc2&consumer_secret=cs_3da596e08887d9c7ccbf8ee15213f83866c160d4`
-        );
-        const data = await res.json();
-        setFetchedProducts(data);
-      } catch (err) {
-        console.error("抓分類產品失敗", err);
-        setFetchedProducts([]);
-      }
-    };
-
-    fetchProducts();
-  }, [slug, categories]);
+    setFilteredProducts(initialProducts || []);
+  }, [initialProducts]);
 
   useEffect(() => {
     const tagsFromQuery = router.query.tags?.split(",").filter(Boolean) || [];
     setActiveTags(tagsFromQuery);
   }, [router.query.tags]);
 
+  // 前端篩選邏輯
   useEffect(() => {
+    if (!initialProducts) return;
+
     if (!activeTags || activeTags.length === 0) {
-      setFilteredProducts(fetchedProducts);
+      setFilteredProducts(initialProducts);
     } else {
-      const filtered = fetchedProducts.filter((product) => {
+      const filtered = initialProducts.filter((product) => {
         const tagMatch = activeTags.every((tag) =>
           product.tags?.some((t) => t.slug === tag || t.name === tag)
         );
@@ -99,13 +118,18 @@ const CategoryPage = ({ slug, categories }) => {
         return tagMatch || categoryMatch;
       });
       setFilteredProducts(filtered);
+      setCurrentPage(1); // 篩選後重置頁碼
     }
-  }, [activeTags, fetchedProducts]);
+  }, [activeTags, initialProducts]);
 
   const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
   const endIndex = startIndex + PRODUCTS_PER_PAGE;
   const currentProducts = filteredProducts.slice(startIndex, endIndex);
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+
+  // 取得當前分類名稱
+  const currentCategoryName =
+    categories?.find((cat) => cat.slug === slug)?.name || "All Products";
 
   return (
     <Layout>
@@ -116,28 +140,30 @@ const CategoryPage = ({ slug, categories }) => {
 
         <div className="filter-wrap flex lg:flex-row flex-col sm:px-5 px-4 md:px-10 min-h-screen">
           <div className="filter_bar rounded-xl overflow-hidden w-full lg:w-[25%] bg-white mt-[30px] mr-4">
+            {/* 傳遞完整的 categories 給 Sidebar，如果 Sidebar 需要 */}
             <FilterSideBar
-              products={fetchedProducts}
+              products={initialProducts}
               activeTags={activeTags}
               setActiveTags={(tags) => {
                 setActiveTags(tags);
                 const tagQuery = tags.join(",");
-                router.push({
-                  pathname: router.pathname,
-                  query: { ...router.query, tags: tagQuery },
-                });
+                router.push(
+                  {
+                    pathname: router.pathname,
+                    query: { ...router.query, tags: tagQuery },
+                  },
+                  undefined,
+                  { scroll: false }
+                );
               }}
             />
           </div>
 
           <div className="bottom-content mt-[30px] rounded-xl overflow-hidden w-full lg:w-[75%] flex flex-col">
-            <div className="top-navgation bg-white max-w-[1920px]  border-b border-gray-200 py-5 flex flex-col sm:flex-row items-center pl-4 sm:pl-10">
+            <div className="top-navgation bg-white max-w-[1920px] border-b border-gray-200 py-5 flex flex-col sm:flex-row items-center pl-4 sm:pl-10">
               <div className="bread_crumb w-full">
-                <a href="/">Home</a> ←{" "}
-                <span className="text-[16px]">
-                  {categories.find((cat) => cat.slug === slug)?.name ||
-                    "All Products"}
-                </span>
+                <Link href="/">Home</Link> ←{" "}
+                <span className="text-[16px]">{currentCategoryName}</span>
               </div>
               <CountryFilter />
             </div>
@@ -145,8 +171,9 @@ const CategoryPage = ({ slug, categories }) => {
             {currentProducts.length > 0 ? (
               <div className="grid grid-cols-1 bg-white rounded-bl-xl rounded-br-xl sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-2 sm:p-6">
                 {currentProducts.map((product, index) => {
+                  // 解析圖片邏輯
                   const match = product?.description?.match(
-                    /<img[^>]+src=\"([^">]+)\"/
+                    /<img[^>]+src="([^">]+)"/
                   );
                   const extractedImg = match?.[1];
                   const productImage =
@@ -157,8 +184,12 @@ const CategoryPage = ({ slug, categories }) => {
                   const price =
                     product?.prices?.sale_price ||
                     product?.prices?.price ||
+                    product.price ||
                     null;
-                  const regularPrice = product?.prices?.regular_price || null;
+                  const regularPrice =
+                    product?.prices?.regular_price ||
+                    product.regular_price ||
+                    null;
 
                   return (
                     <motion.div
@@ -187,10 +218,14 @@ const CategoryPage = ({ slug, categories }) => {
                           <div className="text-gray-700">
                             {price ? (
                               <>
-                                {regularPrice && (
-                                  <del className="mr-1">NT${regularPrice}</del>
+                                {regularPrice && regularPrice !== price && (
+                                  <del className="mr-1 text-gray-400 text-sm">
+                                    NT${regularPrice}
+                                  </del>
                                 )}
-                                NT${price}
+                                <span className="text-blue-600 font-bold">
+                                  NT${price}
+                                </span>
                               </>
                             ) : (
                               <span className="text-red-500 text-sm">
@@ -205,21 +240,22 @@ const CategoryPage = ({ slug, categories }) => {
                 })}
               </div>
             ) : (
-              <div className="text-center text-gray-500 p-10">
-                沒有相關產品。
+              <div className="text-center text-gray-500 p-10 bg-white rounded-b-xl">
+                此分類暫無產品。
               </div>
             )}
 
+            {/* 分頁按鈕 */}
             {totalPages > 1 && (
-              <div className="flex justify-center mt-8 space-x-2">
+              <div className="flex justify-center mt-8 mb-8 space-x-2">
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentPage(i + 1)}
                     className={`px-3 py-1 rounded border ${
                       currentPage === i + 1
-                        ? "bg-blue-600 text-white"
-                        : "bg-white text-blue-600"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-blue-600 border-gray-300 hover:bg-gray-100"
                     }`}
                   >
                     {i + 1}

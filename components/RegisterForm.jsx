@@ -116,7 +116,7 @@ const RegisterForm = ({ onSuccess }) => {
     setMessage("註冊中...");
     try {
       const res = await fetch(
-        "https://fegoesim.com/wp-json/custom/v1/register",
+        "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/custom/v1/register",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -145,79 +145,97 @@ const RegisterForm = ({ onSuccess }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative text-white">
       {showSuccessPopup && (
-        <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-lg z-50">
+        <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg z-50 text-sm">
           註冊成功！
         </div>
       )}
 
-      <form onSubmit={handleRegister} className="flex flex-col gap-4">
-        <input
-          required
-          type="text"
-          name="username"
-          value={form.username}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-[13px]"
-          placeholder="請輸入帳號"
-        />
-
-        <div className="flex gap-2">
+      <form onSubmit={handleRegister} className="flex flex-col gap-5">
+        {/* 帳號 */}
+        <div>
+          <label className="text-xs uppercase tracking-[0.15em] text-white/70">
+            帳號
+          </label>
           <input
             required
-            type="email"
-            name="email"
-            value={form.email}
+            type="text"
+            name="username"
+            value={form.username}
             onChange={handleChange}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-[13px]"
-            placeholder="請輸入 Email"
+            className="mt-1 block w-full bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
+            placeholder="請輸入帳號"
           />
-          <button
-            type="button"
-            onClick={handleSendCode}
-            disabled={sending || cooldown > 0}
-            className={`px-4 py-2 rounded-[10px] text-white ${
-              sending || cooldown > 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600"
-            }`}
-          >
-            {sending
-              ? "寄送中..."
-              : cooldown > 0
-              ? `請稍候 ${cooldown}s`
-              : "發送驗證碼"}
-          </button>
         </div>
 
+        {/* Email + 發送驗證碼 */}
+        <div>
+          <label className="text-xs uppercase tracking-[0.15em] text-white/70">
+            Email
+          </label>
+          <div className="mt-1 flex gap-2">
+            <input
+              required
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              className="flex-1 bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
+              placeholder="請輸入 Email"
+            />
+            <button
+              type="button"
+              onClick={handleSendCode}
+              disabled={sending || cooldown > 0}
+              className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold shadow-sm transition ${
+                sending || cooldown > 0
+                  ? "bg-white/30 text-white/70 cursor-not-allowed"
+                  : "bg-white/95 text-[#1C82E0] hover:bg-white"
+              }`}
+            >
+              {sending
+                ? "寄送中..."
+                : cooldown > 0
+                ? `請稍候 ${cooldown}s`
+                : "發送驗證碼"}
+            </button>
+          </div>
+        </div>
+
+        {/* 驗證碼 + 驗證按鈕 */}
         {isCodeSent && (
           <>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                name="code"
-                value={form.code}
-                onChange={handleChange}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-[13px]"
-                placeholder="請輸入驗證碼"
-              />
-              <button
-                type="button"
-                onClick={handleVerifyCode}
-                disabled={verifying}
-                className={`px-4 py-2 rounded-[10px] text-white ${
-                  verifying
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-green-600 hover:bg-green-700"
-                }`}
-              >
-                {verifying ? "驗證中..." : "驗證"}
-              </button>
+            <div>
+              <label className="text-xs uppercase tracking-[0.15em] text-white/70">
+                驗證碼
+              </label>
+              <div className="mt-1 flex gap-2">
+                <input
+                  type="text"
+                  name="code"
+                  value={form.code}
+                  onChange={handleChange}
+                  className="flex-1 bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
+                  placeholder="請輸入驗證碼"
+                />
+                <button
+                  type="button"
+                  onClick={handleVerifyCode}
+                  disabled={verifying}
+                  className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold shadow-sm transition ${
+                    verifying
+                      ? "bg-white/30 text-white/70 cursor-not-allowed"
+                      : "bg-white/95 text-[#1C82E0] hover:bg-white"
+                  }`}
+                >
+                  {verifying ? "驗證中..." : "驗證"}
+                </button>
+              </div>
             </div>
 
             {/* 沒收到驗證碼？重新寄送 */}
-            <div className="text-sm text-gray-600">
+            <div className="text-xs text-white/70">
               {resendWait > 0 ? (
                 <span>若未收到，可於 {resendWait}s 後重新寄送</span>
               ) : (
@@ -225,7 +243,7 @@ const RegisterForm = ({ onSuccess }) => {
                   type="button"
                   onClick={handleResend}
                   disabled={sending || cooldown > 0}
-                  className="underline underline-offset-2 hover:text-blue-700 disabled:text-gray-400"
+                  className="underline underline-offset-2 hover:text-white disabled:text-white/40"
                 >
                   沒收到驗證碼？重新寄送
                 </button>
@@ -234,23 +252,30 @@ const RegisterForm = ({ onSuccess }) => {
           </>
         )}
 
-        <input
-          required
-          type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-[13px]"
-          placeholder="請輸入密碼"
-        />
+        {/* 密碼 */}
+        <div>
+          <label className="text-xs uppercase tracking-[0.15em] text-white/70">
+            密碼
+          </label>
+          <input
+            required
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            className="mt-1 block w-full bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
+            placeholder="請輸入密碼"
+          />
+        </div>
 
+        {/* 註冊按鈕 */}
         <button
           type="submit"
           disabled={registering}
-          className={`text-white py-2 rounded-[10px] transition ${
+          className={`mt-2 w-full rounded-full py-2.5 text-sm font-semibold tracking-wide shadow-sm transition ${
             registering
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-[#1757FF] hover:bg-[#2a3ebb]"
+              ? "bg-white/40 text-[#1C82E0] cursor-not-allowed"
+              : "bg-white/95 text-[#1C82E0] hover:bg-white"
           }`}
         >
           {registering ? "註冊中..." : "註冊"}
@@ -258,7 +283,7 @@ const RegisterForm = ({ onSuccess }) => {
       </form>
 
       {message && (
-        <p className="text-sm text-center text-red-600 mt-2">{message}</p>
+        <p className="mt-3 text-center text-xs text-amber-100">{message}</p>
       )}
     </div>
   );

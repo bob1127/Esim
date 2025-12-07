@@ -86,7 +86,7 @@ export default function BlogPage({ posts }) {
 
 export async function getStaticProps() {
   const res = await fetch(
-    `https://fegoesim.com/wp-json/wp/v2/posts?per_page=20&_embed`
+    `https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/posts?per_page=20&_embed`
   );
   const posts = await res.json();
 

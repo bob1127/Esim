@@ -15,7 +15,7 @@ const NOTIFY_VERSION = "v6.0.0";
 const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx";
 const HASH_IV = "PKetlaZYZcZvlMmC";
 
-const WC_API_BASE = "https://fegoesim.com/wp-json/wc/v3";
+const WC_API_BASE = "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wc/v3";
 const WC_CK = "ck_ef9f4379124655ad946616864633bd37e3174bc2";
 const WC_CS = "cs_3da596e08887d9c7ccbf8ee15213f83866c160d4";
 

@@ -55,7 +55,7 @@ const Sidebar = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[99999]"
+          className="fixed inset-0 z-[9999999]"
         >
           {/* 背景遮罩 */}
           <div
@@ -65,7 +65,7 @@ const Sidebar = () => {
 
           {/* Sidebar 內容 */}
           <motion.div
-            className="absolute right-0 top-0 h-full w-full sm:w-[400px] bg-white shadow-2xl border-l border-gray-200 z-50 flex flex-col"
+            className="absolute right-0 top-0 h-full w-full sm:w-[400px] bg-white shadow-2xl border-l border-gray-200 z-[9999999] flex flex-col"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}

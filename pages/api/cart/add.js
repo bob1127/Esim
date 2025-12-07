@@ -1,4 +1,4 @@
-// /pages/api/cart/add.js
+// /pages/api/Cart/add.js
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch("https://starislandbaby.com/test/wp-json/wc/store/cart/add-item", {
+    const response = await fetch("https://starislandbaby.com/test/wp-json/wc/store/Cart/add-item", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -7,7 +7,7 @@ import Link from "next/link";
 // 抓 WooCommerce 所有商品分類，包含 description
 async function fetchProductCategories() {
   try {
-    const categoryUrl = `https://fegoesim.com/wp-json/wc/v3/products/categories?per_page=100&consumer_key=${process.env.NEXT_PUBLIC_WC_CONSUMER_KEY}&consumer_secret=${process.env.NEXT_PUBLIC_WC_CONSUMER_SECRET}`;
+    const categoryUrl = `https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wc/v3/products/categories?per_page=100&consumer_key=${process.env.NEXT_PUBLIC_WC_CONSUMER_KEY}&consumer_secret=${process.env.NEXT_PUBLIC_WC_CONSUMER_SECRET}`;
     const response = await fetch(categoryUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch categories. Status: ${response.status}`);

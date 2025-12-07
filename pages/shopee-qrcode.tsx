@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Layout from "./Layout.js";
 
 export default function ShopeeQRCodePage() {
   const [orderNo, setOrderNo] = useState("");
@@ -21,119 +22,138 @@ export default function ShopeeQRCodePage() {
       const data = await res.json();
 
       if (data?.alreadyRedeemed) {
-        setMessage(
-          "\u26a0\ufe0f \u6b64\u8a02\u55ae\u5df2\u5b8c\u6210\u514c\u63db\uff0c\u7121\u9700\u518d\u6b21\u63d0\u4ea4\u3002\u5982\u6709\u554f\u984c\u8acb\u806f\u7d61\u6211\u5011"
-        );
+        setMessage("⚠️ 此訂單已完成兌換，無需再次提交。如有問題請聯絡我們");
       } else if (data?.success) {
-        setMessage(
-          "\u2705 \u5df2\u6210\u529f\u7522\u751f QRCode \u4e26\u5bc4\u9001\u81f3\u4fe1\u7bb1\uff01"
-        );
+        setMessage("✅ 已成功產生 QRCode 並寄送至您的信箱！");
       } else {
         setMessage(
-          `\u274c \u767c\u751f\u932f\u8aa4\uff1a${
-            data?.error || data?.message || "\u8acb\u7a0d\u5f8c\u518d\u8a66"
-          }`
+          `❌ 發生錯誤：${data?.error || data?.message || "請稍後再試或洽客服"}`
         );
       }
     } catch (error) {
-      setMessage(
-        "\u274c \u7cfb\u7d71\u932f\u8aa4\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66\u3002"
-      );
+      setMessage("❌ 系統錯誤，請稍後再試。");
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="flex bg-[#ededed] py-[100px] lg:py-0 h-auto lg:h-screen justify-center items-center">
-      <div className="flex max-w-[1000px] flex-col lg:flex-row w-[80%] mx-auto">
-        <div className="w-full lg:w-[60%] p-[60px] mx-2 mt-10 border border-gray-300 rounded-lg shadow-md bg-[#4286f3]">
-          <h1 className="text-2xl font-bold mb-8 text-white text-center">
-            eSIM 蝦皮訂單兌換
-          </h1>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block font-medium mb-1 text-gray-100">
-                蝦皮訂單編號
-              </label>
-              <input
-                type="text"
-                value={orderNo}
-                onChange={(e) => setOrderNo(e.target.value)}
-                className="w-full border p-2 rounded-[12px]"
-                placeholder="例如：SP123456789"
-                required
-              />
+    <Layout>
+      <div className="min-h-screen bg-[#1C82E0] flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-4xl mx-auto flex flex-col lg:flex-row gap-8 text-white">
+          {/* 左側：表單區 */}
+          <div className="flex-1 rounded-3xl bg-white/5 hover:bg-white/15 duration-300 border border-white/20 shadow-xl px-6 py-8 md:px-10 md:py-10 backdrop-blur-sm">
+            {/* 標題 */}
+            <div className="mb-8 text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-semibold tracking-wide">
+                eSIM 蝦皮訂單兌換
+              </h1>
+              <p className="mt-2 text-xs md:text-sm text-white/70">
+                輸入蝦皮訂單編號，我們將為您產生 eSIM QR Code 並寄送到信箱
+              </p>
             </div>
 
-            <div>
-              <label className="block font-medium mb-1 text-gray-100">
-                收件信箱
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border p-2 rounded-[12px]"
-                placeholder="若留空則使用訂單信箱"
-              />
-            </div>
+            {/* 表單 */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="text-xs uppercase tracking-[0.15em] text-white/70">
+                  蝦皮訂單編號
+                </label>
+                <input
+                  type="text"
+                  value={orderNo}
+                  onChange={(e) => setOrderNo(e.target.value)}
+                  className="mt-1 block w-full bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
+                  placeholder="例如：SP123456789"
+                  required
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-slate-100 text-gray-800 rounded-[12px] py-2 hover:bg-gray-300 transition"
-            >
-              {loading ? "處理中..." : "產生 QRCode 並寄送"}
-            </button>
-          </form>
+              <div>
+                <label className="text-xs uppercase tracking-[0.15em] text-white/70">
+                  收件信箱（選填）
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 block w-full bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
+                  placeholder="若留空則使用蝦皮訂單信箱"
+                />
+              </div>
 
-          <div className="w-2/3 mx-auto">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`mt-4 w-full rounded-full bg-white/95 py-2.5 text-sm font-semibold text-[#1C82E0] tracking-wide shadow-sm transition hover:bg-white ${
+                  loading ? "opacity-60 cursor-not-allowed" : ""
+                }`}
+              >
+                {loading ? "處理中…" : "產生 QRCode 並寄送"}
+              </button>
+            </form>
+
+            {/* 訊息顯示 */}
             {message && (
-              <p className="mt-6 text-center font-medium text-gray-800 whitespace-pre-wrap">
+              <div className="mt-6 rounded-2xl bg-black/10 px-4 py-3 text-center text-xs md:text-sm text-white/90 whitespace-pre-wrap">
                 {message}
-              </p>
+              </div>
             )}
-          </div>
-        </div>
-        <div className="w-full lg:w-[40%] mx-auto p-6 mt-10 rounded-lg shadow-md bg-white">
-          <div>
-            <h2>INFO</h2>
-            <div>
-              <p>
-                提供蝦皮訂單購買的 eSIM
-                商品進行兌換使用。請輸入您的蝦皮訂單編號與有效的收件信箱，我們將會產生對應的
-                eSIM QRCode 並寄送至您的信箱。
+
+            {/* 備註 */}
+            <div className="mt-8 text-center md:text-left">
+              <p className="text-[11px] leading-relaxed text-white/60">
+                每筆訂單僅能兌換一次。若系統偵測此訂單已產生過 QRCode，
+                <br className="hidden md:block" />
+                將不會重複處理與寄信。如有疑問請聯絡客服協助處理。
               </p>
             </div>
-            <div className="py-3">
-              <ul className="list-disc pl-5 space-y-2 text-gray-700">
-                <li>
-                  <strong>蝦皮訂單編號：</strong>
-                  <ul className="list-disc pl-5">
-                    <li>請填寫完整訂單編號（例如：SP123456789）</li>
-                    <li>可在蝦皮訂單詳情頁面中查詢</li>
-                  </ul>
-                </li>
-                <li>
-                  <strong>收件信箱：</strong>
-                  <ul className="list-disc pl-5">
-                    <li>請填寫您方便接收 QRCode 的電子郵件</li>
-                    <li>若留空，系統將使用您下單時提供的信箱（若有）</li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-sm">
-                每筆訂單僅能兌換一次，若系統偵測此訂單已產生過
-                QRCode，將不會重複處理與寄信。 如有問題請聯絡我們
+          </div>
+
+          {/* 右側：說明區 */}
+          <div className="w-full lg:w-5/12 rounded-3xl border border-white/20 hover:bg-white/15 duration-300 bg-white/10 px-6 py-8 md:px-8 md:py-10 backdrop-blur-sm text-sm leading-relaxed text-white/85">
+            <h2 className="text-base md:text-lg font-semibold tracking-wide mb-4">
+              INFO
+            </h2>
+
+            <p className="text-xs md:text-sm mb-4">
+              提供蝦皮訂單購買的 eSIM
+              商品進行兌換使用。請輸入您的蝦皮訂單編號與有效的收件信箱，我們將會產生對應的
+              eSIM QRCode 並寄送至您的信箱。
+            </p>
+
+            <ul className="list-disc pl-5 space-y-3 text-xs md:text-sm">
+              <li>
+                <span className="font-semibold">蝦皮訂單編號：</span>
+                <ul className="list-disc pl-5 mt-1 space-y-1">
+                  <li>請填寫完整訂單編號（例如：SP123456789）。</li>
+                  <li>可在蝦皮訂單詳情頁面中查詢。</li>
+                </ul>
+              </li>
+              <li>
+                <span className="font-semibold">收件信箱：</span>
+                <ul className="list-disc pl-5 mt-1 space-y-1">
+                  <li>請填寫您方便接收 QRCode 的電子郵件。</li>
+                  <li>若留空，系統將使用您下單時提供的信箱（若有）。</li>
+                </ul>
+              </li>
+            </ul>
+
+            <div className="mt-5 text-[11px] md:text-xs text-white/70">
+              <p>
+                每筆訂單僅能兌換一次。若系統偵測該訂單已完成兌換，
+                <br className="hidden md:block" />
+                將顯示「已兌換」提示，不會重複產生 QRCode 與寄信。
+              </p>
+              <p className="mt-2">
+                如遇到訂單查無資料、信箱填寫錯誤或其他問題，
+                <br className="hidden md:block" />
+                歡迎將訂單截圖與問題描述寄至客服信箱與我們聯繫。
               </p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }

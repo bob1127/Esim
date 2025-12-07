@@ -64,7 +64,7 @@ const LoginRegisterPage = () => {
     setMessage("登入中...");
     try {
       const res = await fetch(
-        "https://fegoesim.com/wp-json/jwt-auth/v1/token",
+        "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/jwt-auth/v1/token",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -96,9 +96,12 @@ const LoginRegisterPage = () => {
 
   const fetchUser = async (jwt) => {
     try {
-      const res = await fetch("https://fegoesim.com/wp-json/wp/v2/users/me", {
-        headers: { Authorization: `Bearer ${jwt}` },
-      });
+      const res = await fetch(
+        "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/users/me",
+        {
+          headers: { Authorization: `Bearer ${jwt}` },
+        }
+      );
       const data = await res.json();
       if (!data.code) {
         setUserInfo(data);
@@ -119,7 +122,7 @@ const LoginRegisterPage = () => {
     }
     try {
       const res = await fetch(
-        `https://fegoesim.com/wp-json/wp/v2/users/${userInfo.id}`,
+        `https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/users/${userInfo.id}`,
         {
           method: "POST",
           headers: {
@@ -145,20 +148,32 @@ const LoginRegisterPage = () => {
 
   return (
     <Layout>
-      <div className="flex flex-col items-center justify-center px-3 min-h-screen pt-[100px]">
-        <div className="w-full bg-[#f5f6f7] max-w-md border-gray-300 p-8 border rounded-xl shadow-lg">
+      {/* 整頁藍色背景，表單極簡白字＋底線 input */}
+      <div className="flex bg-[#1C82E0] flex-col items-center justify-center px-4 min-h-screen pt-[100px]">
+        <div className="w-full max-w-md mx-auto text-white">
+          {/* 標題區 */}
+          <div className="mb-8 text-center">
+            <h1 className="text-2xl font-semibold tracking-wide">
+              會員登入 / 註冊
+            </h1>
+            <p className="mt-1 text-sm text-white/70">
+              使用同一組帳號管理您的 eSIM 訂單與 QR Code
+            </p>
+          </div>
+
+          {/* TAB：登入 / 註冊 */}
           {!token ? (
             <div>
-              <div className="flex justify-around mb-6">
+              <div className="flex justify-around mb-6 border-b border-white/30">
                 <button
                   onClick={() => {
                     setSelected("login");
                     setShowForgot(false);
                   }}
-                  className={`px-4 py-2 rounded-full font-bold transition-all duration-200 ${
+                  className={`pb-2 text-sm font-semibold tracking-wide transition-colors ${
                     selected === "login"
-                      ? "bg-[#1757FF] text-white"
-                      : "bg-gray-100 text-gray-600"
+                      ? "text-white border-b-2 border-white"
+                      : "text-white/60 hover:text-white/90"
                   }`}
                 >
                   登入
@@ -168,10 +183,10 @@ const LoginRegisterPage = () => {
                     setSelected("sign-up");
                     setShowForgot(false);
                   }}
-                  className={`px-4 py-2 rounded-full font-bold transition-all duration-200 ${
+                  className={`pb-2 text-sm font-semibold tracking-wide transition-colors ${
                     selected === "sign-up"
-                      ? "bg-[#1757FF] text-white"
-                      : "bg-gray-100 text-gray-600"
+                      ? "text-white border-b-2 border-white"
+                      : "text-white/60 hover:text-white/90"
                   }`}
                 >
                   註冊
@@ -179,7 +194,7 @@ const LoginRegisterPage = () => {
               </div>
 
               {selected === "login" && successMessage && (
-                <div className="mb-4 p-2 text-center text-green-700 bg-green-100 rounded">
+                <div className="mb-4 rounded-md bg-emerald-500/20 px-3 py-2 text-center text-xs text-emerald-50">
                   {successMessage}
                 </div>
               )}
@@ -195,42 +210,57 @@ const LoginRegisterPage = () => {
                         await handleLogin(e);
                         setLoggingIn(false);
                       }}
-                      className="flex flex-col gap-4"
+                      className="flex flex-col gap-5"
                     >
-                      <input
-                        type="text"
-                        name="username"
-                        value={form.username}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            username: e.target.value,
-                          }))
-                        }
-                        className="mt-1 block rounded-[13px] w-full border border-gray-300 p-2 focus:ring-2 focus:ring-gray-600 focus:outline-none"
-                        required
-                        placeholder="請輸入帳號或 Email"
-                        autoComplete="username"
-                      />
-                      <input
-                        type="password"
-                        name="password"
-                        placeholder="請輸入密碼"
-                        value={form.password}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            password: e.target.value,
-                          }))
-                        }
-                        className="mt-1 block w-full border border-gray-300 rounded-[13px] p-2 focus:ring-2 focus:ring-gray-600 focus:outline-none"
-                        required
-                        autoComplete="current-password"
-                      />
+                      {/* 帳號 / Email */}
+                      <div>
+                        <label className="text-xs uppercase tracking-[0.15em] text-white/70">
+                          帳號 / Email
+                        </label>
+                        <input
+                          type="text"
+                          name="username"
+                          value={form.username}
+                          onChange={(e) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              username: e.target.value,
+                            }))
+                          }
+                          className="mt-1 block w-full bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
+                          required
+                          placeholder="請輸入帳號或 Email"
+                          autoComplete="username"
+                        />
+                      </div>
+
+                      {/* 密碼 */}
+                      <div>
+                        <label className="text-xs uppercase tracking-[0.15em] text-white/70">
+                          密碼
+                        </label>
+                        <input
+                          type="password"
+                          name="password"
+                          placeholder="請輸入密碼"
+                          value={form.password}
+                          onChange={(e) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              password: e.target.value,
+                            }))
+                          }
+                          className="mt-1 block w-full bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
+                          required
+                          autoComplete="current-password"
+                        />
+                      </div>
+
+                      {/* 登入按鈕 */}
                       <button
                         type="submit"
                         disabled={loggingIn}
-                        className={`bg-[#1757FF] text-white py-2 rounded-[10px] hover:bg-[#2a3ebb] transition ${
+                        className={`mt-2 w-full rounded-full bg-white/95 py-2.5 text-sm font-semibold text-[#1C82E0] tracking-wide shadow-sm transition hover:bg-white ${
                           loggingIn ? "opacity-60 cursor-not-allowed" : ""
                         }`}
                       >
@@ -238,18 +268,20 @@ const LoginRegisterPage = () => {
                       </button>
                     </form>
 
-                    <div className="mt-3 text-center">
+                    {/* 忘記密碼 */}
+                    <div className="mt-4 text-center">
                       <button
                         type="button"
                         onClick={() => setShowForgot(true)}
-                        className="text-sm text-blue-600 underline"
+                        className="text-xs text-white/80 underline underline-offset-4 hover:text-white"
                       >
                         忘記密碼？
                       </button>
                     </div>
 
+                    {/* 訊息 */}
                     {message && (
-                      <p className="text-sm text-center text-red-500 mt-2">
+                      <p className="mt-3 text-center text-xs text-red-100">
                         {message}
                       </p>
                     )}
@@ -268,30 +300,40 @@ const LoginRegisterPage = () => {
               )}
             </div>
           ) : (
-            <div className="text-center space-y-4">
-              <h2 className="text-xl font-bold">
-                歡迎回來，{userInfo?.name || "會員"}
-              </h2>
-              <div className="text-sm text-gray-700">
+            // 已登入狀態
+            <div className="text-center space-y-5">
+              <div>
+                <h2 className="text-xl font-semibold">
+                  歡迎回來，{userInfo?.name || "會員"}
+                </h2>
+                <p className="mt-1 text-xs text-white/70">
+                  您將在數秒後自動返回首頁，繼續選購 eSIM
+                </p>
+              </div>
+
+              <div className="text-sm text-white/80">
                 {editMode ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
+                    <div className="text-xs uppercase tracking-[0.15em] text-white/70 text-left">
+                      Email
+                    </div>
                     <input
                       type="email"
                       value={editingEmail}
                       onChange={(e) => setEditingEmail(e.target.value)}
-                      className="p-2 border border-gray-300 rounded-md w-full"
+                      className="mt-1 block w-full bg-transparent border-0 border-b border-white/70 py-2 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-0"
                       placeholder="請輸入 Email"
                     />
-                    <div className="flex justify-center gap-4">
+                    <div className="flex justify-center gap-3 text-xs">
                       <button
                         onClick={handleEmailUpdate}
-                        className="px-4 py-1 bg-green-600 text-white rounded"
+                        className="rounded-full bg-white/95 px-4 py-1.5 font-semibold text-[#1C82E0] hover:bg白"
                       >
                         儲存
                       </button>
                       <button
                         onClick={() => setEditMode(false)}
-                        className="px-4 py-1 border text-gray-600 rounded"
+                        className="rounded-full border border-white/60 px-4 py-1.5 text白/80 hover:bg白/10"
                       >
                         取消
                       </button>
@@ -299,30 +341,37 @@ const LoginRegisterPage = () => {
                   </div>
                 ) : (
                   <div>
-                    <p>
+                    <p className="text-sm">
                       Email：
-                      <span className="text-gray-900">
+                      <span className="text-white font-medium">
                         {userInfo?.email || "(未填寫)"}
                       </span>
                     </p>
                     <button
                       onClick={() => setEditMode(true)}
-                      className="mt-2 text-sm text-blue-600 underline"
+                      className="mt-2 text-xs text-white/80 underline underline-offset-4 hover:text-white"
                     >
                       修改 Email
                     </button>
                   </div>
                 )}
               </div>
-              {message && <p className="text-sm text-center">{message}</p>}
-              <span>等待跳轉至首頁，繼續購物</span>
+
+              {message && (
+                <p className="text-xs text-center text-emerald-100">
+                  {message}
+                </p>
+              )}
             </div>
           )}
-        </div>
-        <div className="mt-10">
-          <span className="text-[14px] text-gray-500">
-            備註：請填入正確的 Email，此 Email 會拿來當作發送 QR CODE兌換的依據
-          </span>
+
+          {/* 備註說明 */}
+          <div className="mt-10 text-center">
+            <span className="block text-[12px] leading-relaxed text-white/70">
+              備註：請填入正確的 Email
+              <br />此 Email 將作為發送 eSIM QR Code 與訂單通知的依據
+            </span>
+          </div>
         </div>
       </div>
     </Layout>

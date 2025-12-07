@@ -3,155 +3,232 @@
 import { useEffect, useState } from "react";
 // import { AnimatePresence } from "framer-motion";
 // import Preloader from "../components/toys05/Preloader";
+import Marquee from "react-marquee-slider";
 import Layout from "./Layout.js";
 import Link from "next/link";
-
-// import SidebarNav from "../components/Sidebar.js";
-// import Landing from "../components/toys05/Landing";
-// import Projects from "../components/toys05/Projects";
-// import Description from "../components/toys05/Description";
-// import Link from "next/link";
-import Example from "../components/Drag/Example.jsx";
-// import HeroSlider from "../components/HeroSlider/page";
-// import Marquee from "react-fast-marquee";
-import Tabs from "../components/ui/Tabs.jsx";
-import EmblaCarousel from "../components/EmblaCarouselToys/index.jsx";
-import PopupAd from "../components/PopupAd.jsx";
-// import Double from "../components/two-colum/Double.jsx";
-
-import SwiperCard from "../components/SwiperCarousel/SwiperCardTravel.jsx";
-import SwiperCarouselHero from "../components/SwiperCarouselFood/index.jsx";
-// import {
-//   Dropdown,
-//   DropdownTrigger,
-//   DropdownMenu,
-//   DropdownItem,
-//   Button,
-// } from "@nextui-org/react";
-import { Typewriter } from "react-simple-typewriter";
-import ShiftTime from "../components/ShiftingCountdown/index.jsx";
-// import VideoComponent from '../components/VideoComponents/VideoComponent.jsx'
-// import SmoothParallaxScroll from "../components/SmoothParallaxScroll/index.js";
-import { Parallax } from "react-parallax";
-// import SwiperCarousel from "../components/SwiperCarousel/SwiperCardAbout.jsx";
-// import SwiperCarousel01 from "../components/SwiperCarousel/SwiperCard.jsx";
-// import SwiperCarousel02 from "../components/SwiperCarousel/SwiperCardFood.jsx";
-import DragCarousel from "../components/DragCarousel/index.tsx";
-// import JsonLd from "../components/JsonLd.jsx";
-// import YoutubeUH1 from "../components/VideoPlayer/UH1.jsx";
-// import TabMenu from "../components/SVGtext.jsx";
-// import ParallaxImage from "../components/ParallaxImage/page.jsx";
-// import { ReactLenis } from "@studio-freight/react-lenis";
-
-// import Magnetic from "../../../common/Magnetic";
-// import Rounded from "../../../common/RoundedButton";
-// import SlidingImages from "../components/toys05/SlidingImages";
-// import Contact from "../components/toys05/Contact";
-import Image from "next/image";
-// import { Link } from "lucide-react";
-
+import Image from "next/image.js";
+import Carousel from "../components/ThreeHorizontalSlider.jsx";
 export default function Home() {
   return (
     <Layout>
-      <section className="bg-white  py-[160px] px-6 md:px-12 lg:px-32">
-        <div className="max-w-5xl mx-auto space-y-12 text-gray-800">
-          {/* 標題區 */}
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-[#191919] mb-4">
-              關於汪喵通 SIM
-            </h1>
-            <p className="text-lg text-gray-600">
-              最簡單的 eSIM 出國上網方案，為你省下每一分鐘的旅程時間。
+      <Carousel />
+      <section className="section-company-intro  pt-20">
+        <div className="flex h-[400px] group">
+          <div className="w-[5%] border-[.5px] border-gray-200 flex justify-center items-center flex-col  h-full">
+            <p className="font-bold rotate-[90deg] text-gray-500 group-hover:text-black  duration-500">
+              01
+            </p>
+            <p className="text-lg font-bold rotate-[90deg] text-gray-500 group-hover:text-black my-8 duration-500">
+              ABOUT
             </p>
           </div>
+          <div className="w-[10%] border-[.5px] border-gray-200 h-full"></div>
+          <div className="w-[85%] border-[.5px] border-gray-200 h-full flex justify-center items-center">
+            <div className="flex flex-col p-6">
+              <h1 className="text-6xl font-bold">極客eSIM</h1>
+              <p className="text-2xl font-bold">
+                您出國旅遊的好選擇，各種eSIM方案
+              </p>
+              <div>
+                <span className="text-gray-900 font-bold text-2xl">
+                  美加旅遊 | 日本旅遊 ｜ 韓國旅遊 ｜中國旅遊{" "}
+                </span>
+              </div>
+              <div className="max-w-[1500px] flex">
+                <div className="max-w-[500px] mr-8 tetx-gray-700 text-[14px] tracking-widest mt-4">
+                  我們是一家專注於全球行動連線解決方案的科技公司，致力於以 eSIM
+                  技術 打破地域界限，讓使用者在世界各地都能輕鬆上網。
+                  透過與多國電信合作，我們提供 彈性方案、即時啟用、透明價格
+                  的數據服務，讓旅行與通訊更自由、更智能。
+                  我們相信，網路不只是連線工具，更是世界互通的橋樑。
+                  讓每一段旅程、每一次溝通，都無縫順暢，這就是我們存在的使命。
+                </div>
+                <div className="max-w-[500px] mr-4 tetx-gray-700 text-[14px] tracking-widest mt-4">
+                  無論你身處何地，連線只需一瞬。 我們以創新的 eSIM
+                  技術，讓旅人、商務人士與數位生活家，輕鬆擁抱全球高速網路。
+                  免換卡、免等待、免煩惱——世界，從此隨手可連。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="swuper-full-img overflow-hidden aspect-[16/7] relative">
+          <Image
+            src="/images/06.png"
+            alt="image"
+            placeholder="empty"
+            loading="lazy"
+            fill
+            className="object-cover "
+          />
+        </div>
+      </section>
 
-          {/* 公司理念 */}
-          <div>
-            <h2 className="text-2xl font-semibold text-left mb-2">
-              一站式 eSIM 解決方案，出國上網好簡單
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              汪喵通 SIM 提供簡單、快速、便宜的 eSIM
-              上網服務，不論是自由行還是商務出差，
-              都能找到穩定可靠的跨國上網方案。我們與多家電信商合作，讓你在全球旅途中輕鬆連網，不卡頓、不煩惱。
+      <section className="section-company-intro">
+        <div className="flex  h-auto lg:h-[500px] lg:flex-row flex-col group">
+          <div className=" w-full  bg-black lg:bg-transparent lg:w-[5%] border-[.5px] border-gray-200 flex justify-center items-center flex-row lg:flex-col  h-full">
+            <p className="font-bold rotate-[0deg] lg:rotate-[90deg] text-gray-500 lg:group-hover:text-black  group-hover:text-white duration-500">
+              02
+            </p>
+            <p className="text-lg mx-4 lg:mx-0 font-bold rotate-[0deg] lg:rotate-[90deg] text-gray-500 group-hover:text-white lg:group-hover:text-black my-2 lg:my-8 duration-500">
+              eSIM
             </p>
           </div>
+          <div className=" w-full lg:w-[50%] xl:w-[65%] border-[.5px] border-gray-200 h-full p-20">
+            <div className="max-w-[500px]">
+              <h2 className=" text-4xl lg:text-6xl font-normal leading-snug">
+                eSIM。
+                <br />
+                您旅行的好夥伴
+              </h2>
+              <p className="leading-relaxed mt-4">
+                即掃即用，隨時上線。全新 eSIM 服務提供 24HR
+                快速發貨，讓你無須等待、無需實體卡，出國前後都能輕鬆啟用。無論工作、旅遊或日常上網，一掃即可連線世界，享受真正的即時便利與自由行動力。
+              </p>
+              <button
+                className="
+  inline-flex items-center px-8 py-3 rounded-full  mt-4
+  text-white font-semibold text-sm 
+  bg-gradient-to-r from-[#0059b8] via-[#0071cf] to-[#0095e6]
+  shadow-md transition-all duration-300
+  hover:brightness-110 hover:shadow-lg
+"
+              >
+                eSIM 產品
+                <span className="ml-2 text-base">{">"}</span>
+              </button>
+            </div>
+          </div>
+          <div className=" w-full lg:w-[45%] xl:w-[30%] border-[.5px] border-gray-200 h-full flex justify-center items-center">
+            <div className="p-20">
+              <h3 className=" text-2xl lg:text-4xl text-gray-800">
+                無卡束縛，自由上線
+              </h3>
+              <p className="leading-relaxed text-gray-800 mt-3">
+                eSIM
+                讓連線變得更直覺、更自由。免插卡、免等待，只需掃描即可啟用，無論出國旅行或日常使用都能立即上線。支援多門號切換，讓你在工作、生活間輕鬆管理不同方案；內建式設計也更安全、不怕遺失，更具耐用性。同時減少實體塑料使用，是更環保、更現代的通信選擇。以更聰明的方式連線，讓你的行動力再進化。
+              </p>
+            </div>
+          </div>
+        </div>
 
-          {/* eSIM 說明 */}
-          <div>
-            <h2 className="text-2xl font-semibold text-left mb-2">
-              什麼是 eSIM？為什麼要選擇？
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              eSIM 是新一代虛擬 SIM 卡，不需插卡、不用寄送，只要手機支援 eSIM
-              功能， 掃描 QR Code
-              即可開通。即買即用、無實體卡、不怕遺失，是出國上網的新趨勢。
+        <div className="marquee mt-8">
+          <Marquee>
+            {[
+              <div className="flex" key="scan">
+                <div className="mx-4">
+                  <img
+                    src="/素材/形象/Generated-Image-November-15,-2025---6_07PM.png"
+                    className="max-w-[450px]"
+                    alt="scan"
+                  />
+                </div>
+                <div className="mx-4">
+                  <img
+                    src="/素材/形象/Generated-Image-November-15,-2025---5_19PM.png"
+                    className="max-w-[450px]"
+                    alt="scan"
+                  />
+                </div>
+                <div className="mx-4">
+                  <img
+                    src="/素材/形象/Generated Image November 15, 2025 - 5_25PM.png"
+                    className="max-w-[450px]"
+                    alt="scan"
+                  />
+                </div>
+                <div className="mx-4">
+                  <img
+                    src="/素材/形象/Generated Image November 05, 2025 - 8_40PM.png"
+                    className="max-w-[450px]"
+                    alt="scan"
+                  />
+                </div>
+                <div className="mx-4">
+                  <img
+                    src="/素材/形象/Generated-Image-November-15,-2025---6_07PM.png"
+                    className="max-w-[450px]"
+                    alt="scan"
+                  />
+                </div>
+                <div className="mx-4">
+                  <img
+                    src="/素材/形象/Generated-Image-November-15,-2025---5_19PM.png"
+                    className="max-w-[450px]"
+                    alt="scan"
+                  />
+                </div>
+                <div className="mx-4">
+                  <img
+                    src="/素材/形象/Generated Image November 15, 2025 - 5_25PM.png"
+                    className="max-w-[450px]"
+                    alt="scan"
+                  />
+                </div>
+              </div>,
+            ]}
+          </Marquee>
+        </div>
+      </section>
+      {/* 工作環境區塊：藍色漸層背景 */}
+      <section className="py-24 bg-gradient-to-r from-[#0059b8] via-[#0071cf] to-[#0095e6]">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 flex flex-col lg:flex-row gap-12 items-center">
+          {/* 左邊：多張照片排版 */}
+          <div className="w-full lg:w-1/2 flex gap-4">
+            {/* 左側直欄 */}
+            <div className="flex-1 flex flex-col gap-4">
+              <div className="relative h-64 rounded-3xl overflow-hidden">
+                <Image
+                  src="/images/env-01.jpg"
+                  alt="workspace 1"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="relative h-64 rounded-3xl overflow-hidden">
+                <Image
+                  src="/images/env-02.jpg"
+                  alt="workspace 2"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            {/* 右側直欄（錯落高度） */}
+            <div className="flex-1 flex flex-col gap-4 mt-10">
+              <div className="relative h-64 rounded-3xl overflow-hidden">
+                <Image
+                  src="/images/env-03.jpg"
+                  alt="workspace 3"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="relative h-56 rounded-3xl overflow-hidden">
+                <Image
+                  src="/images/env-04.jpg"
+                  alt="workspace 4"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 右邊：標題 + 文字 + 按鈕 */}
+          <div className="w-full lg:w-1/2 text-white">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">環境を知る</h2>
+            <p className="leading-relaxed text-[15px] md:text-base mb-8">
+              当社では、「自分と大切な人が幸せな時間を送れる環境であり続ける」という行動指針をもとに、
+              働きやすい環境、成長しやすい環境づくりに力を入れています。ここでは、当社のカルチャー、
+              福利厚生、人事評価制度など働く環境についてご紹介します。
             </p>
-          </div>
 
-          {/* 使用流程 */}
-          <div>
-            <h2 className="text-2xl font-semibold text-left mb-2">
-              購買與使用流程
-            </h2>
-            <ol className="list-decimal pl-5 text-gray-700 leading-relaxed space-y-1">
-              <li>挑選方案：依照國家、天數與用量選擇適合方案</li>
-              <li>完成付款：支援信用卡與行動支付</li>
-              <li>收到 QR Code：系統自動寄出安裝資訊</li>
-              <li>掃描開通：掃碼後立即連網，免設定免等待</li>
-            </ol>
-          </div>
-
-          {/* 常見問題提醒 */}
-          <div>
-            <h2 className="text-2xl font-semibold text-left mb-2">
-              常見問題與提醒事項
-            </h2>
-            <ul className="list-disc pl-5 text-gray-700 leading-relaxed space-y-2">
-              <li>
-                請先確認手機是否支援 eSIM（iPhone XS 以後、Pixel、部分三星）
-              </li>
-              <li>多數方案掃碼即開始計算天數，請在抵達當地後操作</li>
-              <li>eSIM 為一次性使用，刪除後無法再次掃描，請小心保管</li>
-              <li>多國方案的速度與流量視地區而定，詳情請見各商品說明</li>
-            </ul>
-          </div>
-
-          {/* 退換貨政策 */}
-          <div>
-            <h2 className="text-2xl font-semibold text-left mb-2">
-              退換貨與糾紛處理說明
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              為保障您的權益，汪喵通 SIM 提供彈性的退費政策：
-            </p>
-            <ul className="list-disc pl-5 text-gray-700 mt-2 space-y-2">
-              <li>未使用、未掃碼者，可於 12 小時內申請取消與退款</li>
-              <li>若系統寄錯方案或設備不支援，可提供證明申請退費</li>
-              <li>已掃碼啟用、操作錯誤、逾期未申請，恕無法退費</li>
-            </ul>
-            <p className="text-gray-700 mt-4">
-              請於訂單成立後 7 天內透過客服信箱或 LINE
-              官方帳號聯繫我們，我們會於 1～2 個工作天內回覆。
-            </p>
-          </div>
-
-          {/* 聯絡資訊 */}
-          <div>
-            <h2 className="text-2xl font-semibold text-left mb-2">聯絡我們</h2>
-            <ul className="text-gray-700 leading-relaxed">
-              <li>
-                客服信箱：
-                <a
-                  className="text-blue-600 underline"
-                  href="mailto:service@wangmeowsim.com"
-                >
-                  service@wangmeowsim.com
-                </a>
-              </li>
-              <li>LINE 客服：搜尋「@wangmeowsim」</li>
-              <li>服務時間：週一至週五 10:00～18:00（國定假日除外）</li>
-            </ul>
+            <button className="inline-flex items-center px-8 py-3 rounded-full bg-white text-[#0059b8] font-semibold text-sm shadow-md hover:bg-blue-50 transition">
+              働く環境
+              <span className="ml-2 text-base">{">"}</span>
+            </button>
           </div>
         </div>
       </section>

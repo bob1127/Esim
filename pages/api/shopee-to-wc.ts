@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 
 // WooCommerce 設定
 const WOOCOMMERCE_API_BASE =
-  "https://fegoesim.com/wp-json/wc/v3";
+  "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_ef9f4379124655ad946616864633bd37e3174bc2";
 const CONSUMER_SECRET = "cs_3da596e08887d9c7ccbf8ee15213f83866c160d4";
 

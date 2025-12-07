@@ -13,7 +13,7 @@ export const useWooCart = () => {
   };
 
   const addToCart = async (productId: number, quantity: number = 1) => {
-    const res = await fetch(`${API_BASE}/wp-json/cocart/v2/cart/add-item`, {
+    const res = await fetch(`${API_BASE}/wp-json/cocart/v2/Cart/add-item`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,7 +34,7 @@ export const useWooCart = () => {
   const getCart = async () => {
     const cartKey = getCartKey();
 
-    const res = await fetch(`${API_BASE}/wp-json/cocart/v2/cart`, {
+    const res = await fetch(`${API_BASE}/wp-json/cocart/v2/Cart`, {
       method: "GET",
       headers: cartKey
         ? {
@@ -50,7 +50,7 @@ export const useWooCart = () => {
   const removeItem = async (itemKey: string) => {
     const cartKey = getCartKey();
 
-    const res = await fetch(`${API_BASE}/wp-json/cocart/v2/cart/item/${itemKey}`, {
+    const res = await fetch(`${API_BASE}/wp-json/cocart/v2/Cart/item/${itemKey}`, {
       method: "DELETE",
       headers: cartKey
         ? {

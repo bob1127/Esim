@@ -8,7 +8,7 @@ const AddToCartForm = () => {
   ]);
 
   return (
-    <form action="https://starislandbaby.com/test/cart/" method="POST">
+    <form action="https://starislandbaby.com/test/Cart/" method="POST">
       {cartItems.map((item, index) => (
         <div key={index}>
           <input

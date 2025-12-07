@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
 
     try {
       const res = await fetch(
-        "https://fegoesim.com/wp-json/custom/v1/reset-password",
+        "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/custom/v1/reset-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -1,26 +1,27 @@
+// next.config.js
 const path = require("path");
 
 module.exports = {
   images: {
+    // ✅ 允許所有外部圖片網域
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "fegoesim.com",
-        pathname: "/wp-content/uploads/**",
+        hostname: "**",
       },
       {
-        protocol: "https",
-        hostname: "images.pexels.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "i0.wp.com",
-        pathname: "/**",
+        protocol: "http",
+        hostname: "**",
       },
     ],
+    // 或者直接用下面這行（Next.js 14+ 支援）
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "inline",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+
   trailingSlash: true,
+
   webpackDevMiddleware: (config) => {
     config.watchOptions = {
       poll: 1000,
@@ -28,13 +29,13 @@ module.exports = {
     };
     return config;
   },
+
   sassOptions: {
     includePaths: [path.join(__dirname, "styles")],
   },
 
   async rewrites() {
     return [
-      // ✅ 讓 /api/newebpay-notify（無斜線）直接 rewrite 到 /api/newebpay-notify/（有斜線）
       {
         source: "/api/newebpay-notify",
         destination: "/api/newebpay-notify/",
@@ -42,7 +43,6 @@ module.exports = {
     ];
   },
 
-  // ⬇️ 加入 WebGL Shader 支援設定
   webpack(config) {
     config.module.rules.push({
       test: /\.(glsl|vs|fs)$/,

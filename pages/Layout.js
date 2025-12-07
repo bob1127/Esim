@@ -3,7 +3,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { NextUIProvider } from "@nextui-org/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-import Navbar from "@/components/Navbar/Navbar.jsx";
+import Navbar from "@/components/Navbar/Navbar.tsx";
 import Banner from "@/components/banner";
 import Footer from "@/components/ui/footer.jsx";
 import Head from "next/head";
@@ -60,7 +60,7 @@ export default function RootLayout({ children }) {
       </Head>
 
         
-      <div className=" w-full overflow-hidden ">
+      <div className=" w-full ">
          
 
       <NextUIProvider>
@@ -69,12 +69,27 @@ export default function RootLayout({ children }) {
       <Navbar />
       <Sidebar sidebarProduct={sidebarProduct} onAddToCart={handleAddToCart} />
       {children}
+      <div className="fixed bottom-0 left-0  w-full z-50 bg-slate-50 py-4">
+         <div className="w-[65%] flex justify-center items-center max-w-[900px] mx-auto">
+           
+                <span className="text-lg font-bold">去任何地方都超快速</span>
+                
+            
+              <input
+                className="search-bar border border-gray-400 text-gray-600 rounded-full w-[100%] px-4 max-w-[600px] py-2 "
+                placeholder="請輸入您想去的國家"
+              ></input>
+              <span className="text-medium font-bold">請輸入您要去的國家</span>
+         </div>
+         
+      </div>
+      <Footer/>
     </UserProvider>
   </NextThemesProvider>
 </NextUIProvider>
 
         <Banner />
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

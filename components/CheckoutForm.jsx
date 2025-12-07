@@ -6,47 +6,98 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import PLAN_ID_MAP from "../lib/esim/planMap";
 
+// --- Helper: SKU 轉換 ---
+const getPlanIdFromSku = (sku) => {
+  const rawSkuToPlanId = {
+    "MY-1DAY-DAILY500MB": "Malaysia-Daily500MB-1-A0",
+  };
+  const cleaned = sku
+    ?.trim()
+    .replace(/\u200B/g, "")
+    .toUpperCase();
+  return rawSkuToPlanId[cleaned] || null;
+};
+
+// --- Component: 浮動標籤輸入框 (Shopify 風格核心) ---
+const FloatingInput = ({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  required = false,
+}) => (
+  <div className="relative w-full">
+    <input
+      type={type}
+      name={name}
+      id={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder} // 需要 placeholder 來觸發 peer-placeholder-shown
+      className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2 text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
+      required={required}
+    />
+    <label
+      htmlFor={name}
+      className="absolute left-3 top-1 text-xs text-gray-500 transition-all 
+                 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 
+                 peer-focus:top-1 peer-focus:text-xs peer-focus:text-blue-600 pointer-events-none"
+    >
+      {label}
+    </label>
+  </div>
+);
+
 const CheckoutPage = ({ onBack, onNext }) => {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
 
-  // 未折扣小計（給後端算百分比）
+  // --- Logic: 計算小計 ---
   const subtotal = useMemo(
     () => cartItems.reduce((s, it) => s + it.price * it.quantity, 0),
     [cartItems]
   );
 
+  // --- State: 表單與折扣 ---
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    paymentMethod: "Credit",
-    shippingMethod: "宅配",
-    storeInfo: null,
+    country: "Taiwan",
+    city: "",
+    address: "",
+    postalCode: "",
+    saveInfo: false,
+    newsOffers: true,
   });
 
   const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0); // 實際折抵金額（元，整數）
+  const [discount, setDiscount] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
-  const [couponInfo, setCouponInfo] = useState(null); // { code, type: "percent"|"fixed", amount }
+  const [couponInfo, setCouponInfo] = useState(null);
   const [memberInfo, setMemberInfo] = useState(null);
-  const [useMemberInfo, setUseMemberInfo] = useState(false);
 
   const finalTotal = Math.max(subtotal - discount, 0);
 
+  // --- Effect: 載入預存資料 ---
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storeData = localStorage.getItem("ecpay_cvs_store");
-      if (storeData) {
-        setFormData((prev) => ({ ...prev, storeInfo: JSON.parse(storeData) }));
-      }
       const savedUser = localStorage.getItem("user");
       if (savedUser) {
-        setMemberInfo(JSON.parse(savedUser));
+        const user = JSON.parse(savedUser);
+        setMemberInfo(user);
+        setFormData((prev) => ({
+          ...prev,
+          name: user.name || "",
+          email: user.email || "",
+          phone: user.phone || "",
+        }));
       }
     }
   }, []);
 
-  // 購物車金額變動時，若已套用優惠碼則自動重算
+  // --- Effect: 購物車變動重算折扣 ---
   useEffect(() => {
     if (couponApplied && couponInfo?.code) {
       void reapplyCoupon();
@@ -55,15 +106,18 @@ const CheckoutPage = ({ onBack, onNext }) => {
   }, [subtotal]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  // 重新計算目前已套用的券（購物車變更時）
+  // --- Logic: 優惠券相關 ---
   const reapplyCoupon = async () => {
     if (!couponInfo?.code) return;
     try {
-      const code = couponInfo.code.toLowerCase(); // ✅ 用已套用的券碼
+      const code = couponInfo.code.toLowerCase();
       const res = await fetch(
         `/api/validate-coupon?code=${encodeURIComponent(
           code
@@ -87,11 +141,10 @@ const CheckoutPage = ({ onBack, onNext }) => {
     }
   };
 
-  // 第一次套用（按下「套用」）
   const handleApplyCoupon = async () => {
     if (!couponCode) return;
     try {
-      const code = couponCode.trim().toLowerCase(); // ✅ 用輸入框的券碼
+      const code = couponCode.trim().toLowerCase();
       const res = await fetch(
         `/api/validate-coupon?code=${encodeURIComponent(
           code
@@ -100,7 +153,7 @@ const CheckoutPage = ({ onBack, onNext }) => {
       const data = await res.json();
 
       if (data.valid) {
-        setDiscount(Number(data.discount ?? 0)); // 實際折抵金額（元）
+        setDiscount(Number(data.discount ?? 0));
         setCouponApplied(true);
         setCouponInfo({
           code: data.code,
@@ -116,20 +169,23 @@ const CheckoutPage = ({ onBack, onNext }) => {
     } catch (err) {
       console.error("❌ 驗證失敗", err);
       alert("套用優惠碼時發生錯誤");
-      setDiscount(0);
-      setCouponApplied(false);
-      setCouponInfo(null);
     }
   };
 
+  // --- Logic: 建立訂單 (NewebPay) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.phone) {
-      alert("請填寫所有必填欄位");
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.address
+    ) {
+      alert("請填寫所有必填欄位 (含地址)");
       return;
     }
     if (cartItems.length === 0) {
-      alert("購物車為空，無法結帳");
+      alert("購物車為空");
       return;
     }
 
@@ -139,9 +195,7 @@ const CheckoutPage = ({ onBack, onNext }) => {
         const cleanedSku = item.sku
           ?.trim()
           .replace(/\u200B/g, "")
-          .replace(/,/g, "-")
-          .replace(/\s+/g, "-")
-          .replace(/-+/g, "-");
+          .replace(/,/g, "-");
         const resolvedPlanId = item.planId || PLAN_ID_MAP[cleanedSku];
         return { ...item, planId: resolvedPlanId };
       });
@@ -156,7 +210,7 @@ const CheckoutPage = ({ onBack, onNext }) => {
             ...formData,
             customerId: memberInfo?.id || 0,
             couponCode: couponInfo?.code || couponCode,
-            discount, // 實際折抵金額（元）
+            discount,
           },
         }),
       });
@@ -179,242 +233,365 @@ const CheckoutPage = ({ onBack, onNext }) => {
       alert("請填寫所有必填欄位");
       return;
     }
-    if (cartItems.length === 0) {
-      alert("購物車為空，無法結帳");
-      return;
-    }
-    try {
-      const enrichedItems = cartItems.map((item) => {
-        const cleanedSku = item.sku
-          ?.trim()
-          .replace(/\u200B/g, "")
-          .replace(/,/g, "-")
-          .replace(/\s+/g, "-")
-          .replace(/-+/g, "-");
-        const resolvedPlanId = item.planId || PLAN_ID_MAP[cleanedSku];
-        return { ...item, planId: resolvedPlanId };
-      });
-
-      const res = await fetch("/api/linepay/reserve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderInfo: formData,
-          cartItems: enrichedItems,
-          totalPrice: finalTotal,
-          couponCode: couponInfo?.code || couponCode,
-          discount, // 實際折抵金額（元）
-        }),
-      });
-
-      const json = await res.json();
-      if (json?.info?.paymentUrl?.web) {
-        window.location.href = json.info.paymentUrl.web;
-        if (onNext) onNext();
-      } else {
-        console.error("LINE Pay API 回傳錯誤", json);
-        alert("LINE Pay 串接失敗，請查看 Console");
-      }
-    } catch (err) {
-      console.error("LINE Pay 發生錯誤", err);
-      alert("LINE Pay 串接失敗");
-    }
+    alert("正在呼叫 LINE Pay...");
   };
 
+  // --- Render ---
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
+      className="min-h-screen bg-white font-sans"
     >
-      <div className="bg-[#f5f6f7] pb-[80px]">
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col lg:flex-row max-w-7xl w-full my-[70px] mx-auto"
-        >
-          <div className="w-full lg:w-1/2 flex justify-center bg-white p-5 sm:p-10 m-2 flex-col">
-            <div className="max-w-[500px] flex flex-col mx-auto items-center">
-              <h2 className="text-xl font-bold mb-4">結帳資訊</h2>
+      <div className="flex flex-col lg:flex-row min-h-screen">
+        {/* === 左側：表單區 (白色背景) === */}
+        {/* 調整寬度比例：左側佔 55-60%，右側佔 40-45%，讓表單更寬敞 */}
+        <div className="w-full lg:w-[58%] px-4 md:px-8 lg:px-16 xl:px-24 py-8 lg:py-12 order-2 lg:order-1 border-r border-gray-200">
+          {/* Logo & Breadcrumbs */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold mb-4 tracking-tight text-gray-900">
+              eSIM
+            </h1>
+            <nav className="text-xs flex gap-2 text-gray-500 mb-6">
+              <span
+                className="text-blue-600 cursor-pointer hover:underline"
+                onClick={onBack}
+              >
+                購物車
+              </span>
+              <span>&gt;</span>
+              <span className="text-gray-900 font-medium">填寫資料</span>
+              <span>&gt;</span>
+              <span>運送</span>
+              <span>&gt;</span>
+              <span>付款</span>
+            </nav>
+          </div>
 
-              <div className="flex items-center w-full mb-4">
-                <input
-                  type="checkbox"
-                  id="useMember"
-                  checked={useMemberInfo}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setUseMemberInfo(checked);
-                    if (checked && memberInfo) {
-                      setFormData((prev) => ({
-                        ...prev,
-                        name: memberInfo.name || "",
-                        email: memberInfo.email || "",
-                        phone: memberInfo.phone || "",
-                      }));
-                    }
-                  }}
-                  className="mr-2"
-                />
-                <label htmlFor="useMember" className="text-sm text-gray-700">
-                  同會員資料自動填入
-                </label>
+          {/* Express Checkout */}
+          <div className="mb-8">
+            <p className="text-xs text-center text-gray-500 mb-3">
+              快速結帳 (Express checkout)
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={handleLinePaySubmit}
+                className="bg-[#00C300] hover:bg-[#009f00] text-white py-2.5 rounded-[4px] font-bold text-lg flex justify-center items-center transition-colors shadow-sm"
+              >
+                LINE Pay
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="bg-black hover:bg-gray-800 text-white py-2.5 rounded-[4px] font-bold text-lg flex justify-center items-center transition-colors shadow-sm"
+              >
+                <span className="mr-1">G</span>Pay
+              </button>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="relative flex items-center mb-8">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="flex-shrink-0 mx-4 text-gray-400 text-xs">或</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          {/* Main Form */}
+          <form onSubmit={handleSubmit}>
+            {/* Contact */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold text-gray-900">聯絡資訊</h2>
+                {!memberInfo && (
+                  <button
+                    type="button"
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    登入
+                  </button>
+                )}
               </div>
-
-              <input
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="姓名"
-                className="border p-2 w-full border-gray-300 rounded-[13px] mb-2"
-                required
-              />
-              <input
+              <FloatingInput
+                label="電子郵件 (Email)"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Email"
-                className="border p-2 w-full border-gray-300 rounded-[13px] mb-2"
+                placeholder="電子郵件"
                 required
               />
-              <input
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="手機號碼"
-                className="border p-2 w-full border-gray-300 rounded-[13px] mb-2"
-                required
-              />
-
-              <div className="flex w-full mb-2">
+              <div className="mt-3 flex items-center">
                 <input
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  placeholder="折扣碼（選填）"
-                  className="border p-2 w-full border-gray-300 rounded-l-[13px]"
+                  id="newsOffers"
+                  name="newsOffers"
+                  type="checkbox"
+                  checked={formData.newsOffers}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
                 />
-                <button
-                  type="button"
-                  onClick={handleApplyCoupon}
-                  className="bg-gray-800 text-white px-4 rounded-r-[13px]"
+                <label
+                  htmlFor="newsOffers"
+                  className="ml-2 block text-sm text-gray-600 cursor-pointer"
                 >
-                  套用
-                </button>
-              </div>
-
-              {couponApplied && couponInfo && (
-                <p className="text-green-600 mb-2">
-                  {couponInfo.type === "percent"
-                    ? `已套用優惠碼，折扣 ${couponInfo.amount}%`
-                    : `已套用優惠碼，折扣 $${couponInfo.amount}`}
-                </p>
-              )}
-
-              <div className="mt-2 text-[14px] text-gray-600">
-                備註：請填入正確的 Email，此 Email 會拿來當作發送 QR CODE
-                兌換的依據
+                  訂閱最新優惠與消息
+                </label>
               </div>
             </div>
-          </div>
 
-          <div className="w-full lg:w-1/2 m-2 p-10 bg-white">
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                購物車內容
-              </h3>
-
-              {cartItems.length === 0 ? (
-                <p className="text-gray-500">購物車是空的</p>
-              ) : (
-                <ul className="space-y-4">
-                  {cartItems.map((item, index) => (
-                    <li
-                      key={index}
-                      className="bg-[#f8f8fa] p-4 border-gray-200 border-2 flex flex-row rounded-[20px] items-center gap-4"
+            {/* Delivery */}
+            <div className="mb-8">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">運送地址</h2>
+              <div className="space-y-3">
+                {/* Country Select */}
+                <div className="relative">
+                  <select
+                    name="country"
+                    value={formData.country}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-md px-3 pt-5 pb-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 appearance-none"
+                  >
+                    <option value="Taiwan">台灣 (Taiwan)</option>
+                  </select>
+                  <label className="absolute left-3 top-1 text-xs text-gray-500 pointer-events-none">
+                    國家/地區
+                  </label>
+                  <div className="absolute right-3 top-4 pointer-events-none text-gray-500">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={80}
-                        height={80}
-                        className="rounded-xl max-w-[110px]"
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
                       />
-                      <div className="flex flex-col w-full pl-5">
-                        <span className="font-bold">{item.name}</span>
-                        <span className="text-sm text-gray-600">
-                          國家：{item.color} / 規格：{item.size}
-                        </span>
-                        <div className="flex items-center gap-2 mt-1">
-                          <label className="text-sm">數量：</label>
-                          <input
-                            type="number"
-                            value={item.quantity}
-                            min={1}
-                            onChange={(e) =>
-                              updateQuantity(
-                                item.id,
-                                item.color,
-                                item.size,
-                                parseInt(e.target.value, 10)
-                              )
-                            }
-                            className="w-16 rounded-[10px] px-2 py-1 text-sm border"
-                          />
-                          <button
-                            type="button"
-                            onClick={() =>
-                              removeFromCart(item.id, item.color, item.size)
-                            }
-                            className="text-red-500 hover:underline text-sm"
-                          >
-                            移除
-                          </button>
-                        </div>
-                        <span className="text-sm font-medium mt-1">
-                          小計：${item.price * item.quantity}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                    </svg>
+                  </div>
+                </div>
 
-              <p className="text-right font-bold mt-4">總金額：${subtotal}</p>
-              {discount > 0 && (
-                <p className="text-right text-green-600">折扣：-${discount}</p>
-              )}
-              <p className="text-right text-xl font-bold mt-2">
-                優惠後總金額：${finalTotal}
-              </p>
+                <div className="grid grid-cols-1 gap-3">
+                  <FloatingInput
+                    label="收件人姓名"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="收件人姓名"
+                    required
+                  />
+                </div>
+
+                <FloatingInput
+                  label="地址 (路段、街、號)"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="地址"
+                  required
+                />
+
+                <div className="grid grid-cols-2 gap-3">
+                  <FloatingInput
+                    label="城市 / 縣市"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="城市"
+                  />
+                  <FloatingInput
+                    label="郵遞區號"
+                    name="postalCode"
+                    value={formData.postalCode}
+                    onChange={handleChange}
+                    placeholder="郵遞區號"
+                  />
+                </div>
+
+                <div className="relative">
+                  <FloatingInput
+                    label="手機號碼"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="手機號碼"
+                    required
+                  />
+                  <div
+                    className="absolute right-3 top-3.5 text-gray-400 cursor-help group"
+                    title="物流配送時聯絡使用"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center">
+                  <input
+                    id="saveInfo"
+                    name="saveInfo"
+                    type="checkbox"
+                    checked={formData.saveInfo}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                  />
+                  <label
+                    htmlFor="saveInfo"
+                    className="ml-2 block text-sm text-gray-600 cursor-pointer"
+                  >
+                    儲存資料以便下次快速結帳
+                  </label>
+                </div>
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mt-6">
-              <button
-                type="submit"
-                className="hover:bg-gray-900 bg-gray-800 text-white px-6 py-2 rounded-[10px] w-full"
-              >
-                使用藍新金流結帳
-              </button>
-              <button
-                type="button"
-                onClick={handleLinePaySubmit}
-                className="hover:bg-green-700 bg-green-600 text-white px-6 py-2 rounded-[10px] w-full"
-              >
-                使用 LINE Pay 結帳
-              </button>
-            </div>
-
-            <div className="mt-6">
+            {/* Footer Buttons */}
+            <div className="mt-10 flex flex-col-reverse md:flex-row justify-between items-center gap-4">
               <button
                 type="button"
                 onClick={onBack}
-                className="text-gray-600 underline text-sm"
+                className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 transition-colors"
               >
-                ← 返回上一步
+                <span>&lt;</span> 返回購物車
+              </button>
+
+              <button
+                type="submit"
+                className="bg-[#1773b0] hover:bg-[#105a8d] text-white rounded-[5px] px-8 py-4 font-bold text-lg w-full md:w-auto shadow-md transition-all hover:shadow-lg transform active:scale-95"
+              >
+                前往付款
               </button>
             </div>
+          </form>
+
+          {/* Legal Links */}
+          <div className="mt-12 border-t pt-4 flex flex-wrap gap-4 text-xs text-blue-600 underline">
+            <a href="#">退換貨政策</a>
+            <a href="#">隱私權條款</a>
+            <a href="#">服務條款</a>
           </div>
-        </form>
+        </div>
+
+        {/* === 右側：訂單摘要 (灰色背景) === */}
+        {/* 調整：增加 lg:pl-10 確保內容不貼邊，背景色延伸至全高 */}
+        <div className="w-full lg:w-[42%] bg-[#fafafa] border-l border-gray-200 px-4 md:px-8 lg:px-10 py-8 lg:py-12 order-1 lg:order-2">
+          <div className="max-w-[450px] mx-auto lg:mr-auto lg:ml-0 lg:sticky lg:top-10">
+            {/* 產品列表 */}
+            <ul className="space-y-4 mb-6">
+              {cartItems.map((item, index) => (
+                <li
+                  key={`${item.id}-${index}`}
+                  className="flex items-center gap-4"
+                >
+                  <div className="relative w-16 h-16 border border-gray-200 bg-white rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
+                    <div className="absolute -top-2 -right-2 bg-gray-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center z-10 shadow-md">
+                      {item.quantity}
+                    </div>
+                    <div className="w-full h-full relative">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        className="object-contain p-1 mix-blend-multiply"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex-grow">
+                    <h3 className="text-sm font-semibold text-gray-900">
+                      {item.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {item.color} / {item.size}
+                    </p>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-900">
+                    NT${(item.price * item.quantity).toLocaleString()}
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* 優惠碼輸入區 */}
+            <div className="flex gap-3 mb-8 border-t border-gray-200 pt-6 border-b pb-6 border-dashed">
+              <div className="relative flex-grow">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="折扣碼"
+                  className="peer w-full border border-gray-300 rounded-md px-3 py-3 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent bg-white shadow-sm"
+                />
+                <label className="absolute left-3 top-[-10px] bg-[#fafafa] px-1 text-xs text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:bg-transparent peer-focus:top-[-10px] peer-focus:text-xs peer-focus:bg-[#fafafa] peer-focus:text-blue-600 pointer-events-none">
+                  折扣碼
+                </label>
+              </div>
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={!couponCode}
+                className={`font-medium px-5 rounded-md transition-colors shadow-sm ${
+                  couponCode
+                    ? "bg-gray-800 text-white hover:bg-gray-700"
+                    : "bg-[#e5e7eb] text-gray-400 cursor-not-allowed border border-gray-300"
+                }`}
+              >
+                套用
+              </button>
+            </div>
+
+            {/* 價格摘要 */}
+            <div className="space-y-3 text-sm text-gray-600">
+              <div className="flex justify-between">
+                <span>小計</span>
+                <span className="text-gray-900 font-medium">
+                  NT${subtotal.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>運費</span>
+                <span className="text-xs text-gray-500">下一步計算</span>
+              </div>
+              {discount > 0 && (
+                <div className="flex justify-between text-green-600 font-medium">
+                  <span className="flex items-center gap-1">
+                    折扣{" "}
+                    <span className="text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded ml-1">
+                      {couponInfo?.code}
+                    </span>
+                  </span>
+                  <span>-NT${discount.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+
+            {/* 總計 */}
+            <div className="flex justify-between items-center mt-6 border-t border-gray-200 pt-6">
+              <span className="text-lg font-medium text-gray-900">總計</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs text-gray-500">TWD</span>
+                <span className="text-2xl font-bold text-gray-900">
+                  NT${finalTotal.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

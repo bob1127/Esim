@@ -8,7 +8,7 @@ const MERCHANT_ID = "MS3788816305";
 const HASH_KEY = "OVB4Xd2HgieiLJJcj5RMx9W94sMKgHQx";
 const HASH_IV = "PKetlaZYZcZvlMmC";
 
-const WOOCOMMERCE_API_URL = "https://fegoesim.com/wp-json/wc/v3/orders";
+const WOOCOMMERCE_API_URL = "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wc/v3/orders";
 const CONSUMER_KEY = "ck_ef9f4379124655ad946616864633bd37e3174bc2";
 const CONSUMER_SECRET = "cs_3da596e08887d9c7ccbf8ee15213f83866c160d4";
 

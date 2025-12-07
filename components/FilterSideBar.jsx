@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 
-const TAG_API_URL = `https://fegoesim.com/wp-json/wc/v3/products/tags`;
+const TAG_API_URL = `https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wc/v3/products/tags`;
 const TAG_API_PARAMS = {
   consumer_key: "ck_ef9f4379124655ad946616864633bd37e3174bc2",
   consumer_secret: "cs_3da596e08887d9c7ccbf8ee15213f83866c160d4",

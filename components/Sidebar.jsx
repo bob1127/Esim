@@ -49,7 +49,7 @@ const Sidebar = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const { addToCartIds, quantities } = getWooCommerceFormData();
-    let url = "https://starislandbaby.com/test/cart/?add-to-cart=";
+    let url = "https://starislandbaby.com/test/Cart/?add-to-cart=";
     url += addToCartIds.join(",");
     url += "&quantity=" + quantities.join(",");
     console.log("生成的 URL:", url);

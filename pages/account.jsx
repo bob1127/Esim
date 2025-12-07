@@ -8,24 +8,14 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ========== 小工具 ========== */
-const log = (...args) => console.log("[Account]", ...args);
-const warn = (...args) => console.warn("[Account]", ...args);
-const error = (...args) => console.error("[Account]", ...args);
-
-/** 將任意金額字串/數字 → 四捨五入為整數並加上千分位 */
 const formatNTDNoDecimals = (val) => {
   if (val == null) return "0";
   const n = Number(String(val).replace(/[^0-9.-]/g, ""));
   if (!Number.isFinite(n)) return "0";
-  const rounded = Math.round(n);
-  return rounded.toLocaleString("zh-TW");
+  return Math.round(n).toLocaleString("zh-TW");
 };
 
-/** 狀態中文（同時支援 on-hold / on_hold） */
 const statusLabel = (status) => {
-  const s = String(status || "")
-    .toLowerCase()
-    .replace("_", "-");
   const map = {
     processing: "已付款完成",
     pending: "待付款",
@@ -35,127 +25,53 @@ const statusLabel = (status) => {
     refunded: "已退款",
     failed: "付款失敗",
   };
-  return map[s] || status;
+  return map[String(status || "").toLowerCase()] || status;
 };
 
-/** 支援多張 QRCode（esim_qrcodes）或單張（esim_qrcode + 數量） */
-function readQRCodes(meta, namePrefix = "eSIM") {
+/**
+ * 從訂單 meta_data 裡抓 eSIM QR Code 圖片網址
+ *  meta_data 格式：
+ *  value: '[{"name":"柬埔寨3GB #1","src":"https://microesim.top/files/9000025110852679"}]'
+ */
+const getEsimQRCodes = (order) => {
   const results = [];
-  if (!Array.isArray(meta)) return results;
 
-  const multi = meta.find((m) => m?.key === "esim_qrcodes")?.value;
-  const single = meta.find((m) => m?.key === "esim_qrcode")?.value;
-  const qtyStr = meta.find((m) => m?.key === "esim_quantity")?.value;
-  const qty = Math.max(1, parseInt(String(qtyStr || "1"), 10));
+  if (!order || !order.meta_data) return results;
 
-  const normalizeSrc = (raw) => {
-    const str = String(raw || "");
-    if (!str) return "";
-    return str.startsWith("http") || str.startsWith("data:image/")
-      ? str
-      : `data:image/png;base64,${str}`;
-  };
+  const meta = order.meta_data.find((m) => m.key === "esim_qrcodes");
 
-  if (multi) {
-    try {
-      const parsed = typeof multi === "string" ? JSON.parse(multi) : multi;
-      if (Array.isArray(parsed)) {
-        parsed.forEach((it, idx) => {
-          const src = normalizeSrc(it?.src ?? it);
-          if (src) results.push({ name: `${namePrefix} #${idx + 1}`, src });
-        });
-      }
-    } catch (e) {
-      warn("解析 esim_qrcodes 失敗：", e);
+  if (!meta || !meta.value) return results;
+
+  try {
+    const parsed = JSON.parse(meta.value); // value 是 JSON 字串
+    if (Array.isArray(parsed)) {
+      parsed.forEach((item) => {
+        if (item && item.src) {
+          results.push(item.src);
+        }
+      });
     }
-  } else if (single) {
-    const src = normalizeSrc(single);
-    if (src) {
-      for (let i = 0; i < qty; i++) {
-        results.push({ name: `${namePrefix} #${i + 1}`, src });
-      }
-    }
+  } catch (e) {
+    console.error("❌ 無法解析 esim_qrcodes JSON：", meta.value);
   }
 
-  return results;
-}
-
-/* ====== 匯款資訊 helpers ====== */
-const OFFSITE_TYPES = new Set(["VACC", "CVS", "WEBATM"]);
-
-const pickMeta = (meta, key) => {
-  if (!Array.isArray(meta)) return undefined;
-  const hit = meta.find((m) => m?.key === key);
-  return hit?.value != null ? String(hit.value) : undefined;
+  // 去重
+  return Array.from(new Set(results));
 };
 
-/** 讀取非即時付款資訊（從 meta 與 offsite JSON 整合） */
-function readOffsiteInfo(order) {
-  const meta = order?.meta_data || [];
-  const getMeta = (k) => pickMeta(meta, k);
-
-  // 優先使用 newebpay_offsite_info（JSON 字串）
-  let info = null;
-  const rawInfo = getMeta("newebpay_offsite_info");
-  if (rawInfo) {
-    try {
-      info = typeof rawInfo === "string" ? JSON.parse(rawInfo) : rawInfo;
-    } catch {}
-  }
-
-  // 付款方式
-  const paymentType = String(
-    info?.PaymentType ||
-      getMeta("newebpay_payment_type") ||
-      order?.paymentType ||
-      order?.payment_method_title ||
-      ""
-  ).toUpperCase();
-
-  // 欄位整合
-  const bankCode = info?.BankCode || getMeta("newebpay_bank_code") || "";
-  const codeNo =
-    info?.CodeNo || info?.PaymentNo || getMeta("newebpay_code_no") || "";
-  const expireDate = info?.ExpireDate || getMeta("newebpay_expire_date") || "";
-  const tradeNo = info?.TradeNo || "";
-  const amount = info?.Amt ?? order?.total;
-
-  // 是否已付款（看 meta 是否有 pay_time，或狀態 processing/completed）
-  const paidTime = getMeta("newebpay_pay_time");
-  const st = String(order?.status || "")
-    .toLowerCase()
-    .replace("_", "-");
-  const isPaid = Boolean(paidTime) || st === "processing" || st === "completed";
-
-  // 顯示條件：非即時付款 && 未入帳 && 狀態 pending/on-hold
-  const show =
-    OFFSITE_TYPES.has(paymentType) &&
-    !isPaid &&
-    (st === "pending" || st === "on-hold");
-
-  return {
-    paymentType,
-    bankCode,
-    codeNo,
-    expireDate,
-    tradeNo,
-    amount,
-    isPaid,
-    show,
-  };
-}
-
-/* ===== Skeleton ===== */
-const OrderSkeletonGrid = ({ count = 8 }) => (
-  <ul className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3">
-    {Array.from({ length: count }).map((_, i) => (
-      <li key={i} className="border border-gray-200 rounded bg-white p-4">
+/* Shimmer skeleton */
+const OrderSkeletonGrid = () => (
+  <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <li
+        key={i}
+        className="border border-white/70 rounded-2xl bg-white/60 p-6 shadow-[0_18px_40px_rgba(148,163,184,0.25)] backdrop-blur-sm"
+      >
         <div className="space-y-3 animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/3" />
-          <div className="h-3 bg-gray-200 rounded w-2/3" />
-          <div className="h-3 bg-gray-200 rounded w-1/2" />
-          <div className="h-3 bg-gray-200 rounded w-3/4" />
-          <div className="h-24 bg-gray-100 rounded" />
+          <div className="h-4 bg-slate-200 rounded w-1/3" />
+          <div className="h-3 bg-slate-200 rounded w-2/3" />
+          <div className="h-3 bg-slate-200 rounded w-1/2" />
+          <div className="h-24 bg-slate-100 rounded-xl" />
         </div>
       </li>
     ))}
@@ -163,20 +79,23 @@ const OrderSkeletonGrid = ({ count = 8 }) => (
 );
 
 /* ========== 主頁面 ========== */
-const AccountPage = () => {
+export default function AccountPage() {
+  const router = useRouter();
+
   const [userInfo, setUserInfo] = useState(null);
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersLoaded, setOrdersLoaded] = useState(false);
+
   const [favorites, setFavorites] = useState([]);
-  const [activeTab, setActiveTab] = useState("info"); // info | qrcode | remit
+  const [activeTab, setActiveTab] = useState("info");
+  const [editMode, setEditMode] = useState(false);
+
   const [editingEmail, setEditingEmail] = useState("");
   const [editingPhone, setEditingPhone] = useState("");
   const [editingName, setEditingName] = useState("");
-  const [editMode, setEditMode] = useState(false);
-  const router = useRouter();
 
-  /** 依 userId/email 抓訂單（同時帶兩者，讓後端可 fallback） */
+  /* ====== 抓訂單 API ====== */
   const fetchOrders = useCallback(async (u) => {
     if (!u) return [];
     const qs = new URLSearchParams({
@@ -184,77 +103,61 @@ const AccountPage = () => {
       ...(u.email ? { email: String(u.email) } : {}),
     }).toString();
 
-    log("呼叫 /api/get-orders，query =", qs);
     const res = await fetch(`/api/get-orders?${qs}`);
-    if (!res.ok) {
-      error("get-orders 失敗，HTTP", res.status);
-      throw new Error(`get-orders ${res.status}`);
-    }
     const data = await res.json();
-    const list = Array.isArray(data) ? data : [];
-    log(
-      "get-orders 回傳筆數：",
-      list.length,
-      list.map((o) => ({ id: o.id, status: o.status, total: o.total }))
-    );
-    return list;
+    return Array.isArray(data) ? data : [];
   }, []);
 
-  /** 包裝訂單載入流程（含 loading 標記） */
   const loadOrders = useCallback(
     async (u) => {
       if (!u) return;
       setOrdersLoading(true);
-      try {
-        const list = await fetchOrders(u);
-        setOrders(list);
-      } catch (e) {
-        error("抓訂單失敗：", e?.message);
-      } finally {
-        setOrdersLoading(false);
-        setOrdersLoaded(true);
-      }
+      const list = await fetchOrders(u);
+      setOrders(list);
+      setOrdersLoaded(true);
+      setOrdersLoading(false);
     },
     [fetchOrders]
   );
 
-  // 讀會員與訂單（具備 token 403 的 fallback）
+  // 若要 debug 可以保留這段
+  // useEffect(() => {
+  //   if (orders.length > 0) {
+  //     console.log("🔍 一筆訂單完整資料：", orders[0]);
+  //     console.log("🔍 這筆訂單的 meta_data：", orders[0].meta_data);
+  //   }
+  // }, [orders]);
+
+  /* ====== 初始化：讀會員 & 讀訂單 ====== */
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const storedUser = (() => {
-      try {
-        return JSON.parse(localStorage.getItem("user") || "null");
-      } catch {
-        return null;
-      }
-    })();
+    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
 
     if (!token && !storedUser) {
-      warn("沒有 token 與 localStorage user → 導回登入頁");
       router.push("/login");
       return;
     }
 
-    const load = async () => {
+    const loadUser = async () => {
       let user = storedUser;
 
       if (token) {
         try {
-          log("以 token 呼叫 WP /users/me");
-          const r = await fetch("https://fegoesim.com/wp-json/wp/v2/users/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!r.ok) throw new Error(`users/me HTTP ${r.status}`);
-          user = await r.json();
-          localStorage.setItem("user", JSON.stringify(user));
-          log("users/me 成功，user.id =", user?.id, "email =", user?.email);
-        } catch (e) {
-          warn("users/me 失敗，改用 localStorage user。err =", e?.message);
+          const res = await fetch(
+            "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/users/me",
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (res.ok) {
+            user = await res.json();
+            localStorage.setItem("user", JSON.stringify(user));
+          }
+        } catch {
+          // 若失敗就沿用 localStorage 的 user
         }
       }
 
       if (!user) {
-        warn("沒有 user 可用 → 導回登入頁");
         router.push("/login");
         return;
       }
@@ -263,526 +166,413 @@ const AccountPage = () => {
       setEditingEmail(user.email || "");
       setEditingPhone(user.meta?.billing_phone || "");
       setEditingName(user.name || "");
-      await loadOrders(user); // 初次載入就抓訂單
+      loadOrders(user);
     };
 
-    load().catch((e) => {
-      error("初始化 load() 例外：", e?.message);
-      router.push("/login");
-    });
+    loadUser();
 
     const fav = JSON.parse(localStorage.getItem("favorites") || "[]");
     setFavorites(fav);
   }, [router, loadOrders]);
 
-  // 切到「QRCode 訂單」或「匯款資訊」時，如果尚未載入完成就觸發載入（雙保險）
-  useEffect(() => {
-    if (
-      (activeTab === "qrcode" || activeTab === "remit") &&
-      !ordersLoaded &&
-      userInfo
-    ) {
-      loadOrders(userInfo);
-    }
-  }, [activeTab, ordersLoaded, userInfo, loadOrders]);
-
+  /* ====== 更新會員資訊 ====== */
   const handleProfileUpdate = async () => {
     const token = localStorage.getItem("token");
-    if (!token || !userInfo?.id) {
-      warn("缺少 token 或 user.id，無法更新會員資料");
-      return;
-    }
+    if (!token || !userInfo?.id) return;
 
-    try {
-      log("送出會員資料更新");
-      const res = await fetch(
-        `https://fegoesim.com/wp-json/wp/v2/users/${userInfo.id}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: editingName,
-            email: editingEmail,
-            meta: { billing_phone: editingPhone },
-          }),
-        }
-      );
-      const data = await res.json();
-      if (!data.code) {
-        log("會員資料更新成功");
-        setUserInfo(data);
-        setEditMode(false);
-        localStorage.setItem("user", JSON.stringify(data));
-        alert("會員資料更新成功");
-      } else {
-        warn("會員資料更新失敗：", data);
-        alert(data.message || "更新失敗");
+    const res = await fetch(
+      `https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/users/${userInfo.id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: editingName,
+          email: editingEmail,
+          meta: { billing_phone: editingPhone },
+        }),
       }
-    } catch (err) {
-      error("更新會員資料時發生錯誤", err);
-    }
-  };
+    );
 
-  /* ===== 匯款資訊：UI & 邏輯（純 JS） ===== */
-  const copy = async (text) => {
-    try {
-      await navigator.clipboard.writeText(String(text || ""));
-      alert("已複製到剪貼簿");
-    } catch (e) {
-      // 瀏覽器權限受限時的 fallback
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = String(text || "");
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        alert("已複製到剪貼簿");
-      } catch (err) {
-        warn("無法複製（瀏覽器權限受限）");
-      }
+    const data = await res.json();
+    if (!data.code) {
+      setUserInfo(data);
+      localStorage.setItem("user", JSON.stringify(data));
+      setEditMode(false);
+      alert("會員資料更新成功！");
+    } else {
+      alert("更新失敗：" + data.message);
     }
-  };
-
-  const refreshOrders = async () => {
-    if (userInfo) await loadOrders(userInfo);
   };
 
   if (!userInfo) {
-    return <p className="mt-40 text-center">正在載入會員資料...</p>;
+    return (
+      <Layout>
+        <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-[#E0F2FF] via-[#F8FBFF] to-[#FFE5F7] text-slate-700 text-lg">
+          讀取中...
+        </div>
+      </Layout>
+    );
   }
 
-  // 依現有訂單，挑出需要顯示匯款資訊的
-  const remitOrders = (Array.isArray(orders) ? orders : [])
-    .map((o) => ({ order: o, remit: readOffsiteInfo(o) }))
-    .filter((x) => x.remit.show);
-
+  /* ================================================================
+     UI：玻璃感 Dashboard 風格
+  ================================================================= */
   return (
     <Layout>
-      <div className=" bg-[#f7f8f9] flex flex-col justify-center items-center">
-        <div className="w-full py-20">
-          <div className="dashdoard max-w-[1920px] w-[95%] xl:w-[85%] mx-auto py-8 2xl:py-20">
-            {/* 麵包屑 */}
-            <div className="navgation flex max-w-[1920px] w-[80%] mb-8">
-              <Link href="/" className="group">
-                <span className="text-slate-500 text-[16px] group-hover:text-[#1757FF] group-hover:font-bold duration-300">
-                  回首頁
-                </span>
-              </Link>
-              <span className="mx-3">/</span>
-              <Link href="/account">
-                <span className="font-bold text-[#1757FF] text-[16px]">
-                  會員資訊
-                </span>
-              </Link>
+      <div className="min-h-screen w-full bg-gradient-to-br from-[#E0F2FF] via-[#F8FBFF] to-[#FFE5F7] flex items-center justify-center px-3 sm:px-6 py-8 sm:py-14">
+        <div
+          className="
+            w-full max-w-[1320px]
+            rounded-[32px] border border-white/70
+            bg-white/60
+            shadow-[0_28px_80px_rgba(15,23,42,0.20)]
+            backdrop-blur-2xl
+            px-4 sm:px-8 py-6 sm:py-8
+            flex flex-col lg:flex-row gap-6 sm:gap-8
+          "
+        >
+          {/* ================= 左側 Sidebar ================= */}
+          <aside className="w-full lg:w-[260px]">
+            <div className="mb-6">
+              <p className="text-xs text-slate-500">Home &raquo; My account</p>
+              <h1 className="mt-2 text-3xl sm:text-[32px] font-black tracking-wide text-slate-800">
+                Dashboard
+              </h1>
             </div>
 
-            <div className="titile">
-              <h1 className="text-[28px]">會員中心</h1>
-            </div>
-
-            <div className="wrap flex flex-col lg:flex-row mt-10 gap-10">
-              {/* 左側分頁 */}
-              <div className="tabs w-full lg:w-[20%] pr-6">
-                <ul className="flex flex-col gap-4">
-                  <li>
-                    <button
-                      onClick={() => setActiveTab("info")}
-                      className={`block w-full text-left rounded-[5px] px-4 py-2 ${
-                        activeTab === "info"
-                          ? "bg-[#1757FF] text-white font-bold"
-                          : "bg-white text-gray-700"
-                      }`}
-                    >
-                      會員資料
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setActiveTab("qrcode")}
-                      className={`block w-full text-left px-4 py-2 rounded-[5px] ${
-                        activeTab === "qrcode"
-                          ? "bg-[#1757FF] text-white font-bold"
-                          : "bg-white text-gray-700"
-                      }`}
-                    >
-                      QR Code 訂單
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setActiveTab("remit")}
-                      className={`block w-full text-left px-4 py-2 rounded-[5px] ${
-                        activeTab === "remit"
-                          ? "bg-[#1757FF] text-white font-bold"
-                          : "bg-white text-gray-700"
-                      }`}
-                    >
-                      匯款資訊
-                    </button>
-                  </li>
-                </ul>
+            <div className="rounded-2xl bg-white/90 border border-white shadow-[0_18px_40px_rgba(148,163,184,0.35)] overflow-hidden">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-500">
+                  Menu
+                </p>
               </div>
 
-              {/* 右側內容 */}
-              <div className="info w-full lg:w-[80%] relative mb-10 min-h-[600px]">
-                <AnimatePresence mode="wait">
-                  {/* 會員資料 */}
-                  {activeTab === "info" && (
-                    <motion.div
-                      key="info"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="w-full bg-white rounded-[6px] p-8"
+              <nav className="py-3">
+                {[
+                  { id: "info", label: "Dashboard / 會員資料" },
+                  { id: "qrcode", label: "訂單與 QR Code" },
+                  { id: "remit", label: "匯款資訊" },
+                ].map((item) => {
+                  const active = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className={`w-full flex items-center gap-2 px-5 py-3 text-sm transition relative
+                        ${
+                          active
+                            ? "text-[#0F172A] font-semibold"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
                     >
-                      <h1 className="text-2xl font-bold mb-4">會員資料</h1>
-                      {editMode ? (
-                        <div className="space-y-4">
+                      {/* 左側高亮條 */}
+                      <span
+                        className={`absolute left-0 top-1 bottom-1 rounded-r-full transition-all ${
+                          active
+                            ? "w-[4px] bg-gradient-to-b from-[#38BDF8] to-[#6366F1]"
+                            : "w-[2px] bg-transparent"
+                        }`}
+                      />
+                      <span
+                        className={`flex-1 rounded-xl px-3 py-2 text-left transition
+                          ${
+                            active
+                              ? "bg-gradient-to-r from-[#E0F2FE] via-white to-[#F1EAFF] shadow-[0_0_0_1px_rgba(59,130,246,0.35)]"
+                              : "bg-transparent"
+                          }`}
+                      >
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          </aside>
+
+          {/* ================= 右側主要內容 ================= */}
+          <section className="flex-1 flex flex-col gap-6">
+            {/* 歡迎卡片 */}
+            <div className="rounded-2xl bg-white/80 border border-white shadow-[0_20px_50px_rgba(148,163,184,0.3)] p-6 sm:p-7">
+              <p className="text-sm text-slate-500 mb-1">Welcome back,</p>
+              <p className="text-2xl sm:text-3xl font-black text-slate-800">
+                {userInfo.name || "會員"}
+              </p>
+            </div>
+
+            {/* 內容卡片 */}
+            <div className="flex-1 rounded-2xl bg-white/85 border border-white shadow-[0_20px_50px_rgba(148,163,184,0.35)] p-6 sm:p-8 min-h-[420px]">
+              <AnimatePresence mode="wait">
+                {/* ----------- 會員資料 ----------- */}
+                {activeTab === "info" && (
+                  <motion.div
+                    key="info"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-8"
+                  >
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+                        會員資料
+                      </h2>
+                      <p className="text-sm text-slate-500 mt-1">
+                        管理您的基本聯絡資料與帳號資訊。
+                      </p>
+                    </div>
+
+                    {editMode ? (
+                      <div className="space-y-4 max-w-lg">
+                        <div>
+                          <label className="text-xs font-semibold text-slate-500">
+                            姓名
+                          </label>
                           <input
                             value={editingName}
                             onChange={(e) => setEditingName(e.target.value)}
+                            className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
                             placeholder="姓名"
-                            className="p-2 border rounded w-full"
                           />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-slate-500">
+                            Email
+                          </label>
                           <input
                             value={editingEmail}
                             onChange={(e) => setEditingEmail(e.target.value)}
+                            className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
                             placeholder="Email"
-                            className="p-2 border rounded w-full"
                           />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-slate-500">
+                            電話
+                          </label>
                           <input
                             value={editingPhone}
                             onChange={(e) => setEditingPhone(e.target.value)}
+                            className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
                             placeholder="電話"
-                            className="p-2 border rounded w-full"
                           />
-                          <div className="flex gap-2">
-                            <button
-                              onClick={handleProfileUpdate}
-                              className="px-4 py-1 bg-green-600 text-white rounded"
-                            >
-                              儲存
-                            </button>
-                            <button
-                              onClick={() => setEditMode(false)}
-                              className="px-4 py-1 border text-gray-600 rounded"
-                            >
-                              取消
-                            </button>
-                          </div>
                         </div>
-                      ) : (
-                        <div className="mt-1 space-y-2">
-                          <p>姓名：{userInfo.name}</p>
-                          <p>
-                            Email：
-                            {userInfo.email || (
-                              <span className="text-gray-400">(未填寫)</span>
-                            )}
-                          </p>
-                          <p>
-                            電話：
-                            {userInfo.meta?.billing_phone || (
-                              <span className="text-gray-400">(未填寫)</span>
-                            )}
-                          </p>
+
+                        <div className="flex gap-3 pt-2">
                           <button
-                            onClick={() => setEditMode(true)}
-                            className="mt-1 text-sm text-blue-600 underline"
+                            onClick={handleProfileUpdate}
+                            className="px-4 py-2 rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 text-white text-sm font-semibold shadow-sm hover:brightness-110"
                           >
-                            修改會員資料
+                            儲存
+                          </button>
+                          <button
+                            onClick={() => setEditMode(false)}
+                            className="px-4 py-2 rounded-full border border-slate-300 text-sm text-slate-700 hover:bg-slate-50"
+                          >
+                            取消
                           </button>
                         </div>
-                      )}
-
-                      <h2 className="text-xl font-semibold mt-8 mb-2">
-                        我的最愛
-                      </h2>
-                      {favorites.length === 0 ? (
-                        <p>尚未加入任何商品至我的最愛。</p>
-                      ) : (
-                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {favorites.map((item) => (
-                            <li
-                              key={item.id}
-                              className="flex items-center gap-4 p-4 rounded shadow-sm"
-                            >
-                              <Image
-                                src={item.image || "/images/default.jpg"}
-                                alt={item.name}
-                                width={80}
-                                height={80}
-                                className="rounded"
-                              />
-                              <p className="text-sm font-medium">{item.name}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </motion.div>
-                  )}
-
-                  {/* QRCode / 訂單 */}
-                  {activeTab === "qrcode" && (
-                    <motion.div
-                      key="qrcode"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className=" top-0 left-0 w-full bg-white rounded-[6px] p-4 sm:p-8"
-                    >
-                      <h2 className="text-2xl font-semibold mb-4">我的訂單</h2>
-
-                      {ordersLoading ? (
-                        <OrderSkeletonGrid count={8} />
-                      ) : orders.length === 0 ? (
-                        <p>尚未下過任何訂單。</p>
-                      ) : (
-                        <div className="py-6">
-                          <ul className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3">
-                            {orders.map((order) => {
-                              const meta = order.meta_data || [];
-                              const qrs = readQRCodes(meta);
-                              const payType =
-                                order.paymentType ||
-                                order.payment_method_title ||
-                                "—";
-
-                              return (
-                                <li
-                                  key={order.id}
-                                  className="border border-gray-200 rounded bg-white shadow-sm p-4 flex flex-col justify-between h-full"
-                                >
-                                  <div className="space-y-3">
-                                    <div className="text-gray-700">
-                                      <div className="font-semibold mb-1">
-                                        商品：
-                                      </div>
-                                      <ul className="list-disc list-inside text-sm">
-                                        {order.line_items?.map((item) => (
-                                          <li key={item.id}>{item.name}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-
-                                    <div className="text-sm text-gray-600">
-                                      <p className="mt-1">
-                                        訂單編號：
-                                        <span className="font-medium">
-                                          {order.id}
-                                        </span>
-                                      </p>
-                                      <p>
-                                        狀態：
-                                        <span className="font-medium">
-                                          {statusLabel(order.status)}
-                                        </span>
-                                      </p>
-                                      <p>
-                                        總金額：NT$
-                                        <span className="font-medium">
-                                          {formatNTDNoDecimals(order.total)}
-                                        </span>
-                                      </p>
-                                      <p>
-                                        建立日期：
-                                        {new Date(
-                                          order.date_created
-                                        ).toLocaleDateString("zh-TW")}
-                                      </p>
-                                      <p>付款方式：{payType}</p>
-                                    </div>
-
-                                    {/* eSIM QRCode（若有） */}
-                                    {qrs.length > 0 && (
-                                      <div className="mt-2">
-                                        <p className="mb-2 font-medium">
-                                          eSIM QRCode：
-                                        </p>
-                                        <div className="grid grid-cols-2 gap-2">
-                                          {qrs.map((q, idx) => (
-                                            <div
-                                              key={idx}
-                                              className="bg-white p-2 rounded border"
-                                            >
-                                              <img
-                                                src={q.src}
-                                                alt={q.name}
-                                                className="w-full aspect-square object-contain"
-                                              />
-                                              <p className="text-xs mt-1 text-gray-600">
-                                                {q.name}
-                                              </p>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-
-                  {/* 匯款資訊 */}
-                  {activeTab === "remit" && (
-                    <motion.div
-                      key="remit"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className=" top-0 left-0 w-full bg-white rounded-[6px] p-4 sm:p-8"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-semibold">
-                          匯款 / 繳費資訊
-                        </h2>
-                        <button
-                          onClick={refreshOrders}
-                          className="px-3 py-1.5 text-sm rounded bg-gray-100 hover:bg-gray-200"
-                        >
-                          重新整理
-                        </button>
                       </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="space-y-1 text-sm text-slate-700">
+                          <p>
+                            <span className="font-semibold">姓名：</span>
+                            {userInfo.name}
+                          </p>
+                          <p>
+                            <span className="font-semibold">Email：</span>
+                            {userInfo.email}
+                          </p>
+                          <p>
+                            <span className="font-semibold">電話：</span>
+                            {userInfo.meta?.billing_phone || (
+                              <span className="text-slate-400">(未填寫)</span>
+                            )}
+                          </p>
+                        </div>
 
-                      {ordersLoading ? (
-                        <OrderSkeletonGrid count={4} />
-                      ) : remitOrders.length === 0 ? (
-                        <p className="text-gray-600">
-                          目前沒有待匯款 /
-                          待繳費的訂單。若您剛完成付款，請點上方「重新整理」更新狀態。
-                        </p>
-                      ) : (
-                        <ul className="space-y-4">
-                          {remitOrders.map(({ order, remit }) => {
-                            const meta = order.meta_data || [];
-                            const npNo =
-                              meta.find((m) => m?.key === "newebpay_order_no")
-                                ?.value ||
-                              order.number ||
-                              order.id;
+                        <button
+                          onClick={() => setEditMode(true)}
+                          className="inline-flex items-center rounded-full border border-sky-400/70 px-4 py-1.5 text-xs font-semibold text-sky-600 hover:bg-sky-50"
+                        >
+                          修改會員資料
+                        </button>
 
-                            return (
-                              <li key={order.id} className="border rounded p-4">
-                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                                  <div>
-                                    <p className="text-sm text-gray-500">
-                                      商店訂單號 {npNo}
-                                    </p>
-                                    <p className="font-semibold">
-                                      付款方式：{remit.paymentType}
-                                    </p>
-                                  </div>
-                                  <div className="text-sm text-gray-600">
-                                    金額：NT$
-                                    <span className="font-semibold">
-                                      {formatNTDNoDecimals(remit.amount)}
-                                    </span>
-                                  </div>
-                                </div>
+                        <div className="pt-4 border-t border-slate-100">
+                          <h3 className="text-lg font-semibold text-slate-800 mb-3">
+                            我的最愛
+                          </h3>
+                          {favorites.length === 0 ? (
+                            <p className="text-sm text-slate-500">
+                              尚未加入任何商品到最愛清單。
+                            </p>
+                          ) : (
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {favorites.map((item) => (
+                                <li
+                                  key={item.id}
+                                  className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 shadow-sm"
+                                >
+                                  <Image
+                                    src={item.image || "/images/default.jpg"}
+                                    alt={item.name}
+                                    width={72}
+                                    height={72}
+                                    className="rounded-xl object-cover"
+                                  />
+                                  <p className="text-sm font-medium text-slate-800">
+                                    {item.name}
+                                  </p>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
 
-                                <div className="grid sm:grid-cols-2 gap-3 text-sm mt-3">
-                                  {remit.bankCode ? (
-                                    <div className="bg-gray-50 rounded p-3">
-                                      <p className="text-gray-500">銀行代碼</p>
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-semibold">
-                                          {remit.bankCode}
-                                        </span>
-                                        <button
-                                          onClick={() => copy(remit.bankCode)}
-                                          className="px-2 py-0.5 text-xs rounded bg-gray-200 hover:bg-gray-300"
-                                        >
-                                          複製
-                                        </button>
-                                      </div>
-                                    </div>
-                                  ) : null}
-                                  {remit.codeNo ? (
-                                    <div className="bg-gray-50 rounded p-3">
-                                      <p className="text-gray-500">
-                                        {remit.paymentType === "VACC"
-                                          ? "轉帳帳號"
-                                          : "繳費代碼"}
-                                      </p>
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-semibold break-all">
-                                          {remit.codeNo}
-                                        </span>
-                                        <button
-                                          onClick={() => copy(remit.codeNo)}
-                                          className="px-2 py-0.5 text-xs rounded bg-gray-200 hover:bg-gray-300"
-                                        >
-                                          複製
-                                        </button>
-                                      </div>
-                                    </div>
-                                  ) : null}
-                                  {remit.expireDate ? (
-                                    <div className="bg-gray-50 rounded p-3">
-                                      <p className="text-gray-500">繳費期限</p>
-                                      <p className="font-semibold">
-                                        {remit.expireDate}
-                                      </p>
-                                    </div>
-                                  ) : null}
-                                  {remit.tradeNo ? (
-                                    <div className="bg-gray-50 rounded p-3">
-                                      <p className="text-gray-500">交易序號</p>
-                                      <p className="font-semibold">
-                                        {remit.tradeNo}
-                                      </p>
-                                    </div>
-                                  ) : null}
-                                </div>
+                {/* ----------- QR CODE 訂單 ----------- */}
+                {activeTab === "qrcode" && (
+                  <motion.div
+                    key="qrcode"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-6"
+                  >
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+                        我的訂單 &amp; eSIM
+                      </h2>
+                      <p className="text-sm text-slate-500 mt-1">
+                        查看您的歷史訂單與 eSIM 相關資訊。
+                      </p>
+                    </div>
 
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                  <Link
-                                    href={`/pending?orderNo=${encodeURIComponent(
-                                      npNo
-                                    )}`}
-                                    className="px-3 py-1.5 rounded bg-blue-600 text-white text-sm"
-                                  >
-                                    前往訂單追蹤
-                                  </Link>
-                                  <button
-                                    onClick={refreshOrders}
-                                    className="px-3 py-1.5 rounded border text-sm"
-                                  >
-                                    我已完成付款，重新整理狀態
-                                  </button>
-                                </div>
+                    {ordersLoading ? (
+                      <OrderSkeletonGrid />
+                    ) : orders.length === 0 ? (
+                      <p className="text-sm text-slate-600">
+                        尚無訂單紀錄，歡迎前往商店選購 eSIM 方案。
+                      </p>
+                    ) : (
+                      <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                        {orders.map((order) => {
+                          const qrCodes = getEsimQRCodes(order);
 
-                                <p className="text-xs text-gray-500 mt-3">
-                                  ＊完成轉帳或繳費後，系統會自動更新訂單狀態（通常數分鐘內）。
-                                  若長時間未更新，請聯繫客服並提供訂單編號與付款憑證。
+                          return (
+                            <li
+                              key={order.id}
+                              className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5 shadow-sm flex flex-col gap-3"
+                            >
+                              <p className="text-xs text-slate-500">訂單編號</p>
+                              <p className="text-sm font-semibold text-slate-900">
+                                #{order.id}
+                              </p>
+
+                              <div className="text-xs text-slate-500">
+                                <p>
+                                  狀態：
+                                  <span className="font-semibold text-slate-800">
+                                    {statusLabel(order.status)}
+                                  </span>
                                 </p>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                                <p>
+                                  金額：NT$
+                                  <span className="font-semibold">
+                                    {formatNTDNoDecimals(order.total)}
+                                  </span>
+                                </p>
+                                <p>
+                                  日期：
+                                  {new Date(
+                                    order.date_created
+                                  ).toLocaleDateString("zh-TW")}
+                                </p>
+                              </div>
+
+                              {order.line_items?.length > 0 && (
+                                <div className="mt-1">
+                                  <p className="text-xs font-semibold text-slate-600 mb-1">
+                                    商品內容
+                                  </p>
+                                  <ul className="space-y-1 text-xs text-slate-700">
+                                    {order.line_items.map((item) => (
+                                      <li key={item.id}>• {item.name}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {qrCodes.length > 0 && (
+                                <div className="mt-3">
+                                  <p className="text-xs font-semibold text-slate-600 mb-2">
+                                    eSIM QR Code
+                                  </p>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {qrCodes.map((src, i) => (
+                                      <div
+                                        key={i}
+                                        className="aspect-square flex items-center justify-center rounded-xl bg-white border border-slate-200"
+                                      >
+                                        <Image
+                                          src={src}
+                                          alt={`Order ${order.id} QR Code #${
+                                            i + 1
+                                          }`}
+                                          width={128}
+                                          height={128}
+                                          className="rounded-lg object-contain"
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* ----------- 匯款資訊 ----------- */}
+                {activeTab === "remit" && (
+                  <motion.div
+                    key="remit"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+                        匯款 / 繳費資訊
+                      </h2>
+                      <p className="text-sm text-slate-500 mt-1">
+                        若您選擇匯款或超商代碼，相關資訊會顯示在此區域。
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-5 text-sm text-slate-700 shadow-sm">
+                      目前沒有待匯款的訂單。若您剛完成付款，稍待數分鐘後系統會自動更新狀態。
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </Layout>
   );
-};
-
-export default AccountPage;
+}

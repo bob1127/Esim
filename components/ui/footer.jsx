@@ -1,44 +1,117 @@
 import Link from "next/link";
+import Image from "next/image";
+
 export default function Footer() {
   return (
-    <footer className="relative bg-[#222c38] w-full sm:w-[98%] rounded-none sm:rounded-[35px] mx-auto pb-2 pt-10 xl:pt-20 m-0 sm:m-5 sm:pt-[100px]">
-      {/* SVG 中間圓弧突起 */}
+    <footer className="relative bg-gradient-to-r from-[#fdf6ef] via-white to-[#e8f3ff] text-gray-800">
+      <div className="max-w-[1200px] mx-auto px-6 pt-16 pb-10 text-center md:text-left">
+        {/* LOGO & 主選單區域 */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 border-b border-gray-200 pb-8">
+          <Link href="/" className="flex justify-center md:justify-start">
+            {/* 建議換成 Re.MEDIA 的 Logo */}
+            <Image
+              src="/images/logo-neoai.svg"
+              alt="Re.MEDIA Logo"
+              width={160}
+              height={60}
+              className="h-auto w-[160px]"
+            />
+          </Link>
 
-      {/* Footer內容 */}
-      <section className="flex flex-col w-[93%] mx-auto justify-center items-center">
-        <h2 className="font-bold text-[32px] lg:text-[50px] text-gray-50">
-          準備好開始使用{" "}
-          <span className="font-bold text-[32px] lg:text-[50px] text-[#1f34f5]">
-            eSIM嗎？
-          </span>{" "}
-        </h2>
-        <p className="text-gray-100 hidden sm:block text-[13px] sm:text-[16px] max-w-[850px] tracking-wider text-center">
-          不必插卡、不用等寄送，一掃即用、即刻上網。汪喵通提供多國 eSIM
-          資費方案，讓你出國旅遊、商務出差都能隨時連線不中斷。手機支援就能安裝，3
-          分鐘快速啟用，無需繁瑣設定。立即選擇適合你的國家方案，體驗真正無卡、無限的行動自由。
-        </p>
-      </section>
-      <div className="relative z-10 px-6 pb-14 py-4 xl:py-20 text-white text-center">
-        <div>
-          <div className="left w-1/2"></div>
-          <div className="right w-1/2"></div>
+          {/* 主選單 */}
+          <nav className="flex flex-wrap justify-center gap-6 text-sm font-medium">
+            <Link
+              href="/esim/all"
+              className="hover:text-sky-500 transition-colors"
+            >
+              所有 eSIM 方案
+            </Link>
+            <Link
+              href="/guide"
+              className="hover:text-sky-500 transition-colors"
+            >
+              安裝教學
+            </Link>
+            <Link
+              href="/support"
+              className="hover:text-sky-500 transition-colors"
+            >
+              常見問題
+            </Link>
+            <Link
+              href="/company"
+              className="hover:text-sky-500 transition-colors"
+            >
+              關於我們
+            </Link>
+            <Link
+              href="/contact"
+              className="hover:text-sky-500 transition-colors"
+            >
+              聯絡客服
+            </Link>
+          </nav>
         </div>
-        <Link href="/about" className="text-lg  border-b-1  font-semibold">
-          {" "}
-          汪喵通SIM
-        </Link>
-        <p className="text-sm text-center text-gray-400">
-          Web Design & System Development by{" "}
-          <a
-            href="https://www.jeek-webdesign.com.tw"
-            target="_blank"
-            className="underline hover:text-white"
+
+        {/* 地址與認證標章 */}
+        <div className="flex flex-col md:flex-row justify-between items-center mt-10 gap-6 text-sm">
+          <div className="text-gray-600 leading-relaxed text-center md:text-left">
+            <p>eSIM數位漫遊科技股份有限公司</p>
+            <p>110 台(營運中心)</p>
+            <p className="mt-1">客服信箱：support@re-media.com</p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {/* 這裡通常放 SSL 安全憑證或支付安全標章 */}
+            <Image
+              src="/images/sgs.png"
+              alt="Secure Payment"
+              width={60}
+              height={60}
+              className="object-contain opacity-80 hover:opacity-100 transition"
+            />
+            <Image
+              src="/images/isms.png"
+              alt="Data Privacy"
+              width={60}
+              height={60}
+              className="object-contain opacity-80 hover:opacity-100 transition"
+            />
+          </div>
+        </div>
+
+        {/* Scroll Top 按鈕 */}
+        <div className="mt-10 flex justify-center md:justify-end">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-2 text-sky-500 text-sm hover:underline group"
           >
-            極客網頁設計
-          </a>{" "}
-          版權所有 © {new Date().getFullYear()}。
-        </p>
+            返回頂部
+            <span className="inline-block w-6 h-6 bg-sky-500 text-white rounded-full flex items-center justify-center group-hover:-translate-y-1 transition-transform">
+              ↑
+            </span>
+          </button>
+        </div>
+
+        {/* 底部資訊列 (Copyright & Policy) */}
+        <div className="mt-8 pt-6 border-t border-gray-200 text-xs text-gray-500 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex gap-6">
+            <Link href="/privacy-policy" className="hover:text-gray-700">
+              隱私權政策
+            </Link>
+            <Link href="/terms" className="hover:text-gray-700">
+              服務條款
+            </Link>
+            <Link href="/refund-policy" className="hover:text-gray-700">
+              退換貨政策
+            </Link>
+          </div>
+          <div>© 2025 Re.MEDIA Inc. All Rights Reserved.</div>
+        </div>
       </div>
+
+      {/* 淡淡漸層背景裝飾 (保留原設計) */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-tr from-[#f8d6b1]/40 via-white to-[#a8d4ff]/40 blur-3xl opacity-70"></div>
     </footer>
   );
 }

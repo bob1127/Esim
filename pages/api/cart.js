@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "API credentials missing" });
   }
 
-  const url = `https://starislandbaby.com/test/wp-json/wc/store/cart`;
+  const url = `https://starislandbaby.com/test/wp-json/wc/store/Cart`;
   const authHeader = Buffer.from(`${consumerKey}:${consumerSecret}`).toString("base64");
 
   try {
