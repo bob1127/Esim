@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar/Navbar.tsx";
 import Banner from "@/components/banner";
 import Footer from "@/components/ui/footer.jsx";
 import Head from "next/head";
+import SmartWizardFloat from "@/components/SmartWizardFloat"; // 引入新元件 ✅
 import Sidebar from "@/components/Sidebar.js"; // 引入側邊欄組件
 import { UserProvider } from "../components/context/UserContext";
 export default function RootLayout({ children }) {
@@ -69,6 +70,7 @@ export default function RootLayout({ children }) {
       <Navbar />
       <Sidebar sidebarProduct={sidebarProduct} onAddToCart={handleAddToCart} />
       {children}
+      <SmartWizardFloat />
       <div className="fixed bottom-0 left-0  w-full z-50 bg-slate-50 py-4">
          <div className="w-[65%] flex justify-center items-center max-w-[900px] mx-auto">
            
