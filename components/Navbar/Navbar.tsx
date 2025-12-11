@@ -112,8 +112,8 @@ export default function Navbar({ className }: { className?: string }) {
             className="relative z-50 flex items-center gap-2 py-2 pr-2 select-none"
           >
             <span className="text-[22px] font-semibold leading-none tracking-tight">
-              <span className="text-[#0A6CD0]">e</span>
-              <span className="text-[#24A148]">.SIM</span>
+              <span className="text-[#0A6CD0]">Jeko</span>
+              <span className="text-[#24A148]">.eSIM</span>
             </span>
           </Link>
 
