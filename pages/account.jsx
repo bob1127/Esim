@@ -1,10 +1,10 @@
+// pages/account.jsx
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Layout from "./Layout";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ========== 小工具 ========== */
@@ -28,38 +28,27 @@ const statusLabel = (status) => {
   return map[String(status || "").toLowerCase()] || status;
 };
 
-/**
- * 從訂單 meta_data 裡抓 eSIM QR Code 圖片網址
- *  meta_data 格式：
- *  value: '[{"name":"柬埔寨3GB #1","src":"https://microesim.top/files/9000025110852679"}]'
- */
 const getEsimQRCodes = (order) => {
   const results = [];
-
   if (!order || !order.meta_data) return results;
 
   const meta = order.meta_data.find((m) => m.key === "esim_qrcodes");
-
   if (!meta || !meta.value) return results;
 
   try {
-    const parsed = JSON.parse(meta.value); // value 是 JSON 字串
+    const parsed = JSON.parse(meta.value);
     if (Array.isArray(parsed)) {
       parsed.forEach((item) => {
-        if (item && item.src) {
-          results.push(item.src);
-        }
+        if (item?.src) results.push(item.src);
       });
     }
   } catch (e) {
     console.error("❌ 無法解析 esim_qrcodes JSON：", meta.value);
   }
 
-  // 去重
   return Array.from(new Set(results));
 };
 
-/* Shimmer skeleton */
 const OrderSkeletonGrid = () => (
   <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     {Array.from({ length: 6 }).map((_, i) => (
@@ -78,14 +67,14 @@ const OrderSkeletonGrid = () => (
   </ul>
 );
 
-/* ========== 主頁面 ========== */
 export default function AccountPage() {
   const router = useRouter();
 
+  const [token, setToken] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
+
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [ordersLoaded, setOrdersLoaded] = useState(false);
 
   const [favorites, setFavorites] = useState([]);
   const [activeTab, setActiveTab] = useState("info");
@@ -114,96 +103,119 @@ export default function AccountPage() {
       setOrdersLoading(true);
       const list = await fetchOrders(u);
       setOrders(list);
-      setOrdersLoaded(true);
       setOrdersLoading(false);
     },
     [fetchOrders]
   );
 
-  // 若要 debug 可以保留這段
-  // useEffect(() => {
-  //   if (orders.length > 0) {
-  //     console.log("🔍 一筆訂單完整資料：", orders[0]);
-  //     console.log("🔍 這筆訂單的 meta_data：", orders[0].meta_data);
-  //   }
-  // }, [orders]);
+  const fetchUser = useCallback(async (jwt) => {
+    const res = await fetch(
+      "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/users/me?context=edit",
+      { headers: { Authorization: `Bearer ${jwt}` } }
+    );
+    const data = await res.json();
+    if (!data?.code) return data;
+    throw new Error(data?.message || data?.code || "fetch user failed");
+  }, []);
 
-  /* ====== 初始化：讀會員 & 讀訂單 ====== */
+  /* ====== 初始化：讀 token / user ====== */
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+    if (typeof window === "undefined") return;
 
-    if (!token && !storedUser) {
+    const t = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    setToken(t);
+
+    let user = null;
+    if (storedUser) {
+      try {
+        user = JSON.parse(storedUser);
+      } catch {}
+    }
+
+    // 沒 token 也沒 user → 回登入
+    if (!t && !user) {
       router.push("/login");
       return;
     }
 
-    const loadUser = async () => {
-      let user = storedUser;
-
-      if (token) {
-        try {
-          const res = await fetch(
-            "https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/users/me",
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-
-          if (res.ok) {
-            user = await res.json();
-            localStorage.setItem("user", JSON.stringify(user));
-          }
-        } catch {
-          // 若失敗就沿用 localStorage 的 user
+    const init = async () => {
+      try {
+        // 有 token 就用 token 取最新 user（可拿 email）
+        if (t) {
+          const freshUser = await fetchUser(t);
+          localStorage.setItem("user", JSON.stringify(freshUser));
+          user = freshUser;
         }
-      }
 
-      if (!user) {
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+
+        setUserInfo(user);
+        setEditingEmail(user.email || "");
+        setEditingPhone(user.meta?.billing_phone || "");
+        setEditingName(user.name || "");
+        loadOrders(user);
+
+        const fav = JSON.parse(localStorage.getItem("favorites") || "[]");
+        setFavorites(fav);
+      } catch (e) {
+        console.error("Init account failed:", e);
         router.push("/login");
-        return;
       }
-
-      setUserInfo(user);
-      setEditingEmail(user.email || "");
-      setEditingPhone(user.meta?.billing_phone || "");
-      setEditingName(user.name || "");
-      loadOrders(user);
     };
 
-    loadUser();
-
-    const fav = JSON.parse(localStorage.getItem("favorites") || "[]");
-    setFavorites(fav);
-  }, [router, loadOrders]);
+    init();
+  }, [router, fetchUser, loadOrders]);
 
   /* ====== 更新會員資訊 ====== */
   const handleProfileUpdate = async () => {
-    const token = localStorage.getItem("token");
-    if (!token || !userInfo?.id) return;
+    if (!token) {
+      alert(
+        '缺少登入 token，請重新登入（Console 可測 localStorage.getItem("token")）'
+      );
+      router.push("/login");
+      return;
+    }
+    if (!userInfo?.id) {
+      alert("缺少 user id，請重新登入");
+      router.push("/login");
+      return;
+    }
 
-    const res = await fetch(
-      `https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/users/${userInfo.id}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: editingName,
-          email: editingEmail,
-          meta: { billing_phone: editingPhone },
-        }),
+    try {
+      const res = await fetch(
+        `https://inf.fjg.mybluehost.me/website_d17cf1ea/wp-json/wp/v2/users/${userInfo.id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: editingName,
+            email: editingEmail,
+            meta: { billing_phone: editingPhone },
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok && !data?.code) {
+        setUserInfo(data);
+        localStorage.setItem("user", JSON.stringify(data));
+        alert("會員資料更新成功！");
+        setEditMode(false);
+      } else {
+        alert("更新失敗：" + (data?.message || data?.code || "unknown error"));
       }
-    );
-
-    const data = await res.json();
-    if (!data.code) {
-      setUserInfo(data);
-      localStorage.setItem("user", JSON.stringify(data));
-      setEditMode(false);
-      alert("會員資料更新成功！");
-    } else {
-      alert("更新失敗：" + data.message);
+    } catch (e) {
+      console.error("update profile error:", e);
+      alert("更新失敗：網路或伺服器錯誤");
     }
   };
 
@@ -217,30 +229,22 @@ export default function AccountPage() {
     );
   }
 
-  /* ================================================================
-     UI：玻璃感 Dashboard 風格
-  ================================================================= */
   return (
     <Layout>
       <div className="min-h-screen w-full bg-gradient-to-br from-[#E0F2FF] via-[#F8FBFF] to-[#FFE5F7] flex items-center justify-center px-3 sm:px-6 py-8 sm:py-14">
-        <div
-          className="
-            w-full max-w-[1320px]
-            rounded-[32px] border border-white/70
-            bg-white/60
-            shadow-[0_28px_80px_rgba(15,23,42,0.20)]
-            backdrop-blur-2xl
-            px-4 sm:px-8 py-6 sm:py-8
-            flex flex-col lg:flex-row gap-6 sm:gap-8
-          "
-        >
-          {/* ================= 左側 Sidebar ================= */}
+        <div className="w-full max-w-[1320px] rounded-[32px] border border-white/70 bg-white/60 shadow-[0_28px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl px-4 sm:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-6 sm:gap-8">
+          {/* Sidebar */}
           <aside className="w-full lg:w-[260px]">
             <div className="mb-6">
               <p className="text-xs text-slate-500">Home &raquo; My account</p>
               <h1 className="mt-2 text-3xl sm:text-[32px] font-black tracking-wide text-slate-800">
                 Dashboard
               </h1>
+
+              {/* ✅ 方便你測試：把 token 是否存在顯示出來 */}
+              <p className="mt-2 text-xs text-slate-500">
+                Token：{token ? "✅ 有" : "❌ 無（請先在 /login 登入）"}
+              </p>
             </div>
 
             <div className="rounded-2xl bg-white/90 border border-white shadow-[0_18px_40px_rgba(148,163,184,0.35)] overflow-hidden">
@@ -261,14 +265,12 @@ export default function AccountPage() {
                     <button
                       key={item.id}
                       onClick={() => setActiveTab(item.id)}
-                      className={`w-full flex items-center gap-2 px-5 py-3 text-sm transition relative
-                        ${
-                          active
-                            ? "text-[#0F172A] font-semibold"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
+                      className={`w-full flex items-center gap-2 px-5 py-3 text-sm transition relative ${
+                        active
+                          ? "text-[#0F172A] font-semibold"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
                     >
-                      {/* 左側高亮條 */}
                       <span
                         className={`absolute left-0 top-1 bottom-1 rounded-r-full transition-all ${
                           active
@@ -277,12 +279,11 @@ export default function AccountPage() {
                         }`}
                       />
                       <span
-                        className={`flex-1 rounded-xl px-3 py-2 text-left transition
-                          ${
-                            active
-                              ? "bg-gradient-to-r from-[#E0F2FE] via-white to-[#F1EAFF] shadow-[0_0_0_1px_rgba(59,130,246,0.35)]"
-                              : "bg-transparent"
-                          }`}
+                        className={`flex-1 rounded-xl px-3 py-2 text-left transition ${
+                          active
+                            ? "bg-gradient-to-r from-[#E0F2FE] via-white to-[#F1EAFF] shadow-[0_0_0_1px_rgba(59,130,246,0.35)]"
+                            : "bg-transparent"
+                        }`}
                       >
                         {item.label}
                       </span>
@@ -293,9 +294,8 @@ export default function AccountPage() {
             </div>
           </aside>
 
-          {/* ================= 右側主要內容 ================= */}
+          {/* Main */}
           <section className="flex-1 flex flex-col gap-6">
-            {/* 歡迎卡片 */}
             <div className="rounded-2xl bg-white/80 border border-white shadow-[0_20px_50px_rgba(148,163,184,0.3)] p-6 sm:p-7">
               <p className="text-sm text-slate-500 mb-1">Welcome back,</p>
               <p className="text-2xl sm:text-3xl font-black text-slate-800">
@@ -303,10 +303,8 @@ export default function AccountPage() {
               </p>
             </div>
 
-            {/* 內容卡片 */}
             <div className="flex-1 rounded-2xl bg-white/85 border border-white shadow-[0_20px_50px_rgba(148,163,184,0.35)] p-6 sm:p-8 min-h-[420px]">
               <AnimatePresence mode="wait">
-                {/* ----------- 會員資料 ----------- */}
                 {activeTab === "info" && (
                   <motion.div
                     key="info"
@@ -338,6 +336,7 @@ export default function AccountPage() {
                             placeholder="姓名"
                           />
                         </div>
+
                         <div>
                           <label className="text-xs font-semibold text-slate-500">
                             Email
@@ -349,6 +348,7 @@ export default function AccountPage() {
                             placeholder="Email"
                           />
                         </div>
+
                         <div>
                           <label className="text-xs font-semibold text-slate-500">
                             電話
@@ -363,12 +363,14 @@ export default function AccountPage() {
 
                         <div className="flex gap-3 pt-2">
                           <button
+                            type="button"
                             onClick={handleProfileUpdate}
                             className="px-4 py-2 rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 text-white text-sm font-semibold shadow-sm hover:brightness-110"
                           >
                             儲存
                           </button>
                           <button
+                            type="button"
                             onClick={() => setEditMode(false)}
                             className="px-4 py-2 rounded-full border border-slate-300 text-sm text-slate-700 hover:bg-slate-50"
                           >
@@ -396,48 +398,17 @@ export default function AccountPage() {
                         </div>
 
                         <button
+                          type="button"
                           onClick={() => setEditMode(true)}
                           className="inline-flex items-center rounded-full border border-sky-400/70 px-4 py-1.5 text-xs font-semibold text-sky-600 hover:bg-sky-50"
                         >
                           修改會員資料
                         </button>
-
-                        <div className="pt-4 border-t border-slate-100">
-                          <h3 className="text-lg font-semibold text-slate-800 mb-3">
-                            我的最愛
-                          </h3>
-                          {favorites.length === 0 ? (
-                            <p className="text-sm text-slate-500">
-                              尚未加入任何商品到最愛清單。
-                            </p>
-                          ) : (
-                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              {favorites.map((item) => (
-                                <li
-                                  key={item.id}
-                                  className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 shadow-sm"
-                                >
-                                  <Image
-                                    src={item.image || "/images/default.jpg"}
-                                    alt={item.name}
-                                    width={72}
-                                    height={72}
-                                    className="rounded-xl object-cover"
-                                  />
-                                  <p className="text-sm font-medium text-slate-800">
-                                    {item.name}
-                                  </p>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
                       </div>
                     )}
                   </motion.div>
                 )}
 
-                {/* ----------- QR CODE 訂單 ----------- */}
                 {activeTab === "qrcode" && (
                   <motion.div
                     key="qrcode"
@@ -544,7 +515,6 @@ export default function AccountPage() {
                   </motion.div>
                 )}
 
-                {/* ----------- 匯款資訊 ----------- */}
                 {activeTab === "remit" && (
                   <motion.div
                     key="remit"

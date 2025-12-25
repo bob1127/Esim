@@ -374,13 +374,7 @@ export default function Navbar({ className }: { className?: string }) {
                       >
                         會員中心
                       </Link>
-                      <Link
-                        href="/account?tab=qrcode"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 transition"
-                      >
-                        我的 eSIM / 訂單
-                      </Link>
+
                       <button
                         type="button"
                         onClick={handleLogout}
