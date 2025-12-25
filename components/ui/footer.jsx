@@ -3,12 +3,26 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="relative bg-gradient-to-r from-[#fdf6ef] via-white to-[#e8f3ff] text-gray-800">
-      <div className="max-w-[1200px] mx-auto px-6 pt-16 pb-10 text-center md:text-left">
-        {/* LOGO & 主選單區域 */}
+    <footer className="relative z-50 overflow-hidden text-gray-800">
+      {/* ===== 背景圖片層 ===== */}
+      <div className="absolute inset-0 -z-20">
+        <Image
+          src="/images/footer/footer.png"
+          alt="Footer Background"
+          fill
+          priority
+          className="object-cover"
+        />
+      </div>
+
+      {/* ===== 白色透明毛玻璃遮罩 ===== */}
+      <div className="absolute inset-0 -z-10 bg-white/65 backdrop-blur-xl"></div>
+
+      {/* ===== 你原本的內容 ===== */}
+      <div className="max-w-[1200px] mx-auto px-6 pt-16 pb-10 text-center md:text-left relative z-10">
+        {/* LOGO & 主選單 */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 border-b border-gray-200 pb-8">
           <Link href="/" className="flex justify-center md:justify-start">
-            {/* 建議換成 Re.MEDIA 的 Logo */}
             <Image
               src="/images/logo-neoai.svg"
               alt="Re.MEDIA Logo"
@@ -18,7 +32,6 @@ export default function Footer() {
             />
           </Link>
 
-          {/* 主選單 */}
           <nav className="flex flex-wrap justify-center gap-6 text-sm font-medium">
             <Link
               href="/esim/all"
@@ -53,16 +66,15 @@ export default function Footer() {
           </nav>
         </div>
 
-        {/* 地址與認證標章 */}
+        {/* 地址與認證 */}
         <div className="flex flex-col md:flex-row justify-between items-center mt-10 gap-6 text-sm">
           <div className="text-gray-600 leading-relaxed text-center md:text-left">
-            <p>eSIM數位漫遊科技股份有限公司</p>
-            <p>110 台(營運中心)</p>
+            <p>極客eSIM數位漫遊科技股份有限公司</p>
+            <p> (營運中心)</p>
             <p className="mt-1">客服信箱：support@re-media.com</p>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* 這裡通常放 SSL 安全憑證或支付安全標章 */}
             <Image
               src="/images/sgs.png"
               alt="Secure Payment"
@@ -80,7 +92,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Scroll Top 按鈕 */}
+        {/* Scroll Top */}
         <div className="mt-10 flex justify-center md:justify-end">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -93,7 +105,7 @@ export default function Footer() {
           </button>
         </div>
 
-        {/* 底部資訊列 (Copyright & Policy) */}
+        {/* 底部資訊 */}
         <div className="mt-8 pt-6 border-t border-gray-200 text-xs text-gray-500 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex gap-6">
             <Link href="/privacy-policy" className="hover:text-gray-700">
@@ -109,9 +121,6 @@ export default function Footer() {
           <div>© 2025 Re.MEDIA Inc. All Rights Reserved.</div>
         </div>
       </div>
-
-      {/* 淡淡漸層背景裝飾 (保留原設計) */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-tr from-[#f8d6b1]/40 via-white to-[#a8d4ff]/40 blur-3xl opacity-70"></div>
     </footer>
   );
 }

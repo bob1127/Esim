@@ -141,115 +141,50 @@ export default function Navbar({ className }: { className?: string }) {
                     <HoveredLink href="/support">幫助中心</HoveredLink>
                   </div>
                 </MenuItem>
-
                 <Divider />
-                <Link href="/category/japan">
-                  <MenuItem
-                    setActive={setActive}
-                    active={active}
-                    item="亞洲eSIM"
-                  >
-                    <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                      <HoveredLink href="/esim/japan">日本 Japan</HoveredLink>
-                      <HoveredLink href="/esim/korea">韓國 Korea</HoveredLink>
-                      <HoveredLink href="/esim/china-hk-macau">
-                        中港澳 Greater China
-                      </HoveredLink>
-                      <HoveredLink href="/esim/sea">東南亞 SE Asia</HoveredLink>
-                      <HoveredLink href="/esim/europe">歐洲 Europe</HoveredLink>
-                    </div>
-                  </MenuItem>
-                </Link>
-
                 <Divider />
-
                 <MenuItem setActive={setActive} active={active} item="精選方案">
-                  <div className="text-sm grid grid-cols-2 gap-6">
+                  <div className="text-sm grid grid-cols-3 gap-6">
                     <ProductItem
                       title="日本 5日吃到飽"
                       href="/esim/japan-5days"
-                      src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=600&auto=format&fit=crop"
+                      src="/images/country/malaysia.jpg"
                       description="Docomo/Softbank 雙網支援，高速不降速。"
                     />
                     <ProductItem
                       title="韓國 每日 3GB"
                       href="/esim/korea-daily"
-                      src="https://images.unsplash.com/photo-1538485399081-7191377e8241?q=80&w=600&auto=format&fit=crop"
+                      src="/images/country/tailand.jpg"
                       description="SKT 穩定網速，追劇導航無負擔。"
                     />
                     <ProductItem
                       title="歐洲 30國通用"
                       href="/esim/europe-30days"
-                      src="https://images.unsplash.com/photo-1499856871940-a09627c6dcf6?q=80&w=600&auto=format&fit=crop"
+                      src="/images/country/USA.jpg"
                       description="跨國自動切換訊號，出差旅遊首選。"
                     />
                     <ProductItem
                       title="全球周遊券"
                       href="/esim/global"
-                      src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600&auto=format&fit=crop"
+                      src="/images/country/malaysia.jpg"
                       description="一卡暢遊 120+ 國家，商務客的最愛。"
                     />
                   </div>
                 </MenuItem>
-
                 <Divider />
-
-                <Link href="/operation">
-                  {" "}
-                  <MenuItem
-                    setActive={setActive}
-                    active={active}
-                    item="服務特色"
-                  >
-                    <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                      <HoveredLink href="/features#speed">
-                        即買即收 QR Code
-                      </HoveredLink>
-                      <HoveredLink href="/features#quality">
-                        免換實體卡片
-                      </HoveredLink>
-                      <HoveredLink href="/features#support">
-                        原號碼可通話
-                      </HoveredLink>
-                    </div>
-                  </MenuItem>
-                </Link>
-
-                <Divider />
-
-                <MenuItem setActive={setActive} active={active} item="啟用教學">
+                <MenuItem
+                  setActive={setActive}
+                  active={active}
+                  item="旅遊文章｜須知"
+                  href="/blog"
+                >
                   <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                    <HoveredLink href="/guide/ios">iOS 設定教學</HoveredLink>
-                    <HoveredLink href="/guide/android">
-                      Android 設定教學
-                    </HoveredLink>
-                    <HoveredLink href="/guide/pixel">
-                      Pixel 設定教學
-                    </HoveredLink>
-                    <HoveredLink href="/guide/compatible">
-                      支援裝置列表
-                    </HoveredLink>
+                    <HoveredLink href="/blog">熱門旅遊景點</HoveredLink>
+                    <HoveredLink href="/blog">出國須知</HoveredLink>
+                    <HoveredLink href="/blog">eSIM疑難雜症排姐</HoveredLink>
                   </div>
                 </MenuItem>
-
                 <Divider />
-                <Link href="/about">
-                  {" "}
-                  <MenuItem
-                    setActive={setActive}
-                    active={active}
-                    item="關於我們"
-                  >
-                    <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                      <HoveredLink href="/company">品牌故事</HoveredLink>
-                      <HoveredLink href="/partners">合作夥伴</HoveredLink>
-                      <HoveredLink href="/contact">聯絡客服</HoveredLink>
-                    </div>
-                  </MenuItem>
-                </Link>
-
-                <Divider />
-
                 {/* 這邊保留一個 "特惠" 區塊 */}
                 <MenuItem setActive={setActive} active={active} item="限時特惠">
                   <div className="flex flex-col space-y-4 text-sm text-neutral-700">
@@ -261,6 +196,36 @@ export default function Navbar({ className }: { className?: string }) {
                     </HoveredLink>
                   </div>
                 </MenuItem>
+                <Divider />
+                <MenuItem
+                  setActive={setActive}
+                  active={active}
+                  item="啟用教學"
+                  href="/operation"
+                >
+                  <div className="flex flex-col space-y-4 text-sm text-neutral-700">
+                    <HoveredLink href="/operation">iOS 設定教學</HoveredLink>
+                    <HoveredLink href="/operation">
+                      Android 設定教學
+                    </HoveredLink>
+                    <HoveredLink href="/operation">Pixel 設定教學</HoveredLink>
+                    <HoveredLink href="/operation">支援裝置列表</HoveredLink>
+                  </div>
+                </MenuItem>
+                <Divider />{" "}
+                <MenuItem
+                  setActive={setActive}
+                  active={active}
+                  item="關於我們"
+                  href="/about"
+                >
+                  <div className="flex flex-col space-y-4 text-sm text-neutral-700">
+                    <HoveredLink href="/company">品牌故事</HoveredLink>
+                    <HoveredLink href="/partners">合作夥伴</HoveredLink>
+                    <HoveredLink href="/contact">聯絡客服</HoveredLink>
+                  </div>
+                </MenuItem>
+                <Divider />
               </div>
 
               {/* 手機版：Re.MEDIA 點擊展開熱銷商品 */}

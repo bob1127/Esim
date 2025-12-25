@@ -25,7 +25,7 @@ export default function Home() {
           <div className="w-[10%] border-[.5px] border-gray-200 h-full"></div>
           <div className="w-[85%] border-[.5px] border-gray-200 h-full flex justify-center items-center">
             <div className="flex flex-col p-6">
-              <h1 className="text-6xl font-bold">極客eSIM</h1>
+              <h1 className="text-6xl font-bold">Jeko eSIM</h1>
               <p className="text-2xl font-bold">
                 您出國旅遊的好選擇，各種eSIM方案
               </p>

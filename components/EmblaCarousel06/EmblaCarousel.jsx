@@ -49,7 +49,7 @@ const EmblaCarousel = (props) => {
     <div
       className="w-full py-8 mx-auto"
       style={{
-        "--slide-height": "19rem",
+        "--slide-height": "13rem",
         "--slide-spacing": "1rem",
         "--slide-size": "25%", // Default value for larger screens
       }}
@@ -58,12 +58,12 @@ const EmblaCarousel = (props) => {
     >
       <div className="embla__viewport overflow-hidden" ref={emblaRef}>
         <div
-          className="embla__container flex touch-pan-y touch-pinch-zoom h-[600px]"
+          className="embla__container flex touch-pan-y touch-pinch-zoom h-[550px]"
           style={{ marginLeft: "calc(var(--slide-spacing) * -1)" }}
         >
           {slides.map((slide, index) => (
             <div
-              className="embla__slide transform flex-none h-full min-w-0"
+              className="embla__slide   mx-3  transform flex-none h-full min-w-0"
               key={index}
               style={{
                 transform: "translate3d(0, 0, 0)",
@@ -72,7 +72,7 @@ const EmblaCarousel = (props) => {
               }}
             >
               <div
-                className="embla__slide__number border-none md:border bg-white py-8 md:border-black flex flex-col items-center justify-center font-semibold"
+                className="embla__slide__number border-none md:border !rounded-none bg-white py-8 md:border-black flex flex-col items-center justify-center font-semibold"
                 style={{
                   boxShadow: "inset 0 0 0 0.2rem var(--detail-medium-contrast)",
                   borderRadius: "1.8rem",
@@ -86,14 +86,19 @@ const EmblaCarousel = (props) => {
                     {slide.content ? (
                       slide.content
                     ) : (
-                      <div className="h-full w-full overflow-hidden">
-                        <img
-                          src={slide.image}
-                          className="w-full hover:scale-105 duration-1000 md:h-full"
-                          alt={`Slide ${index + 1}`}
-                        />
+                      <div className="w-full px-6">
+                        {/* 固定比例圖片容器：6 / 19 */}
+                        <div className="aspect-[8/10] w-full overflow-hidden  ">
+                          <img
+                            src={slide.image}
+                            alt={`Slide ${index + 1}`}
+                            className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                            loading="lazy"
+                          />
+                        </div>
                       </div>
                     )}
+
                     <div className="txt mt-5 flex-col flex justify-center items-center w-4/5 mx-auto">
                       <b className="text-xl text-center">{slide.title}</b>
                       <p className="text-sm font-normal text-center">
@@ -125,20 +130,6 @@ const EmblaCarousel = (props) => {
             />
           ))}
         </div>
-      </div>
-
-      <div
-        ref={dragIndicatorRef}
-        className="drag-indicator absolute bottom-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full text-white bg-black flex items-center justify-center"
-        style={{
-          opacity: 0,
-          scale: 0.5,
-          width: "100px",
-          height: "100px",
-          fontSize: "20px",
-        }}
-      >
-        拖曳
       </div>
     </div>
   );
