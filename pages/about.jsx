@@ -217,19 +217,7 @@ export default function Home() {
           </div>
 
           {/* 右邊：標題 + 文字 + 按鈕 */}
-          <div className="w-full lg:w-1/2 text-white">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">環境を知る</h2>
-            <p className="leading-relaxed text-[15px] md:text-base mb-8">
-              当社では、「自分と大切な人が幸せな時間を送れる環境であり続ける」という行動指針をもとに、
-              働きやすい環境、成長しやすい環境づくりに力を入れています。ここでは、当社のカルチャー、
-              福利厚生、人事評価制度など働く環境についてご紹介します。
-            </p>
-
-            <button className="inline-flex items-center px-8 py-3 rounded-full bg-white text-[#0059b8] font-semibold text-sm shadow-md hover:bg-blue-50 transition">
-              働く環境
-              <span className="ml-2 text-base">{">"}</span>
-            </button>
-          </div>
+          <div className="w-full lg:w-1/2 text-white"></div>
         </div>
       </section>
     </Layout>

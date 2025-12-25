@@ -124,7 +124,10 @@ export default function ThreeHorizontalSlider() {
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         side: THREE.DoubleSide,
+        transparent: true, // ✅ 允許 alpha
+        opacity: 1,
       });
+
       const mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
 
@@ -150,8 +153,8 @@ export default function ThreeHorizontalSlider() {
       ];
 
       function updateTexture(offset = 0) {
-        ctx.fillStyle = "#FBF8F5";
-        ctx.fillRect(0, 0, texCanvas.width, texCanvas.height);
+        // ✅ 透明清底，不要再刷白底
+        ctx.clearRect(0, 0, texCanvas.width, texCanvas.height);
 
         const fontSize = 46;
         ctx.font = `600 ${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial`;
@@ -373,29 +376,29 @@ export default function ThreeHorizontalSlider() {
   return (
     <section
       ref={sectionRef}
-      className="sliderSection bg-[#FBF8F5]"
+      className="sliderSection bg-gradient-to-r from-[#0059b8] via-[#0071cf] to-[#0095e6]"
       style={{ height: "320vh" }}
     >
-      <div className="stickyWrap !bg-[#FBF8F5]">
+      <div className="stickyWrap bg-gradient-to-r from-[#0059b8] via-[#0071cf] to-[#0095e6]">
         <canvas ref={canvasRef} />
 
         {/* ===== 上方文字區塊：照截圖排版 ===== */}
         <div className="title pointer-events-none mb-10 relative z-[10] mt-16 flex flex-col items-center justify-center px-4 text-center leading-none">
           {/* 中文大標 */}
-          <p className="max-w-[980px] text-[18px] font-semibold tracking-[0.12em] text-[#111] md:text-[26px]">
-            從山海到街角，拾起屬於這座島嶼的文化美學
+          <p className="max-w-[980px] text-[18px] font-semibold tracking-[0.12em] text-[#f5f4f3] md:text-[26px]">
+            全球旅遊必備神器！免換實體卡
           </p>
 
           {/* 超大 CULTURE */}
-          <p className="mt-3 text-[64px] font-extrabold tracking-[0.18em] text-[#111] md:text-[96px]">
-            CULTURE
+          <p className="mt-3 text-[64px] font-extrabold tracking-[0.18em] text-[#f5f4f3] md:text-[96px]">
+            eSIM
           </p>
 
           {/* 說明文字 */}
-          <p className="mt-4 max-w-[620px] text-[11px] leading-relaxed text-[#444] md:text-[12px]">
-            從餐桌火鍋的湯底、庶民療癒的小點，到城市街巷中的日常煮歌——
+          <p className="mt-4 max-w-[620px] text-[11px] leading-relaxed text-[#f5f4f3] md:text-[12px]">
+            掃描 QR Code 即刻開通高速網路
             <br className="hidden md:block" />
-            走進這些等你閱讀的店舖，不只是走入風景，而是走進生活本身
+            快速找到您想去的旅遊目的地的 eSIM 卡
           </p>
 
           {/* 膠囊按鈕群 */}
@@ -440,7 +443,7 @@ export default function ThreeHorizontalSlider() {
         .sliderSection {
           position: relative;
           width: 100%;
-          background: #fbf8f5;
+
           color: #111;
         }
         .stickyWrap {
@@ -459,13 +462,7 @@ export default function ThreeHorizontalSlider() {
         .overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(
-            to right,
-            rgba(251, 248, 245, 1) 0%,
-            rgba(255, 255, 255, 0) 15%,
-            rgba(255, 255, 255, 0) 85%,
-            rgba(251, 248, 245, 1) 100%
-          );
+
           pointer-events: none;
         }
         .topBar,
