@@ -24,45 +24,55 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 border-b border-gray-200 pb-8">
           <Link href="/" className="flex justify-center md:justify-start">
             <Image
-              src="/images/logo-neoai.svg"
-              alt="Re.MEDIA Logo"
+              src="/images/logo/logo.png"
+              alt="Jeko Logo"
               width={160}
               height={60}
-              className="h-auto w-[160px]"
+              className="h-auto w-[100px]"
             />
           </Link>
 
           <nav className="flex flex-wrap justify-center gap-6 text-sm font-medium">
-            <Link
-              href="/esim/all"
-              className="hover:text-sky-500 transition-colors"
-            >
-              所有 eSIM 方案
-            </Link>
-            <Link
-              href="/guide"
-              className="hover:text-sky-500 transition-colors"
-            >
-              安裝教學
-            </Link>
-            <Link
-              href="/support"
-              className="hover:text-sky-500 transition-colors"
-            >
-              常見問題
-            </Link>
-            <Link
-              href="/company"
-              className="hover:text-sky-500 transition-colors"
-            >
-              關於我們
-            </Link>
-            <Link
-              href="/contact"
-              className="hover:text-sky-500 transition-colors"
-            >
-              聯絡客服
-            </Link>
+            {[
+              { href: "/esim/all", label: "所有 eSIM 方案" },
+              { href: "/guide", label: "安裝教學" },
+              { href: "/support", label: "常見問題" },
+              { href: "/company", label: "關於我們" },
+              { href: "/contact", label: "聯絡客服" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="
+        group
+        relative
+        flex items-center gap-2
+        text-sm font-medium
+        transition-colors
+        hover:text-sky-500
+      "
+              >
+                {/* 左側 icon（hover 才出現） */}
+                <span className="relative w-8 h-8 overflow-hidden">
+                  <Image
+                    src="/images/logo/esim-icon.svg"
+                    alt=""
+                    fill
+                    className="
+            object-contain
+            opacity-0
+            -translate-x-2
+            transition-all duration-300 ease-out
+            group-hover:opacity-100
+            group-hover:translate-x-0
+          "
+                  />
+                </span>
+
+                {/* 文字 */}
+                <span>{item.label}</span>
+              </Link>
+            ))}
           </nav>
         </div>
 

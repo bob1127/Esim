@@ -172,7 +172,7 @@ export default function InfoPage() {
     backdrop-saturate-150
     shadow-lg"
         >
-          <div className="mx-auto w-[90%] sm:w-[85%] lg:w-[80%] py-10 sm:py-16">
+          <div className="mx-auto max-w-[1300px] w-[90%] sm:w-[85%] lg:w-[70%] py-10 sm:py-16">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3">
               <div>

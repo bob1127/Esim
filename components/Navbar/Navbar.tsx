@@ -6,12 +6,56 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Menu, MenuItem, HoveredLink, ProductItem } from "../ui/navbar-menu";
+import { Menu, MenuItem } from "../ui/navbar-menu";
 import {
   UserIcon,
   ShoppingCartIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
+
+/**
+ * ✅ 下拉選單文字項目：hover 時左側出現 icon（w-8 h-8）
+ * - 只有文字項目用（圖片卡 FeaturedCard 不套用）
+ */
+function IconHoveredLink({
+  href,
+  children,
+  onClick,
+}: {
+  href: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="
+        group flex items-center gap-3
+        text-sm text-neutral-700
+        hover:text-sky-600
+        transition-colors
+      "
+    >
+      {/* icon slot（固定 w-8 h-8，避免抖動） */}
+      <span className="relative w-8 h-8 shrink-0 overflow-hidden">
+        <Image
+          src="/images/logo/esim-icon.svg"
+          alt=""
+          fill
+          className="
+            object-contain
+            opacity-0 -translate-x-2
+            transition-all duration-300 ease-out
+            group-hover:opacity-100 group-hover:translate-x-0
+          "
+        />
+      </span>
+
+      <span className="leading-tight">{children}</span>
+    </Link>
+  );
+}
 
 /**
  * Demo wrapper，可直接丟到頁面測試
@@ -135,96 +179,129 @@ export default function Navbar({ className }: { className?: string }) {
                   dropdownSizeClass="min-w-[520px] max-w-[680px]"
                   offsetXClass="-ml-10 md:-ml-[160px]"
                 >
-                  <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                    <HoveredLink href="/news">最新優惠活動</HoveredLink>
-                    <HoveredLink href="/coverage">全球訊號覆蓋範圍</HoveredLink>
-                    <HoveredLink href="/support">幫助中心</HoveredLink>
+                  <div className="flex flex-col space-y-4">
+                    <IconHoveredLink href="/news">最新優惠活動</IconHoveredLink>
+                    <IconHoveredLink href="/coverage">
+                      全球訊號覆蓋範圍
+                    </IconHoveredLink>
+                    <IconHoveredLink href="/support">幫助中心</IconHoveredLink>
                   </div>
                 </MenuItem>
+
                 <Divider />
-                <Divider />
-                <MenuItem setActive={setActive} active={active} item="精選方案">
-                  <div className="text-sm grid grid-cols-3 gap-6">
-                    <ProductItem
-                      title="日本 5日吃到飽"
+
+                <MenuItem
+                  setActive={setActive}
+                  active={active}
+                  item="精選方案"
+                  // ✅ 下拉面板加寬（只影響這個）
+                  dropdownSizeClass="min-w-[1200px] max-w-[1680px]"
+                  // ✅ 置中後微調偏移（你可依畫面再調）
+                  offsetXClass="md:-ml-[420px]"
+                >
+                  {/* ✅ 圖片卡：不套用 icon */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    <FeaturedCard
                       href="/esim/japan-5days"
-                      src="/images/country/malaysia.jpg"
-                      description="Docomo/Softbank 雙網支援，高速不降速。"
+                      img="/images/country/malaysia.jpg"
+                      title="日本 5 日吃到飽"
+                      subtitle="Docomo / Softbank"
+                      description="高速穩定、不降速，適合追劇與地圖導航。"
                     />
-                    <ProductItem
-                      title="韓國 每日 3GB"
+                    <FeaturedCard
                       href="/esim/korea-daily"
-                      src="/images/country/tailand.jpg"
-                      description="SKT 穩定網速，追劇導航無負擔。"
+                      img="/images/country/tailand.jpg"
+                      title="韓國 每日 3GB"
+                      subtitle="SKT 高覆蓋"
+                      description="每日固定流量，社群拍照上傳不怕爆。"
                     />
-                    <ProductItem
-                      title="歐洲 30國通用"
+                    <FeaturedCard
                       href="/esim/europe-30days"
-                      src="/images/country/USA.jpg"
-                      description="跨國自動切換訊號，出差旅遊首選。"
+                      img="/images/country/USA.jpg"
+                      title="歐洲 30 國通用"
+                      subtitle="跨國自動切換"
+                      description="多國移動免換卡，出差旅遊首選。"
                     />
-                    <ProductItem
-                      title="全球周遊券"
+                    <FeaturedCard
                       href="/esim/global"
-                      src="/images/country/malaysia.jpg"
-                      description="一卡暢遊 120+ 國家，商務客的最愛。"
+                      img="/images/country/malaysia.jpg"
+                      title="全球周遊券"
+                      subtitle="120+ 國可用"
+                      description="商務族最愛，一張走天下。"
                     />
                   </div>
                 </MenuItem>
+
                 <Divider />
+
                 <MenuItem
                   setActive={setActive}
                   active={active}
                   item="旅遊文章｜須知"
                   href="/blog"
                 >
-                  <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                    <HoveredLink href="/blog">熱門旅遊景點</HoveredLink>
-                    <HoveredLink href="/blog">出國須知</HoveredLink>
-                    <HoveredLink href="/blog">eSIM疑難雜症排姐</HoveredLink>
+                  <div className="flex flex-col space-y-4">
+                    <IconHoveredLink href="/blog">熱門旅遊景點</IconHoveredLink>
+                    <IconHoveredLink href="/blog">出國須知</IconHoveredLink>
+                    <IconHoveredLink href="/blog">
+                      eSIM疑難雜症排姐
+                    </IconHoveredLink>
                   </div>
                 </MenuItem>
+
                 <Divider />
+
                 {/* 這邊保留一個 "特惠" 區塊 */}
                 <MenuItem setActive={setActive} active={active} item="限時特惠">
-                  <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                    <HoveredLink href="/promo/summer">
+                  <div className="flex flex-col space-y-4">
+                    <IconHoveredLink href="/promo/summer">
                       暑期旅遊祭 88 折
-                    </HoveredLink>
-                    <HoveredLink href="/promo/new-member">
+                    </IconHoveredLink>
+                    <IconHoveredLink href="/promo/new-member">
                       新會員首購優惠
-                    </HoveredLink>
+                    </IconHoveredLink>
                   </div>
                 </MenuItem>
+
                 <Divider />
+
                 <MenuItem
                   setActive={setActive}
                   active={active}
                   item="啟用教學"
                   href="/operation"
                 >
-                  <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                    <HoveredLink href="/operation">iOS 設定教學</HoveredLink>
-                    <HoveredLink href="/operation">
+                  <div className="flex flex-col space-y-4">
+                    <IconHoveredLink href="/operation">
+                      iOS 設定教學
+                    </IconHoveredLink>
+                    <IconHoveredLink href="/operation">
                       Android 設定教學
-                    </HoveredLink>
-                    <HoveredLink href="/operation">Pixel 設定教學</HoveredLink>
-                    <HoveredLink href="/operation">支援裝置列表</HoveredLink>
+                    </IconHoveredLink>
+                    <IconHoveredLink href="/operation">
+                      Pixel 設定教學
+                    </IconHoveredLink>
+                    <IconHoveredLink href="/operation">
+                      支援裝置列表
+                    </IconHoveredLink>
                   </div>
                 </MenuItem>
-                <Divider />{" "}
+
+                <Divider />
+
                 <MenuItem
                   setActive={setActive}
                   active={active}
                   item="關於我們"
                   href="/about"
                 >
-                  <div className="flex flex-col space-y-4 text-sm text-neutral-700">
-                    <HoveredLink href="/company">品牌故事</HoveredLink>
-                    <HoveredLink href="/partners">合作夥伴</HoveredLink>
-                    <HoveredLink href="/contact">聯絡客服</HoveredLink>
+                  <div className="flex flex-col space-y-4">
+                    <IconHoveredLink href="/company">品牌故事</IconHoveredLink>
+                    <IconHoveredLink href="/partners">合作夥伴</IconHoveredLink>
+                    <IconHoveredLink href="/contact">聯絡客服</IconHoveredLink>
                   </div>
                 </MenuItem>
+
                 <Divider />
               </div>
 
@@ -576,6 +653,70 @@ function MobileLink({
       className="block rounded-lg px-2 py-1.5 text-[13px] hover:bg-neutral-100 transition"
     >
       {children}
+    </Link>
+  );
+}
+
+/* 圖片卡（不套用 icon） */
+function FeaturedCard({
+  href,
+  img,
+  title,
+  subtitle,
+  description,
+}: {
+  href: string;
+  img: string;
+  title: string;
+  subtitle: string;
+  description: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="
+        group rounded-2xl overflow-hidden
+        border border-black/10 bg-white/100
+        hover:bg-white transition
+        shadow-[0_10px_25px_-12px_rgba(0,0,0,0.28)]
+      "
+    >
+      {/* 圖片 */}
+      <div className="relative aspect-[4.4/5] overflow-hidden">
+        <img
+          src={img}
+          alt={title}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+        />
+        {/* 右上角小標籤（可選，想要可刪） */}
+        <div className="absolute top-3 right-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold text-slate-700 backdrop-blur">
+          Hot
+        </div>
+      </div>
+
+      {/* 文字 */}
+      <div className="p-4">
+        <div className="text-[15px] font-extrabold text-slate-900 leading-snug">
+          {title}
+        </div>
+
+        <div className="mt-1 text-xs font-semibold text-sky-700">
+          {subtitle}
+        </div>
+
+        <p className="mt-2 text-[12px] leading-6 text-slate-600 line-clamp-2">
+          {description}
+        </p>
+
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-[12px] font-semibold text-slate-800">
+            立即查看
+          </span>
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-sky-500 text-white transition group-hover:translate-x-0.5">
+            →
+          </span>
+        </div>
+      </div>
     </Link>
   );
 }

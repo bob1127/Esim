@@ -281,7 +281,7 @@ const LoginRegisterPage = () => {
 
                     {/* 訊息 */}
                     {message && (
-                      <p className="mt-3 text-center text-xs text-red-100">
+                      <p className="mt-3 text-center text-xs text-white py-2 bg-rose-800">
                         {message}
                       </p>
                     )}
