@@ -296,7 +296,8 @@ export default function ThreeHorizontalSlider({ items = DEFAULT_ITEMS }) {
       // === Scroll Parallax ===
       function applyScrollParallax(p) {
         mesh.rotation.y = THREE.MathUtils.degToRad((p - 0.5) * 6);
-        mesh.position.y = (p - 0.5) * 0.6;
+
+        mesh.position.y = (p - 0.5) * 0.6 - 3.5;
       }
 
       // === Pointer Parallax ===

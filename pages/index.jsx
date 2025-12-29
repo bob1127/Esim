@@ -31,18 +31,20 @@ export default function Home() {
           <Carousel />
         </ScrollScaleWrapper> */}
 
-        <section className="">
+        <section className="relative w-full overflow-hidden">
           <div className="z-[9999] relative">
             <br></br>
             <FeatureCarousel />
           </div>
-          <div className="absolute  top-[-50px]   xl::top-[9%] left-[0%] 2xl:left-[80%] z-[1]">
+
+          {/* Blobs: 手機版縮小尺寸並調整位置，避免遮擋內容 */}
+          <div className="absolute top-[-20px] lg:top-[-50px] xl:top-[9%] left-[0%] 2xl:left-[80%] z-[1]">
             <svg
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 500 500"
               id="blobSvg"
-              className="w-[450px] h-[450px] xl:w-[650px] xl:h-[650px] 2xl:w-[800px] 2xl:h-[800px]"
+              className="w-[250px] h-[250px] md:w-[450px] md:h-[450px] xl:w-[650px] xl:h-[650px] 2xl:w-[800px] 2xl:h-[800px] opacity-70 lg:opacity-100"
             >
               <defs>
                 <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -66,13 +68,14 @@ export default function Home() {
               </path>
             </svg>
           </div>
-          <div className="absolute  top-[-50px]   xl::top-[9%] left-[0%] 2xl:left-[-20%] z-[1]">
+          <div className="absolute top-[-20px] lg:top-[-50px] xl:top-[9%] left-[-20%] lg:left-[0%] 2xl:left-[-20%] z-[1]">
+            {/* 複製原本的 Blob 2 保持一致性 */}
             <svg
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 500 500"
               id="blobSvg"
-              className="w-[450px] h-[450px] xl:w-[650px] xl:h-[650px] 2xl:w-[800px] 2xl:h-[800px]"
+              className="w-[250px] h-[250px] md:w-[450px] md:h-[450px] xl:w-[650px] xl:h-[650px] 2xl:w-[800px] 2xl:h-[800px] opacity-70 lg:opacity-100"
             >
               <defs>
                 <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -97,49 +100,60 @@ export default function Home() {
             </svg>
           </div>
         </section>
+
         <img
           src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-1300x100_2d2c9e2f-293f-4f46-8b79-fed8dc5fa5bb.svg"
           alt=""
-          className="w-full"
+          className="w-full relative z-10"
         />
-        <section className="bg-[#147AD7] h-screen rounded-br-[130px] rounded-bl-[130px]">
-          <div className="flex max-w-[1000px] mx-auto justify-between">
+
+        {/* 熱門國家區塊：手機版 min-h 取代固定 h-screen，flex-col 堆疊 */}
+        <section className="bg-[#147AD7] min-h-screen lg:h-screen rounded-br-[60px] rounded-bl-[60px] lg:rounded-br-[130px] lg:rounded-bl-[130px] py-10 lg:py-0">
+          <div className="flex flex-col lg:flex-row max-w-[1000px] mx-auto justify-between px-6 lg:px-0">
             <div className="txt">
-              <h2 className="text-white tracking-widest text-4xl">
+              <h2 className="text-white tracking-widest text-3xl lg:text-4xl font-bold lg:font-normal">
                 熱門國家&地區
               </h2>
-              <h3 className="text-white tracking-widest mt-2 text-2xl">
+              <h3 className="text-white tracking-widest mt-2 text-xl lg:text-2xl">
                 快速找到您想去的旅遊目的地的 eSIM 卡
               </h3>
-              <p className="text-slate-100 text-xl mt-6 leading-snug tracking-widest">
-                在 Re.MEDIA 探索<br></br>經濟高效的旅遊數據方案<br></br>
-                隨時隨地無縫連接<br></br>告別昂貴的國際漫遊費
+              <p className="text-slate-100 text-base lg:text-xl mt-6 leading-relaxed lg:leading-snug tracking-widest">
+                在 Re.MEDIA 探索<br className="hidden lg:block"></br>
+                經濟高效的旅遊數據方案<br className="hidden lg:block"></br>
+                隨時隨地無縫連接<br className="hidden lg:block"></br>
+                告別昂貴的國際漫遊費
               </p>
             </div>
             <div></div>
           </div>
           <Project />
         </section>
-        <section className="pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-6 sm:px-10 mx-auto mt-[150px] w-[96%] py-[100px]">
-          <div className="main-title max-w-[1000px] mx-auto flex justify-center flex-col items-center">
-            <h2 className="text-5xl font-bold">如何使用 eSIM?</h2>
+
+        {/* 如何使用區塊：手機版 padding 減少，寬度改 w-full，flex-col */}
+        <section className="pt-[60px] lg:pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[50px] lg:mt-[150px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px]">
+          <div className="main-title max-w-[1000px] mx-auto flex justify-center flex-col items-center text-center">
+            <h2 className="text-3xl lg:text-5xl font-bold">如何使用 eSIM?</h2>
             <p className="text-slate-700 text-lg mt-3">How to use</p>
           </div>
-          <div className="rounded-2xl bg-[#EBEEEF] py-20 max-w-[1500px] mx-auto flex justify-center flex-col items-center ">
+
+          <div className="rounded-2xl bg-[#EBEEEF] py-10 lg:py-20 max-w-[1500px] mx-auto flex justify-center flex-col items-center mt-8">
+            {/* Step 1 Content */}
             <div className="mb-10 w-full flex justify-around">
-              <div className="flex w-[80%] mx-auto">
-                <div className="w-1/2 flex pr-10 items-center flex-col">
+              <div className="flex flex-col lg:flex-row w-[90%] lg:w-[80%] mx-auto gap-8 lg:gap-0">
+                <div className="w-full lg:w-1/2 flex lg:pr-10 items-center flex-col text-center lg:text-left">
                   <div>
-                    <div className="max-w-[280px]">
-                      <div className="bg-[#30ae99] p-2 rounded-[8px] text-white text-[16px] font-bold">
+                    <div className="max-w-full lg:max-w-[280px] mx-auto lg:mx-0">
+                      <div className="bg-[#30ae99] p-2 rounded-[8px] text-white text-[16px] font-bold inline-block lg:block">
                         無論你去哪裡旅行，保持連線不斷網
                       </div>
-                      <h3 className="text-3xl font-bold mt-2">什麼是 eSIM？</h3>
+                      <h3 className="text-2xl lg:text-3xl font-bold mt-4 lg:mt-2">
+                        什麼是 eSIM？
+                      </h3>
                     </div>
-                    <p className="tetx-left font-bold mt-2">
+                    <p className="text-center lg:text-left font-bold mt-2">
                       告別實體 SIM 卡的束縛
                     </p>
-                    <p className="mt-4 leading-relaxed text-gray-700">
+                    <p className="mt-4 leading-relaxed text-gray-700 text-sm lg:text-base">
                       eSIM（嵌入式 SIM 卡）是新一代的網路技術。
                       無需抽換實體卡片，只需掃描 QR Code 設定，
                       抵達目的地後開啟數據漫遊，即可立即連接當地高速網路，
@@ -147,40 +161,42 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-                <div className="w-1/2 pr-10">
+                <div className="w-full lg:w-1/2 lg:pr-10">
                   <img
                     src="/images/如何使用esim.png"
-                    className="w-full rounded-xl"
+                    className="w-full rounded-xl shadow-md"
                     alt="eSIM使用說明"
                   />
                 </div>
               </div>
             </div>
-            <div className="border-l-5 border-[#147AD7] w-full flex justify-around">
-              <div className="flex w-[80%] mx-auto">
-                <div className="w-1/2 flex items-center flex-col">
+
+            {/* Step 2 Content */}
+            <div className="border-t lg:border-t-0 lg:border-l-5 border-[#147AD7] w-full flex justify-around pt-10 lg:pt-0">
+              <div className="flex flex-col lg:flex-row w-[90%] lg:w-[80%] mx-auto gap-8 lg:gap-0">
+                <div className="w-full lg:w-1/2 flex items-center flex-col text-center lg:text-left">
                   <div>
-                    <h3 className="text-3xl font-bold">
-                      請確保您的手機運營商已解鎖<br></br>且與 eSIM 相容
+                    <h3 className="text-2xl lg:text-3xl font-bold">
+                      請確保您的手機運營商已解鎖
+                      <br className="hidden lg:block"></br>且與 eSIM 相容
                     </h3>
-                    <p className="tetx-left font-bold mt-2">
+                    <p className="text-center lg:text-left font-bold mt-2">
                       eSIM 相容裝置列表
                     </p>
-                    <p className="mt-4 leading-relaxed text-gray-700">
+                    <p className="mt-4 leading-relaxed text-gray-700 text-sm lg:text-base">
                       在購買前，請務必確認您的裝置支援 eSIM 功能且未被
                       電信商鎖定（Sim-Lock Free）。目前市面上新款 iPhone （XR/XS
                       以後機型）及多數 Android 旗艦機種皆已支援。
                     </p>
                   </div>
                 </div>
-                <div className="w-1/2">
-                  <div>
-                    <a href="#"></a>
+                <div className="w-full lg:w-1/2">
+                  <div className="flex flex-col gap-2">
+                    {/* Buttons: 手機版改為滿寬，左對齊或中對齊 */}
                     <a href="#" className="">
-                      <div className="flex justify-end items-center">
-                        <div className="bg-white py-1 flex items-center px-4 rounded-[30px]">
-                          {" "}
-                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] rounded-full"></div>
+                      <div className="flex justify-center lg:justify-end items-center">
+                        <div className="bg-white py-2 lg:py-1 flex items-center px-4 rounded-[30px] w-full lg:w-auto shadow-sm">
+                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] rounded-full shrink-0"></div>
                           <div className="ml-3 tracking-widest font-bold text-[14px]">
                             使用 eSIM 快速教學
                           </div>
@@ -188,10 +204,9 @@ export default function Home() {
                       </div>
                     </a>
                     <a href="#" className="group">
-                      <div className="flex justify-end items-center mt-2">
-                        <div className="py-1 flex group-hover:bg-white duration-200 items-center px-4 rounded-[30px]">
-                          {" "}
-                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] hidden group-hover:block duration-300 transition-all rounded-full"></div>
+                      <div className="flex justify-center lg:justify-end items-center lg:mt-2">
+                        <div className="py-2 lg:py-1 flex group-hover:bg-white bg-white lg:bg-transparent duration-200 items-center px-4 rounded-[30px] w-full lg:w-auto shadow-sm lg:shadow-none">
+                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] lg:hidden lg:group-hover:block duration-300 transition-all rounded-full shrink-0"></div>
                           <div className="ml-3 tracking-widest font-bold text-[14px]">
                             產品相關政策及規範
                           </div>
@@ -199,10 +214,9 @@ export default function Home() {
                       </div>
                     </a>
                     <a href="/shopee-qrcode" className="group">
-                      <div className="flex justify-end items-center mt-2">
-                        <div className="py-1 flex group-hover:bg-white duration-200 items-center px-4 rounded-[30px]">
-                          {" "}
-                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] hidden group-hover:block duration-300 transition-all rounded-full"></div>
+                      <div className="flex justify-center lg:justify-end items-center lg:mt-2">
+                        <div className="py-2 lg:py-1 flex group-hover:bg-white bg-white lg:bg-transparent duration-200 items-center px-4 rounded-[30px] w-full lg:w-auto shadow-sm lg:shadow-none">
+                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] lg:hidden lg:group-hover:block duration-300 transition-all rounded-full shrink-0"></div>
                           <div className="ml-3 tracking-widest font-bold text-[14px]">
                             蝦皮訂單編號快速兌換
                           </div>
@@ -213,14 +227,16 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-[10px] w-[80%] mx-auto p-10 mt-10">
-              <div className="step border-b-1 border-gray-400 py-5">
-                <div className="w-1/2 flex items-center">
-                  <div className="w-[50px] bg-[#428aef] rounded-full h-[50px] text-white flex justify-center items-center font-bold text-xl">
+
+            {/* Check Step */}
+            <div className="bg-white rounded-[10px] w-[90%] lg:w-[80%] mx-auto p-6 lg:p-10 mt-10 shadow-sm">
+              <div className="step border-b lg:border-b-1 border-gray-200 lg:border-gray-400 py-2 lg:py-5">
+                <div className="w-full lg:w-1/2 flex items-center">
+                  <div className="w-[40px] h-[40px] lg:w-[50px] lg:h-[50px] bg-[#428aef] rounded-full text-white flex justify-center items-center font-bold text-lg lg:text-xl shrink-0">
                     1
                   </div>
                   <div className="flex flex-col justify-center">
-                    <h3 className="text-2xl font-bold ml-3">
+                    <h3 className="text-lg lg:text-2xl font-bold ml-3">
                       確認手機是否有支援
                     </h3>
                   </div>
@@ -230,77 +246,88 @@ export default function Home() {
             <div className="tutorial p-10"></div>
           </div>
         </section>
+
         <img
           src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-1300x100_601d1578-d35b-424a-bd5b-dcee64d6b25f.svg"
-          className="w-full mt-[-150px]"
+          className="w-full mt-[-80px] lg:mt-[-150px] relative z-10"
           alt=""
         />
-        <section className="bg-[#07b53b] p-20">
+
+        {/* Features 區塊：手機版 padding 減少，flex-col */}
+        <section className="bg-[#07b53b] p-6 lg:p-20 relative z-0">
           <div className="max-w-[1400px] mx-auto xl:w-[70%] sm:w-[85%] w-full">
-            <div className="main-title">
-              <h2 className="text-white text-5xl font-bold tracking-widest">
+            <div className="main-title text-center lg:text-left">
+              <h2 className="text-white text-4xl lg:text-5xl font-bold tracking-widest">
                 Features
               </h2>
               <p className="text-slate-50">特色</p>
             </div>
-            <div className="main pt-10">
+
+            <div className="main pt-6 lg:pt-10">
               <div>
-                <div className="title flex w-[70%] justify-between">
+                <div className="title flex flex-col lg:flex-row w-full lg:w-[70%] justify-between items-center lg:items-start">
                   <div className="flex flex-col">
-                    <h3 className="text-white text-3xl">精選全球 eSIM</h3>
+                    <h3 className="text-white text-2xl lg:text-3xl">
+                      精選全球 eSIM
+                    </h3>
                   </div>
-                  <div className="flex">
-                    <div className="bg-white flex tracking-wider mx-2 items-center justify-center font-bold rounded-[20px] px-3 py-1 text-[14px]">
+                  <div className="flex mt-4 lg:mt-0 flex-wrap justify-center gap-2">
+                    <div className="bg-white flex tracking-wider items-center justify-center font-bold rounded-[20px] px-3 py-1 text-[12px] lg:text-[14px]">
                       超快物流
                     </div>
-                    <div className="bg-white flex tracking-wider mx-2 items-center justify-center font-bold rounded-[20px] px-3 py-1 text-[14px]">
+                    <div className="bg-white flex tracking-wider items-center justify-center font-bold rounded-[20px] px-3 py-1 text-[12px] lg:text-[14px]">
                       即時客服
                     </div>
-                    <div className="bg-white flex tracking-wider mx-2 items-center justify-center font-bold rounded-[20px] px-3 py-1 text-[14px]">
+                    <div className="bg-white flex tracking-wider items-center justify-center font-bold rounded-[20px] px-3 py-1 text-[12px] lg:text-[14px]">
                       攻略分享
                     </div>
                   </div>
                 </div>
-                <div className="w-[30%]"></div>
+                <div className="w-full lg:w-[30%]"></div>
               </div>
-              <div className="chat p-8 bg-white relative flex rounded-[20px] mt-4">
-                <div className="absolute bottom-[-30px] z-30 left-10 w-[40px] h-[40px]">
+
+              {/* Chat Box 1 */}
+              <div className="chat p-6 lg:p-8 bg-white relative flex flex-col-reverse lg:flex-row rounded-[20px] mt-8 lg:mt-4 overflow-hidden lg:overflow-visible">
+                <div className="absolute bottom-[-20px] lg:bottom-[-30px] z-30 left-6 lg:left-10 w-[30px] h-[30px] lg:w-[40px] lg:h-[40px]">
                   <img
                     src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-43x30_bff1345c-8a45-4eed-ad55-45a1705d21db.svg"
                     alt=""
                     className="w-full"
                   />
                 </div>
-                <div className="left w-[70%]">
+                <div className="left w-full lg:w-[70%] mt-4 lg:mt-0">
                   <AccordionEsim />
                 </div>
-                <div className="phone w-[30%] relative flex justify-between items-end">
+                {/* 手機版將手機圖片稍微縮小或調整位置 */}
+                <div className="phone w-full lg:w-[30%] relative flex justify-center lg:justify-between items-end h-[200px] lg:h-auto">
                   <img
                     src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-464x928_v-fs_webp_26a92258-9a41-4f50-af8c-624012999e60_small.webp"
-                    className="w-[60%] absolute h-auto z-30 left-1/2 -translate-x-1/2 bottom-0"
+                    className="w-[120px] lg:w-[60%] lg:absolute h-auto z-30 lg:left-1/2 lg:-translate-x-1/2 bottom-0"
                     alt=""
                   />
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Duplicate Feature Block */}
           <div className="max-w-[1400px] mx-auto xl:w-[70%] sm:w-[85%] w-full">
-            <div className="main pt-10">
-              <div className="chat p-8 bg-white relative flex rounded-[20px] mt-4">
-                <div className="absolute bottom-[-30px] z-30 left-10 w-[40px] h-[40px]">
+            <div className="main pt-6 lg:pt-10">
+              <div className="chat p-6 lg:p-8 bg-white relative flex flex-col-reverse lg:flex-row rounded-[20px] mt-4 overflow-hidden lg:overflow-visible">
+                <div className="absolute bottom-[-20px] lg:bottom-[-30px] z-30 left-6 lg:left-10 w-[30px] h-[30px] lg:w-[40px] lg:h-[40px]">
                   <img
                     src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-43x30_bff1345c-8a45-4eed-ad55-45a1705d21db.svg"
                     alt=""
                     className="w-full"
                   />
                 </div>
-                <div className="left w-[70%]">
+                <div className="left w-full lg:w-[70%] mt-4 lg:mt-0">
                   <AccordionEsim />
                 </div>
-                <div className="phone w-[30%] relative flex justify-between items-end">
+                <div className="phone w-full lg:w-[30%] relative flex justify-center lg:justify-between items-end h-[200px] lg:h-auto">
                   <img
                     src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-464x928_v-fs_webp_26a92258-9a41-4f50-af8c-624012999e60_small.webp"
-                    className="w-[60%] absolute h-auto z-30 left-1/2 -translate-x-1/2 bottom-0"
+                    className="w-[120px] lg:w-[60%] lg:absolute h-auto z-30 lg:left-1/2 lg:-translate-x-1/2 bottom-0"
                     alt=""
                   />
                 </div>
@@ -308,42 +335,50 @@ export default function Home() {
             </div>
           </div>
         </section>
+
         <img
           src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-1300x100_601d1578-d35b-424a-bd5b-dcee64d6b25f.svg"
-          className="w-full rotate-180 mt-[0px]"
+          className="w-full rotate-180 mt-[0px] relative z-10"
           alt=""
         />
-        <section className="pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-6 sm:px-10 mx-auto mt-[-150px] w-[96%] py-[100px]">
-          <div className="main-title flex flex-col max-w-[650px] mx-auto justify-center items-center">
-            <h2 className="text-5xl font-bold">旅遊精選文章</h2>
+
+        {/* Blog & CTA 區塊 */}
+        <section className="pt-[60px] lg:pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[-80px] lg:mt-[-150px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px] relative z-20">
+          <div className="main-title flex flex-col max-w-[650px] mx-auto justify-center items-center text-center">
+            <h2 className="text-3xl lg:text-5xl font-bold">旅遊精選文章</h2>
             <p className="text-slate-700 mt-2">Travel Blog</p>
 
-            <span className="tracking-widest text-[14px] text-center mt-3 leading-relaxed text-gray-600">
+            <span className="tracking-widest text-sm lg:text-[14px] text-center mt-3 leading-relaxed text-gray-600 px-4 lg:px-0">
               精選全球熱門旅遊目的地攻略，從上網設定到必去景點，
               為您的旅程提供最實用的資訊與建議，讓自由行變得更簡單。
             </span>
           </div>
-          <div className="mt-5">
+          <div className="mt-8 lg:mt-5">
             <Carousel />
           </div>
-          <div className="cta-btn bg-[#1C82E0] max-w-[1160px] mx-auto rounded-[33px] p-10 mt-10">
-            <div className="w-[90%] flex mx-auto flex-col">
-              <div className="title flex justify-between items-center">
-                <h3 className="text-white font-bold tracking-wider text-[26px]">
+
+          {/* CTA Button: 手機版改為 flex-col 確保文字不被擠壓 */}
+          <div className="cta-btn bg-[#1C82E0] max-w-[1160px] mx-auto rounded-[20px] lg:rounded-[33px] p-6 lg:p-10 mt-10">
+            <div className="w-full lg:w-[90%] flex mx-auto flex-col">
+              <div className="title flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 lg:gap-0">
+                <h3 className="text-white font-bold tracking-wider text-xl lg:text-[26px]">
                   遇到問題需要協助？
                 </h3>
-                <span className="text-white text-[14px]">Customer Support</span>
+                <span className="text-white text-sm lg:text-[14px] opacity-80 lg:opacity-100">
+                  Customer Support
+                </span>
               </div>
-              <div className="cta-btn-wrapper">
-                <div className="cta-btn group bg-[#0069CA] mt-4 rounded-[10px] p-2 cursor-pointer">
-                  <div className="inner group-hover:bg-white bg-transparent duration-500 p-8 rounded-[10px] flex items-center">
-                    <div className="w-1/2">
-                      <h3 className="text-white group-hover:ml-6 group-hover:text-[#0069CA] duration-300 font-bold text-2xl">
+              <div className="cta-btn-wrapper w-full">
+                <div className="cta-btn group bg-[#0069CA] mt-6 lg:mt-4 rounded-[10px] p-2 cursor-pointer w-full">
+                  <div className="inner group-hover:bg-white bg-transparent duration-500 p-6 lg:p-8 rounded-[10px] flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-0">
+                    <div className="w-full lg:w-1/2">
+                      <h3 className="text-white group-hover:ml-0 lg:group-hover:ml-6 group-hover:text-[#0069CA] duration-300 font-bold text-xl lg:text-2xl">
                         LINE 官方客服
                       </h3>
                     </div>
-                    <div className="border-l-1 w-[55%] flex justify-end !group-hover:w-[55%] duration-300 border-gray-50 pl-5 group-hover:border-[#0069CA]">
-                      <span className="text-white group-hover:mr-10 duration-500 w-[300px] group-hover:text-[#0069CA] text-[14px]">
+                    {/* 手機版分隔線改為上方 border-t，桌機版維持左側 border-l */}
+                    <div className="border-t lg:border-t-0 lg:border-l-1 w-full lg:w-[55%] flex justify-start lg:justify-end !group-hover:w-full lg:!group-hover:w-[55%] duration-300 border-gray-50/30 lg:border-gray-50 pt-4 lg:pt-0 pl-0 lg:pl-5 group-hover:border-[#0069CA]">
+                      <span className="text-white group-hover:mr-0 lg:group-hover:mr-10 duration-500 w-full lg:w-[300px] group-hover:text-[#0069CA] text-sm lg:text-[14px] leading-relaxed">
                         直接使用 LINE 與我們聯繫，真人客服即時在線。
                         如有使用問題請直接加入好友詢問。
                       </span>

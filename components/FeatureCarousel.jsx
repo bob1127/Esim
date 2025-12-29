@@ -14,12 +14,12 @@ const slides = [
   {
     date: "2025.08.03",
     title: "歐洲跨國漫遊首選，覆蓋 40+ 國家，出差旅遊訊號無縫接軌",
-    img: "/images/Jeko_eSIM即買即用| 極客eSIM | Jeko eSIM.jpg",
+    img: "/images/01.png",
   },
   {
     date: "2025.09.10",
     title: "限時優惠開跑！日韓 eSIM 吃到飽方案下殺 5 折，立即搶購",
-    img: "/images/如何開始使用eSIM|如何設定eSIM | 極客eSIM Jeko eSIM.jpg",
+    img: "/images/04.png",
   },
 ];
 
@@ -46,15 +46,19 @@ export default function FadeCarousel() {
   );
 
   return (
-    <section className="p-10 relative">
-      <div className="title max-w-[1500px] p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full">
-        {/* 修改處 2：標題中文化 */}
-        <h2 className="text-4xl">最新動態</h2>
+    // 手機版 p-5 / 電腦版 p-10
+    <section className="p-5 lg:p-10 relative">
+      <div className="title max-w-[1500px] p-5 lg:p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full">
+        {/* 手機版文字稍小 text-3xl / 電腦版 text-4xl */}
+        <h2 className="text-3xl lg:text-4xl font-bold lg:font-normal">
+          最新動態
+        </h2>
       </div>
 
-      <div className="bg-[#f4f4f7] rounded-[20px] max-w-[1500px] p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full overflow-hidden relative">
-        {/* ---------- 導航區 ---------- */}
-        <div className="navgation absolute left-8 top-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
+      <div className="bg-[#f4f4f7] rounded-[20px] max-w-[1500px] p-5 lg:p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full overflow-hidden relative">
+        {/* ---------- 導航區 (電腦版顯示 / 手機版隱藏) ---------- */}
+        {/* 加入 hidden lg:flex，只在電腦版顯示垂直導航，以免手機版遮擋內容 */}
+        <div className="navgation hidden lg:flex absolute left-8 top-1/2 -translate-y-1/2 z-10 flex-col items-center">
           {/* 01 / 02 / 03 */}
           <div className="mb-4 flex flex-col items-center gap-1">
             {labels.map((lb, i) => (
@@ -137,9 +141,10 @@ export default function FadeCarousel() {
         </div>
 
         {/* ---------- 主內容 ---------- */}
-        <div className="main flex relative">
-          {/* 左側文字 */}
-          <div className="description justify-center items-start p-20 flex flex-col w-1/2 relative overflow-hidden">
+        {/* 手機版：flex-col-reverse (圖上文下) / 電腦版：flex-row (左文右圖) */}
+        <div className="main flex flex-col-reverse lg:flex-row relative">
+          {/* 左側文字 (電腦版 w-1/2 / 手機版 w-full) */}
+          <div className="description justify-center items-start p-6 lg:p-20 flex flex-col w-full lg:w-1/2 relative overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={index}
@@ -147,20 +152,38 @@ export default function FadeCarousel() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
-                className="space-y-6"
+                className="space-y-4 lg:space-y-6"
               >
-                <span className="text-gray-500">{slides[index].date}</span>
-                <p className="text-3xl leading-snug">{slides[index].title}</p>
-                {/* 修改處 3：按鈕文字中文化 */}
-                <button className="border rounded-[20px] border-black px-4 py-2 hover:bg-black hover:text-white transition-all">
+                <span className="text-gray-500 text-sm lg:text-base">
+                  {slides[index].date}
+                </span>
+                <p className="text-2xl lg:text-3xl leading-snug font-bold lg:font-normal">
+                  {slides[index].title}
+                </p>
+
+                <button className="border rounded-[20px] border-black px-4 py-2 text-sm lg:text-base hover:bg-black hover:text-white transition-all">
                   查看詳情
                 </button>
               </motion.div>
             </AnimatePresence>
+
+            {/* --- 手機版專用導航 (Mobile Only Dots) --- */}
+            <div className="flex lg:hidden gap-2 mt-6">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => go(i)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    i === index ? "bg-black w-6" : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* 右側圖片 */}
-          <div className="relative overflow-hidden aspect-[3/2.8] w-1/2 rounded-[16px]">
+          {/* 右側圖片 (電腦版 w-1/2 / 手機版 w-full) */}
+          {/* 手機版比例設為 aspect-video (16:9) 避免太高 */}
+          <div className="relative overflow-hidden aspect-video lg:aspect-[3/2.8] w-full lg:w-1/2 lg:rounded-[16px] rounded-[16px]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={slides[index].img}
@@ -175,7 +198,7 @@ export default function FadeCarousel() {
                   alt={slides[index].title}
                   fill
                   className="object-cover"
-                  sizes="50vw"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </motion.div>
             </AnimatePresence>
