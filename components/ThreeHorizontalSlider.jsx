@@ -5,29 +5,55 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import Lenis from "@studio-freight/lenis";
 
-export default function ThreeHorizontalSlider() {
+const DEFAULT_ITEMS = [
+  {
+    src: "/images/Jeko_eSIM即買即用| 極客eSIM | Jeko eSIM.jpg",
+    title: " ",
+  },
+  {
+    src: "/images/如何開始使用eSIM|如何設定eSIM | 極客eSIM Jeko eSIM.jpg",
+    title: " ",
+  },
+  { src: "/images/01.png", title: "World" },
+  {
+    src: "/images/Generated-Image-November-15,-2025---5_19PM.png",
+    title: " ",
+  },
+  { src: "/images/立即使用.jpg", title: " " },
+  {
+    src: "/images/Jeko_eSIM即買即用| 極客eSIM | Jeko eSIM.jpg",
+    title: " ",
+  },
+  {
+    src: "/images/如何開始使用eSIM|如何設定eSIM | 極客eSIM Jeko eSIM.jpg",
+    title: " ",
+  },
+];
+
+export default function ThreeHorizontalSlider({ items = DEFAULT_ITEMS }) {
   const canvasRef = useRef(null);
   const sectionRef = useRef(null);
   const fpsRef = useRef(null);
   const progRef = useRef(null);
 
   useEffect(() => {
+    if (!items || items.length === 0) return;
+
     let lenis = null;
     let rafId = null;
     let disposed = false;
     let resizeTimeout = null;
     let sceneCleanup = null;
 
-    const SHOW_DEBUG = false; // 想看 FPS/進度再開 true
+    const SHOW_DEBUG = false;
 
-    // FPS 監測
+    // FPS Monitor
     let lastTime = performance.now();
     let frameCount = 0;
-    let fps = 0;
     function updateFPS(now) {
       frameCount++;
       if (now - lastTime >= 1000) {
-        fps = Math.round((frameCount * 1000) / (now - lastTime));
+        const fps = Math.round((frameCount * 1000) / (now - lastTime));
         frameCount = 0;
         lastTime = now;
         if (SHOW_DEBUG && fpsRef.current) {
@@ -36,37 +62,42 @@ export default function ThreeHorizontalSlider() {
       }
     }
 
-    const total = 7;
+    const total = items.length;
     const images = [];
     let loaded = 0;
 
-    // === 載入圖片 ===
-    for (let i = 1; i <= total; i++) {
+    // === Load Images ===
+    items.forEach((item, index) => {
       const img = new Image();
       img.onload = checkLoaded;
-      img.onerror = checkLoaded;
-      img.src = `/assets/img${i}.jpg`;
-      images.push(img);
-    }
+      img.onerror = () => {
+        console.warn(`Failed to load image: ${item.src}`);
+        checkLoaded();
+      };
+      // Important for cross-origin images if your images are hosted elsewhere
+      img.crossOrigin = "anonymous";
+      img.src = item.src;
+      images[index] = img;
+    });
 
     function checkLoaded() {
       loaded++;
       if (loaded === total) {
-        sceneCleanup = init(); // 圖片全載完再建場景
+        sceneCleanup = init();
       }
     }
 
-    // === 區段進度（只算 Slider 這一段） ===
+    // === Section Progress ===
     function sectionProgress() {
       const el = sectionRef.current;
       if (!el) return 0;
       const rect = el.getBoundingClientRect();
       const totalScrollable = rect.height - window.innerHeight;
       if (totalScrollable <= 0) return 0;
-      return Math.max(0, Math.min(1, -rect.top / totalScrollable)); // 0~1
+      return Math.max(0, Math.min(1, -rect.top / totalScrollable));
     }
 
-    // === 初始化 Three.js ===
+    // === Init Three.js ===
     function init() {
       if (disposed) return;
 
@@ -85,12 +116,15 @@ export default function ThreeHorizontalSlider() {
         canvas,
         antialias: true,
         powerPreference: "high-performance",
+        alpha: true, // Allow transparency
       });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
-      renderer.setClearColor(0x000000, 0);
 
-      // === 彎曲曲面 ===
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 0); // Transparent background
+      renderer.outputColorSpace = THREE.SRGBColorSpace; // Correct color output
+
+      // === Curved Geometry ===
       const parentWidth = 70;
       const parentHeight = 18;
       const curvature = 25;
@@ -107,56 +141,60 @@ export default function ThreeHorizontalSlider() {
       for (let i = 0; i < pos.length; i += 3) {
         const x = pos[i];
         const dist = Math.abs(x / (parentWidth / 2));
-        pos[i + 2] = Math.pow(dist, 2) * curvature; // 內凹
+        pos[i + 2] = Math.pow(dist, 2) * curvature;
       }
       geometry.computeVertexNormals();
 
-      // === 紋理畫布 ===
+      // === Texture Canvas ===
       const texCanvas = document.createElement("canvas");
       const ctx = texCanvas.getContext("2d");
-      texCanvas.width = 2048;
-      texCanvas.height = 512;
+
+      // High resolution for sharpness
+      texCanvas.width = 4096;
+      texCanvas.height = 1024;
 
       const texture = new THREE.CanvasTexture(texCanvas);
-      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-      texture.minFilter = texture.magFilter = THREE.LinearFilter;
+
+      // === CRITICAL FIXES FOR COLOR AND SHARPNESS ===
+      // 1. Correct Color Space for texture
+      texture.colorSpace = THREE.SRGBColorSpace;
+
+      // 2. Disable mipmaps for canvas textures that update frequently to prevent blurring
+      texture.generateMipmaps = false;
+
+      // 3. Use LinearFilter for minFilter (since we disabled mipmaps)
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         side: THREE.DoubleSide,
-        transparent: true, // ✅ 允許 alpha
+        transparent: true,
         opacity: 1,
       });
 
       const mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
 
-      // === 相機 ===
+      // === Camera ===
       camera.position.set(0, 4, 28);
       camera.lookAt(0, 0, 0);
 
-      // === Slides 設定 ===
+      // === Slides Config ===
       const fixedRatio = 1;
       const totalSlides = total;
       const slideWidth = 8;
       const gap = 1.4;
       const cycleWidth = totalSlides * (slideWidth + gap);
 
-      const titles = [
-        "Field Unit",
-        "Astral Convergence",
-        "Eclipse Core",
-        "Luminous",
-        "Serenity",
-        "Nebula Point",
-        "Horizon",
-      ];
-
       function updateTexture(offset = 0) {
-        // ✅ 透明清底，不要再刷白底
         ctx.clearRect(0, 0, texCanvas.width, texCanvas.height);
 
-        const fontSize = 46;
+        const fontSize = 92;
         ctx.font = `600 ${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -188,8 +226,12 @@ export default function ThreeHorizontalSlider() {
           const drawY = rect.y + (rect.height - drawH) / 2;
 
           const img = images[idx];
-          if (img) {
+          const title = items[idx]?.title || "";
+
+          // Added safety checks
+          if (img && img.complete && img.naturalWidth > 0) {
             const overflowR = drawX + drawW - texCanvas.width;
+
             if (overflowR > 0) {
               ctx.drawImage(
                 img,
@@ -242,7 +284,7 @@ export default function ThreeHorizontalSlider() {
             }
 
             ctx.fillText(
-              titles[idx],
+              title,
               rect.x + rect.width / 2,
               texCanvas.height * 0.5
             );
@@ -251,13 +293,13 @@ export default function ThreeHorizontalSlider() {
         texture.needsUpdate = true;
       }
 
-      // === 滾動視差 ===
+      // === Scroll Parallax ===
       function applyScrollParallax(p) {
         mesh.rotation.y = THREE.MathUtils.degToRad((p - 0.5) * 6);
         mesh.position.y = (p - 0.5) * 0.6;
       }
 
-      // === 指標視差 ===
+      // === Pointer Parallax ===
       let pointerX = 0,
         pointerY = 0;
       let pointerMoved = false;
@@ -277,7 +319,7 @@ export default function ThreeHorizontalSlider() {
         mesh.rotation.y += (targetY - mesh.rotation.y) * 0.08;
       }
 
-      // === Lenis 平滑滾動 ===
+      // === Lenis ===
       lenis = new Lenis({
         smoothWheel: true,
         smoothTouch: true,
@@ -285,12 +327,11 @@ export default function ThreeHorizontalSlider() {
         lerp: 0.08,
       });
 
-      // 進度補間
       let currentP = sectionProgress();
       let targetP = currentP;
       let lastRenderedOffset = -999;
 
-      // 初始畫面
+      // Initial Render
       updateTexture(-currentP);
       applyScrollParallax(currentP);
       renderer.render(scene, camera);
@@ -341,6 +382,7 @@ export default function ThreeHorizontalSlider() {
           camera.aspect = window.innerWidth / window.innerHeight;
           camera.updateProjectionMatrix();
           renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
           const p = sectionProgress();
           currentP = p;
@@ -371,7 +413,7 @@ export default function ThreeHorizontalSlider() {
       lenis?.destroy?.();
       sceneCleanup?.();
     };
-  }, []);
+  }, [items]);
 
   return (
     <section
@@ -382,26 +424,19 @@ export default function ThreeHorizontalSlider() {
       <div className="stickyWrap bg-gradient-to-r from-[#0059b8] via-[#0071cf] to-[#0095e6]">
         <canvas ref={canvasRef} />
 
-        {/* ===== 上方文字區塊：照截圖排版 ===== */}
         <div className="title pointer-events-none mb-10 relative z-[10] mt-16 flex flex-col items-center justify-center px-4 text-center leading-none">
-          {/* 中文大標 */}
           <p className="max-w-[980px] text-[18px] font-semibold tracking-[0.12em] text-[#f5f4f3] md:text-[26px]">
             全球旅遊必備神器！免換實體卡
           </p>
-
-          {/* 超大 CULTURE */}
           <p className="mt-3 text-[64px] font-extrabold tracking-[0.18em] text-[#f5f4f3] md:text-[96px]">
             eSIM
           </p>
-
-          {/* 說明文字 */}
           <p className="mt-4 max-w-[620px] text-[11px] leading-relaxed text-[#f5f4f3] md:text-[12px]">
             掃描 QR Code 即刻開通高速網路
             <br className="hidden md:block" />
             快速找到您想去的旅遊目的地的 eSIM 卡
           </p>
 
-          {/* 膠囊按鈕群 */}
           <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#E5E9F2] px-1.5 py-1">
             <button className="pointer-events-auto rounded-full bg-[#0052FF] px-5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-[#003fd1]">
               HOME
@@ -414,24 +449,7 @@ export default function ThreeHorizontalSlider() {
 
         <div className="overlay" />
 
-        {/* 你原本的 top/bottom bar，如不需要可以刪掉 */}
-        <div className="topBar">
-          <div className="siteInfo">
-            <p className="logo">Codegrid</p>
-            <p>YouTube Channel</p>
-          </div>
-          <div className="navLinks">
-            <p>Index</p>
-            <p>About</p>
-          </div>
-        </div>
-
-        <div className="bottomBar">
-          <p>Experiment 0410</p>
-          <p>© 2024</p>
-        </div>
-
-        <div className="debug">
+        <div className="debug" style={{ display: "none" }}>
           <span ref={fpsRef}>FPS: -</span>
           <span ref={progRef} style={{ marginLeft: 12 }}>
             progress: -
@@ -443,7 +461,6 @@ export default function ThreeHorizontalSlider() {
         .sliderSection {
           position: relative;
           width: 100%;
-
           color: #111;
         }
         .stickyWrap {
@@ -457,60 +474,26 @@ export default function ThreeHorizontalSlider() {
           inset: 0;
           width: 100%;
           height: 100%;
-          top: 7%;
+          z-index: 1;
         }
         .overlay {
           position: absolute;
           inset: 0;
-
           pointer-events: none;
-        }
-        .topBar,
-        .bottomBar {
-          position: absolute;
-          left: 0;
-          right: 0;
-          padding: 2em;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          z-index: 2;
-          color: #111;
-        }
-        .topBar {
-          top: 0;
-        }
-        .bottomBar {
-          bottom: 0;
-        }
-        .siteInfo {
-          display: grid;
-          gap: 2px;
-        }
-        .navLinks {
-          display: flex;
-          gap: 2em;
-        }
-        .logo,
-        .topBar p,
-        .bottomBar p {
-          font-size: 13px;
-          font-weight: 400;
-          opacity: 0.6;
-        }
-        .logo {
-          opacity: 1;
         }
         .debug {
           position: absolute;
           left: 12px;
           bottom: 12px;
-          z-index: 3;
+          z-index: 99;
           font-size: 12px;
-          opacity: 0.6;
+          opacity: 0.8;
           user-select: none;
           pointer-events: none;
-          color: #111;
+          color: #fff;
+          background: rgba(0, 0, 0, 0.5);
+          padding: 4px 8px;
+          border-radius: 4px;
         }
       `}</style>
     </section>

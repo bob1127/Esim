@@ -14,12 +14,12 @@ const slides = [
   {
     date: "2025.08.03",
     title: "歐洲跨國漫遊首選，覆蓋 40+ 國家，出差旅遊訊號無縫接軌",
-    img: "/images/01.png",
+    img: "/images/Jeko_eSIM即買即用| 極客eSIM | Jeko eSIM.jpg",
   },
   {
     date: "2025.09.10",
     title: "限時優惠開跑！日韓 eSIM 吃到飽方案下殺 5 折，立即搶購",
-    img: "/images/04.png",
+    img: "/images/如何開始使用eSIM|如何設定eSIM | 極客eSIM Jeko eSIM.jpg",
   },
 ];
 

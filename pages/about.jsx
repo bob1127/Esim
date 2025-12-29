@@ -65,7 +65,7 @@ export default function Home() {
       </section>
 
       <section className="section-company-intro">
-        <div className="flex  h-auto lg:h-[500px] lg:flex-row flex-col group">
+        <div className="flex  h-auto   lg:flex-row flex-col group">
           <div className=" w-full  bg-black lg:bg-transparent lg:w-[5%] border-[.5px] border-gray-200 flex justify-center items-center flex-row lg:flex-col  h-full">
             <p className="font-bold rotate-[0deg] lg:rotate-[90deg] text-gray-500 lg:group-hover:text-black  group-hover:text-white duration-500">
               02
@@ -74,7 +74,7 @@ export default function Home() {
               eSIM
             </p>
           </div>
-          <div className=" w-full lg:w-[50%] xl:w-[65%] border-[.5px] border-gray-200 h-full p-20">
+          <div className=" w-full lg:w-[50%] xl:w-[65%] border-[.5px] border-gray-200 h-full md:p-10 p-5 xl:p-20">
             <div className="max-w-[500px]">
               <h2 className=" text-4xl lg:text-6xl font-normal leading-snug">
                 eSIM。
@@ -98,9 +98,20 @@ export default function Home() {
                 <span className="ml-2 text-base">{">"}</span>
               </button>
             </div>
+            <div className="mt-5">
+              <Image
+                src="/images/何處何地都能快速使用｜快速上網｜Jeko_eSIM｜極客eSI.png"
+                placeholder="empty"
+                loading="lazy"
+                width={1920}
+                height={700}
+                className="w-full"
+                alt="何處何地都能快速使用｜快速上網｜Jeko_eSIM｜極客eSIM"
+              ></Image>
+            </div>
           </div>
           <div className=" w-full lg:w-[45%] xl:w-[30%] border-[.5px] border-gray-200 h-full flex justify-center items-center">
-            <div className="p-20">
+            <div className="md:p-10 p-5 xl:p-20">
               <h3 className=" text-2xl lg:text-4xl text-gray-800">
                 無卡束縛，自由上線
               </h3>
