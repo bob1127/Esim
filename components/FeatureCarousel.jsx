@@ -9,17 +9,22 @@ const slides = [
   {
     date: "2025.07.19",
     title: "全球旅遊必備神器！免換實體卡，掃描 QR Code 即刻開通高速網路",
-    img: "/images/Generated-Image-November-15,-2025---5_19PM.png",
+    img: "/images/韓國.jpg",
   },
   {
     date: "2025.08.03",
     title: "歐洲跨國漫遊首選，覆蓋 40+ 國家，出差旅遊訊號無縫接軌",
-    img: "/images/01.png",
+    img: "/images/香港.jpg",
   },
   {
     date: "2025.09.10",
     title: "限時優惠開跑！日韓 eSIM 吃到飽方案下殺 5 折，立即搶購",
-    img: "/images/04.png",
+    img: "/images/日本.jpg",
+  },
+  {
+    date: "2025.09.10",
+    title: "限時優惠開跑！日韓 eSIM 吃到飽方案下殺 5 折，立即搶購",
+    img: "/images/馬來西亞.jpg",
   },
 ];
 
@@ -48,14 +53,14 @@ export default function FadeCarousel() {
   return (
     // 手機版 p-5 / 電腦版 p-10
     <section className="p-5 lg:p-10 relative">
-      <div className="title max-w-[1500px] p-5 lg:p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full">
+      <div className="title max-w-[1500px]   p-5 lg:p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full">
         {/* 手機版文字稍小 text-3xl / 電腦版 text-4xl */}
         <h2 className="text-3xl lg:text-4xl font-bold lg:font-normal">
           最新動態
         </h2>
       </div>
 
-      <div className="bg-[#f4f4f7] rounded-[20px] max-w-[1500px] p-5 lg:p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full overflow-hidden relative">
+      <div className="bg-[#f4f4f7] rounded-[20px]  max-w-[1500px] p-5 lg:p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full overflow-hidden relative">
         {/* ---------- 導航區 (電腦版顯示 / 手機版隱藏) ---------- */}
         {/* 加入 hidden lg:flex，只在電腦版顯示垂直導航，以免手機版遮擋內容 */}
         <div className="navgation hidden lg:flex absolute left-8 top-1/2 -translate-y-1/2 z-10 flex-col items-center">
@@ -183,7 +188,7 @@ export default function FadeCarousel() {
 
           {/* 右側圖片 (電腦版 w-1/2 / 手機版 w-full) */}
           {/* 手機版比例設為 aspect-video (16:9) 避免太高 */}
-          <div className="relative overflow-hidden aspect-video lg:aspect-[3/2.8] w-full lg:w-1/2 lg:rounded-[16px] rounded-[16px]">
+          <div className="relative overflow-hidden aspect-[3/3.8] lg:aspect-[3/3.8] w-full lg:w-1/2 lg:rounded-[16px] rounded-[16px]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={slides[index].img}
