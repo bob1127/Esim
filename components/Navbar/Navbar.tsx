@@ -15,7 +15,6 @@ import {
 
 /**
  * ✅ 下拉選單文字項目：hover 時左側出現 icon（w-8 h-8）
- * - 只有文字項目用（圖片卡 FeaturedCard 不套用）
  */
 function IconHoveredLink({
   href,
@@ -37,7 +36,6 @@ function IconHoveredLink({
         transition-colors
       "
     >
-      {/* icon slot（固定 w-8 h-8，避免抖動） */}
       <span className="relative w-8 h-8 shrink-0 overflow-hidden">
         <Image
           src="/images/logo/esim-icon.svg"
@@ -51,20 +49,15 @@ function IconHoveredLink({
           "
         />
       </span>
-
       <span className="leading-tight">{children}</span>
     </Link>
   );
 }
 
-/**
- * Demo wrapper，可直接丟到頁面測試
- */
 export function NavbarDemo() {
   return (
     <div className="relative min-h-[220px] flex items-start justify-center">
       <Navbar className="top-4" />
-      {/* 藍色弧形背景（純視覺，可移除） */}
       <div
         aria-hidden
         className="pointer-events-none fixed left-0 right-0 top-[68px] h-[160px] z-0"
@@ -81,16 +74,15 @@ export function NavbarDemo() {
 }
 
 export default function Navbar({ className }: { className?: string }) {
-  const [active, setActive] = useState<string | null>(null); // desktop hover
-  const [mobileOpen, setMobileOpen] = useState(false); // 手機：主選單
-  const [mobileHotOpen, setMobileHotOpen] = useState(false); // 手機：熱銷商品
-  const [userMenuOpen, setUserMenuOpen] = useState(false); // 桌機會員下拉
+  const [active, setActive] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileHotOpen, setMobileHotOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
 
   const router = useRouter();
 
-  // 初始讀取登入狀態
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -114,7 +106,6 @@ export default function Navbar({ className }: { className?: string }) {
     }
   }, []);
 
-  // 登出
   const handleLogout = () => {
     if (typeof window === "undefined") return;
     try {
@@ -132,7 +123,6 @@ export default function Navbar({ className }: { className?: string }) {
 
   return (
     <>
-      {/* 背景遮罩 */}
       <AnimatePresence>
         {showOverlay && (
           <motion.div
@@ -141,16 +131,14 @@ export default function Navbar({ className }: { className?: string }) {
             animate={{ opacity: 1, backdropFilter: "blur(2px)" }}
             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[9] bg-black/35  pointer-events-none"
+            className="fixed inset-0 z-[9999999] bg-black/35  pointer-events-none"
             style={{ WebkitBackdropFilter: "blur(2px)" }}
           />
         )}
       </AnimatePresence>
 
-      {/* 置頂列 */}
       <header className={cn("fixed inset-x-0 !z-[9999999] ", className)}>
         <div className="mx-auto w-[94%] max-w-[1920px] flex mt-4 items-center justify-between gap-4">
-          {/* 左：Logo */}
           <Link
             href="/"
             className="relative z-50 flex items-center gap-2 py-2 pr-2 select-none"
@@ -161,7 +149,7 @@ export default function Navbar({ className }: { className?: string }) {
             </span>
           </Link>
 
-          {/* 中央：淡藍膠囊 Tabs（桌機版） */}
+          {/* 桌機版選單 */}
           <div
             className={cn(
               "relative z-50 rounded-[15px] border border-white/30",
@@ -194,12 +182,9 @@ export default function Navbar({ className }: { className?: string }) {
                   setActive={setActive}
                   active={active}
                   item="精選方案"
-                  // ✅ 下拉面板加寬（只影響這個）
                   dropdownSizeClass="min-w-[1200px] max-w-[1680px]"
-                  // ✅ 置中後微調偏移（你可依畫面再調）
                   offsetXClass="md:-ml-[420px]"
                 >
-                  {/* ✅ 圖片卡：不套用 icon */}
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     <FeaturedCard
                       href="/esim/japan-5days"
@@ -251,7 +236,6 @@ export default function Navbar({ className }: { className?: string }) {
 
                 <Divider />
 
-                {/* 這邊保留一個 "特惠" 區塊 */}
                 <MenuItem setActive={setActive} active={active} item="限時特惠">
                   <div className="flex flex-col space-y-4">
                     <IconHoveredLink href="/promo/summer">
@@ -320,12 +304,9 @@ export default function Navbar({ className }: { className?: string }) {
             </Menu>
           </div>
 
-          {/* 右：會員 & 購物車 + 手機漢堡 */}
           <div className="relative z-50 flex items-center gap-2">
-            {/* === 桌機：會員 + 購物車 === */}
             <div className="hidden sm:flex">
               <div className="flex rounded-full overflow-hidden shadow-md border border-black/10 bg-white">
-                {/* 會員按鈕 */}
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
                   className="px-4 py-2 flex items-center gap-1 text-sm font-semibold text-[#0D66D0] hover:bg-neutral-100 transition"
@@ -339,7 +320,6 @@ export default function Navbar({ className }: { className?: string }) {
                   <ChevronDownIcon className="w-4 h-4" />
                 </button>
 
-                {/* 購物車按鈕 */}
                 <Link
                   href="/Cart"
                   className="px-4 py-2 flex items-center justify-center bg-[#0D66D0] hover:brightness-110 transition"
@@ -349,7 +329,6 @@ export default function Navbar({ className }: { className?: string }) {
               </div>
             </div>
 
-            {/* 會員下拉選單 */}
             <AnimatePresence>
               {userMenuOpen && (
                 <motion.div
@@ -406,7 +385,6 @@ export default function Navbar({ className }: { className?: string }) {
               )}
             </AnimatePresence>
 
-            {/* === 手機：漢堡按鈕 === */}
             <button
               type="button"
               onClick={() => {
@@ -442,7 +420,7 @@ export default function Navbar({ className }: { className?: string }) {
         </div>
       </header>
 
-      {/* 手機版展開選單（主選單） */}
+      {/* ✅ 手機版展開選單（主選單）：與電腦版結構一致 */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.nav
@@ -451,9 +429,10 @@ export default function Navbar({ className }: { className?: string }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed top-[80px] inset-x-4 z-50 md:hidden rounded-2xl bg-white shadow-xl border border-black/5 px-5 py-4"
+            // 修正寬度：與 Header 寬度一致 (w-[94%] + mx-auto)，左右間距就會對齊
+            className="fixed top-[80px] left-0 right-0 w-[94%] mx-auto z-[9999999999] md:hidden rounded-2xl bg-white shadow-xl border border-black/5 px-5 py-4 max-h-[80vh] overflow-y-auto"
           >
-            <div className="flex flex-col gap-3 text-sm text-neutral-800">
+            <div className="flex flex-col gap-5 text-sm text-neutral-800">
               <MobileGroup title="首頁">
                 <MobileLink href="/news" onClick={() => setMobileOpen(false)}>
                   最新優惠活動
@@ -462,7 +441,7 @@ export default function Navbar({ className }: { className?: string }) {
                   href="/coverage"
                   onClick={() => setMobileOpen(false)}
                 >
-                  覆蓋範圍查詢
+                  全球訊號覆蓋範圍
                 </MobileLink>
                 <MobileLink
                   href="/support"
@@ -472,39 +451,85 @@ export default function Navbar({ className }: { className?: string }) {
                 </MobileLink>
               </MobileGroup>
 
-              <MobileGroup title="熱門目的地">
+              {/* 這裡的連結對應電腦版「精選方案」內的 featured cards，為了手機好點選，轉為文字列表 */}
+              <MobileGroup title="精選方案">
                 <MobileLink
-                  href="/esim/japan"
+                  href="/esim/japan-5days"
                   onClick={() => setMobileOpen(false)}
                 >
-                  日本 Japan
+                  日本 5 日吃到飽
                 </MobileLink>
                 <MobileLink
-                  href="/esim/korea"
+                  href="/esim/korea-daily"
                   onClick={() => setMobileOpen(false)}
                 >
-                  韓國 Korea
+                  韓國 每日 3GB
                 </MobileLink>
                 <MobileLink
-                  href="/esim/china"
+                  href="/esim/europe-30days"
                   onClick={() => setMobileOpen(false)}
                 >
-                  中港澳 China/HK
+                  歐洲 30 國通用
                 </MobileLink>
                 <MobileLink
-                  href="/esim/sea"
+                  href="/esim/global"
                   onClick={() => setMobileOpen(false)}
                 >
-                  東南亞 SE Asia
+                  全球周遊券
                 </MobileLink>
               </MobileGroup>
 
-              <MobileGroup title="精選方案">
+              <MobileGroup title="旅遊文章｜須知">
+                <MobileLink href="/blog" onClick={() => setMobileOpen(false)}>
+                  熱門旅遊景點
+                </MobileLink>
+                <MobileLink href="/blog" onClick={() => setMobileOpen(false)}>
+                  出國須知
+                </MobileLink>
+                <MobileLink href="/blog" onClick={() => setMobileOpen(false)}>
+                  eSIM疑難雜症排姐
+                </MobileLink>
+              </MobileGroup>
+
+              <MobileGroup title="限時特惠">
                 <MobileLink
-                  href="/esim/recommended"
+                  href="/promo/summer"
                   onClick={() => setMobileOpen(false)}
                 >
-                  瀏覽所有方案
+                  暑期旅遊祭 88 折
+                </MobileLink>
+                <MobileLink
+                  href="/promo/new-member"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  新會員首購優惠
+                </MobileLink>
+              </MobileGroup>
+
+              <MobileGroup title="啟用教學">
+                <MobileLink
+                  href="/operation"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  iOS 設定教學
+                </MobileLink>
+                <MobileLink
+                  href="/operation"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Android 設定教學
+                </MobileLink>
+                <MobileLink
+                  href="/operation"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Pixel 設定教學
+                </MobileLink>
+                <MobileLink
+                  href="/operation"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  支援裝置列表
                 </MobileLink>
               </MobileGroup>
 
@@ -515,32 +540,32 @@ export default function Navbar({ className }: { className?: string }) {
                 >
                   品牌故事
                 </MobileLink>
-                <MobileLink href="/guide" onClick={() => setMobileOpen(false)}>
-                  安裝教學
+                <MobileLink
+                  href="/partners"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  合作夥伴
                 </MobileLink>
-              </MobileGroup>
-
-              <MobileGroup title="客戶服務">
                 <MobileLink
                   href="/contact"
                   onClick={() => setMobileOpen(false)}
                 >
-                  聯絡我們
+                  聯絡客服
                 </MobileLink>
               </MobileGroup>
 
               {/* 手機版 CTA */}
-              <div className="mt-2 flex flex-col gap-2">
+              <div className="mt-2 flex flex-col gap-2 pt-2 border-t border-gray-100">
                 <Link
                   href="https://line.me/"
-                  className="w-full rounded-full bg-[#1EBE4D] px-4 py-2 text-center text-xs font-semibold text-white hover:brightness-110 transition"
+                  className="w-full rounded-full bg-[#1EBE4D] px-4 py-2.5 text-center text-sm font-semibold text-white hover:brightness-110 transition shadow-sm"
                   onClick={() => setMobileOpen(false)}
                 >
                   LINE 線上客服
                 </Link>
                 <Link
                   href="/esim/all"
-                  className="w-full rounded-full bg-[#0D66D0] px-4 py-2 text-center text-xs font-semibold text-white hover:brightness-110 transition"
+                  className="w-full rounded-full bg-[#0D66D0] px-4 py-2.5 text-center text-sm font-semibold text-white hover:brightness-110 transition shadow-sm"
                   onClick={() => setMobileOpen(false)}
                 >
                   立即購買 eSIM
@@ -551,7 +576,7 @@ export default function Navbar({ className }: { className?: string }) {
         )}
       </AnimatePresence>
 
-      {/* 手機版：Hot.eSIM 熱銷選單 */}
+      {/* ✅ 手機版：Hot.eSIM 熱銷選單 (同樣修正寬度) */}
       <AnimatePresence>
         {mobileHotOpen && (
           <motion.nav
@@ -560,7 +585,8 @@ export default function Navbar({ className }: { className?: string }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed top-[80px] inset-x-10 z-50 md:hidden rounded-2xl bg-white shadow-xl border border-black/5 px-5 py-4"
+            // 修正寬度：與 Header 寬度一致 (w-[94%] + mx-auto)
+            className="fixed top-[80px] left-0 right-0 w-[94%] mx-auto z-[9999999999] md:hidden rounded-2xl bg-white shadow-xl border border-black/5 px-5 py-4"
           >
             <p className="text-xs font-semibold tracking-[0.18em] text-neutral-500 uppercase mb-2">
               本週熱銷排行
@@ -598,7 +624,6 @@ export default function Navbar({ className }: { className?: string }) {
   );
 }
 
-/* 桌機：小分隔線（分頁之間的淡線） */
 function Divider() {
   return (
     <span
@@ -612,7 +637,6 @@ function Divider() {
   );
 }
 
-/* 手機版：群組標題 */
 function MobileGroup({
   title,
   children,
@@ -622,15 +646,16 @@ function MobileGroup({
 }) {
   return (
     <div>
-      <p className="text-[11px] font-semibold tracking-[0.18em] text-neutral-500 uppercase mb-1.5">
+      <p className="text-[12px] font-bold tracking-[0.05em] text-[#0A6CD0] bg-blue-50/50 px-2 py-1 rounded mb-1.5 inline-block">
         {title}
       </p>
-      <div className="space-y-1.5">{children}</div>
+      <div className="space-y-1 pl-1 border-l-2 border-gray-100 ml-1">
+        {children}
+      </div>
     </div>
   );
 }
 
-/* 手機版：單一連結 */
 function MobileLink({
   href,
   children,
@@ -644,14 +669,13 @@ function MobileLink({
     <Link
       href={href}
       onClick={onClick}
-      className="block rounded-lg px-2 py-1.5 text-[13px] hover:bg-neutral-100 transition"
+      className="block rounded-lg px-3 py-2 text-[14px] text-gray-600 hover:text-black hover:bg-neutral-50 transition active:bg-neutral-100"
     >
       {children}
     </Link>
   );
 }
 
-/* 圖片卡（不套用 icon） */
 function FeaturedCard({
   href,
   img,
@@ -675,33 +699,26 @@ function FeaturedCard({
         shadow-[0_10px_25px_-12px_rgba(0,0,0,0.28)]
       "
     >
-      {/* 圖片 */}
       <div className="relative aspect-[4.4/5] overflow-hidden">
         <img
           src={img}
           alt={title}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
         />
-        {/* 右上角小標籤（可選，想要可刪） */}
         <div className="absolute top-3 right-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold text-slate-700 backdrop-blur">
           Hot
         </div>
       </div>
-
-      {/* 文字 */}
       <div className="p-4">
         <div className="text-[15px] font-extrabold text-slate-900 leading-snug">
           {title}
         </div>
-
         <div className="mt-1 text-xs font-semibold text-sky-700">
           {subtitle}
         </div>
-
         <p className="mt-2 text-[12px] leading-6 text-slate-600 line-clamp-2">
           {description}
         </p>
-
         <div className="mt-3 flex items-center justify-between">
           <span className="text-[12px] font-semibold text-slate-800">
             立即查看

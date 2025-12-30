@@ -3,28 +3,44 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link"; // 引入 Link
 
-// 修改處 1：文案全部改為 eSIM 相關的主題
+// 修改處 1：文案全部改為 eSIM 相關的主題，並新增 alt 和 link 欄位
 const slides = [
   {
     date: "2025.07.19",
     title: "全球旅遊必備神器！免換實體卡，掃描 QR Code 即刻開通高速網路",
-    img: "/images/韓國.jpg",
+    img: "/images/韓國旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽.jpg",
+    alt: "韓國旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽", // 自定義 alt
+    link: "/esim/global", // 自定義連結
   },
   {
     date: "2025.08.03",
     title: "歐洲跨國漫遊首選，覆蓋 40+ 國家，出差旅遊訊號無縫接軌",
-    img: "/images/香港.jpg",
+    img: "/images/香港旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽.jpg",
+    alt: "香港旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽", // 自定義 alt
+    link: "/esim/europe", // 自定義連結
+  },
+  {
+    date: "2025.08.03",
+    title: "泰國旅遊上網推薦，高速穩定不降速，隨時分享美食美景", // 修改標題以區分
+    img: "/images/泰國旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽.jpg",
+    alt: "泰國旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽", // 自定義 alt
+    link: "/esim/thailand", // 自定義連結
   },
   {
     date: "2025.09.10",
     title: "限時優惠開跑！日韓 eSIM 吃到飽方案下殺 5 折，立即搶購",
-    img: "/images/日本.jpg",
+    img: "/images/日本旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽.jpg",
+    alt: "日本旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽", // 自定義 alt
+    link: "/esim/japan-korea-sale", // 自定義連結
   },
   {
     date: "2025.09.10",
-    title: "限時優惠開跑！日韓 eSIM 吃到飽方案下殺 5 折，立即搶購",
-    img: "/images/馬來西亞.jpg",
+    title: "馬來西亞上網卡，多種方案任選，滿足不同天數需求", // 修改標題以區分
+    img: "/images/馬來西亞旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽.jpg",
+    alt: "馬來西亞旅遊首選 - 極客eSIM | Jeko eSIM 出國上網首選，免換卡、即買即用、高速吃到飽", // 自定義 alt
+    link: "/esim/malaysia", // 自定義連結
   },
 ];
 
@@ -166,9 +182,12 @@ export default function FadeCarousel() {
                   {slides[index].title}
                 </p>
 
-                <button className="border rounded-[20px] border-black px-4 py-2 text-sm lg:text-base hover:bg-black hover:text-white transition-all">
-                  查看詳情
-                </button>
+                {/* 修改處 2：使用 Link 包覆按鈕，並使用自定義連結 */}
+                <Link href={slides[index].link} passHref>
+                  <button className="border rounded-[20px] border-black px-4 py-2 text-sm lg:text-base hover:bg-black hover:text-white transition-all">
+                    查看詳情
+                  </button>
+                </Link>
               </motion.div>
             </AnimatePresence>
 
@@ -188,26 +207,30 @@ export default function FadeCarousel() {
 
           {/* 右側圖片 (電腦版 w-1/2 / 手機版 w-full) */}
           {/* 手機版比例設為 aspect-video (16:9) 避免太高 */}
-          <div className="relative overflow-hidden aspect-[3/3.8] lg:aspect-[3/3.8] w-full lg:w-1/2 lg:rounded-[16px] rounded-[16px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={slides[index].img}
-                initial={{ opacity: 0, scale: 1.03 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.03 }}
-                transition={{ duration: 0.8, ease: "easeInOut" }}
-                className="absolute inset-0"
-              >
-                <Image
-                  src={slides[index].img}
-                  alt={slides[index].title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              </motion.div>
-            </AnimatePresence>
-          </div>
+          {/* 修改處 3：使用 Link 包覆圖片容器，並使用自定義連結 */}
+          <Link href={slides[index].link} passHref legacyBehavior>
+            <a className="relative overflow-hidden aspect-[3/3.8] lg:aspect-[3/3.8] w-full lg:w-1/2 lg:rounded-[16px] rounded-[16px] block cursor-pointer">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={slides[index].img}
+                  initial={{ opacity: 0, scale: 1.03 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.03 }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={slides[index].img}
+                    // 修改處 4：使用自定義 alt
+                    alt={slides[index].alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </a>
+          </Link>
         </div>
       </div>
     </section>

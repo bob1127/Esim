@@ -89,7 +89,7 @@ export default function InfoPage() {
   shadow-lg
 "
         >
-          <div className="w-[80%]">
+          <div className=" w-full px-4 sm:w-[80%]">
             <div className="title flex justify-between">
               <div className="flex items-center justify-center">
                 <h2 className="text-[36px] font-bold">NEWS</h2>{" "}
