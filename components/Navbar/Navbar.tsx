@@ -253,19 +253,19 @@ export default function Navbar({ className }: { className?: string }) {
                   setActive={setActive}
                   active={active}
                   item="啟用教學"
-                  href="/operation"
+                  href="/operation-shopee"
                 >
                   <div className="flex flex-col space-y-4">
-                    <IconHoveredLink href="/operation">
+                    <IconHoveredLink href="/operation-shopee">
                       iOS 設定教學
                     </IconHoveredLink>
-                    <IconHoveredLink href="/operation">
+                    <IconHoveredLink href="/operation-shopee">
                       Android 設定教學
                     </IconHoveredLink>
-                    <IconHoveredLink href="/operation">
+                    <IconHoveredLink href="/operation-shopee">
                       Pixel 設定教學
                     </IconHoveredLink>
-                    <IconHoveredLink href="/operation">
+                    <IconHoveredLink href="/operation-shopee">
                       支援裝置列表
                     </IconHoveredLink>
                   </div>
@@ -508,25 +508,25 @@ export default function Navbar({ className }: { className?: string }) {
 
               <MobileGroup title="啟用教學">
                 <MobileLink
-                  href="/operation"
+                  href="/operation-shopee"
                   onClick={() => setMobileOpen(false)}
                 >
                   iOS 設定教學
                 </MobileLink>
                 <MobileLink
-                  href="/operation"
+                  href="/operation-shopee"
                   onClick={() => setMobileOpen(false)}
                 >
                   Android 設定教學
                 </MobileLink>
                 <MobileLink
-                  href="/operation"
+                  href="/operation-shopee"
                   onClick={() => setMobileOpen(false)}
                 >
                   Pixel 設定教學
                 </MobileLink>
                 <MobileLink
-                  href="/operation"
+                  href="/operation-shopee"
                   onClick={() => setMobileOpen(false)}
                 >
                   支援裝置列表

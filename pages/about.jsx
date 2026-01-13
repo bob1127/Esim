@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 // import { AnimatePresence } from "framer-motion";
 // import Preloader from "../components/toys05/Preloader";
+import ScrollHero from "../components/ScrollHero.jsx";
 import Marquee from "react-marquee-slider";
 import Layout from "./Layout.js";
 import Link from "next/link";
@@ -53,15 +54,15 @@ export default function Home() {
 
               {/* 內文區域：手機垂直堆疊，桌機水平排列 */}
               <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 max-w-[1500px]">
-                <div className="flex-1 text-gray-700 text-[14px] tracking-widest leading-relaxed">
-                  我們是一家專注於全球行動連線解決方案的科技公司，致力於以 eSIM
-                  技術 打破地域界限，讓使用者在世界各地都能輕鬆上網。
+                <div className="flex-1 text-stone-800 text-[16px] tracking-widest leading-relaxed">
+                  我們是一家專注於全球行動連線解決方案的公司，致力於以 eSIM 技術
+                  打破地域界限，讓使用者在世界各地都能輕鬆上網。
                   透過與多國電信合作，我們提供 彈性方案、即時啟用、透明價格
                   的數據服務，讓旅行與通訊更自由、更智能。
                   我們相信，網路不只是連線工具，更是世界互通的橋樑。
                   讓每一段旅程、每一次溝通，都無縫順暢，這就是我們存在的使命。
                 </div>
-                <div className="flex-1 text-gray-700 text-[14px] tracking-widest leading-relaxed">
+                <div className="flex-1 text-stone-800 text-[16px] tracking-widest leading-relaxed">
                   無論你身處何地，連線只需一瞬。 我們以創新的 eSIM
                   技術，讓旅人、商務人士與數位生活家，輕鬆擁抱全球高速網路。
                   免換卡、免等待、免煩惱——世界，從此隨手可連。
@@ -107,7 +108,7 @@ export default function Home() {
                 <br />
                 <span className="font-bold">您旅行的好夥伴</span>
               </h2>
-              <p className="leading-relaxed mt-6 text-gray-600 text-sm md:text-base">
+              <p className="leading-relaxed mt-6 text-stone-800 text-[16px]">
                 即掃即用，隨時上線。全新 eSIM 服務提供 24HR
                 快速發貨，讓你無須等待、無需實體卡，出國前後都能輕鬆啟用。無論工作、旅遊或日常上網，一掃即可連線世界，享受真正的即時便利與自由行動力。
               </p>
@@ -138,7 +139,7 @@ export default function Home() {
               <h3 className="text-xl md:text-3xl lg:text-4xl text-gray-800 font-medium mb-4">
                 無卡束縛，自由上線
               </h3>
-              <p className="leading-relaxed text-gray-600 text-sm md:text-base text-justify">
+              <p className="leading-relaxed text-stone-800 text-[16px] text-justify">
                 eSIM
                 讓連線變得更直覺、更自由。免插卡、免等待，只需掃描即可啟用，無論出國旅行或日常使用都能立即上線。
                 <span className="hidden md:inline">
@@ -217,7 +218,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      <ScrollHero />
       <div className="marquee mt-8">
         <Marquee>
           {[
