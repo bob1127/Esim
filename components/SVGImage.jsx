@@ -1,44 +1,69 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger"; // 1. 引入 ScrollTrigger
 import Marquee from "react-fast-marquee";
 import Image from "next/image";
+
+// 2. 註冊插件
+gsap.registerPlugin(ScrollTrigger);
+
 const HeroComponent = () => {
+  const containerRef = useRef(null); // 建立 Ref 來鎖定範圍
+
   useEffect(() => {
-    gsap.from(".nav-container", {
-      opacity: 0,
-      y: -60,
-      ease: "power3.inOut",
-      delay: 0.5,
-      duration: 2,
-    });
+    // 使用 gsap.context 進行範疇管理 (React 最佳實踐)
+    let ctx = gsap.context(() => {
+      // 設定共同的 ScrollTrigger 設定
+      const triggerConfig = {
+        trigger: containerRef.current, // 監聽這個元件
+        start: "top 75%", // 當元件頂部到達視窗 75% 處時開始 (可以自己調整，例如 "top center")
+        toggleActions: "play none none reverse", // 進場播放，離開反轉 (或者改成 "play none none none" 只播放一次)
+      };
 
-    gsap.from(".hero > *", {
-      opacity: 0,
-      y: 60,
-      ease: "power3.inOut",
-      delay: 1,
-      duration: 1,
-      stagger: { amount: 0.5 },
-    });
+      // 注意：如果 .nav-container 在這個組件外部，這裡可能選取不到。
+      // 如果 nav 是全域的，建議把這個動畫獨立出去，或者移除 scope。
+      gsap.from(".nav-container", {
+        scrollTrigger: triggerConfig,
+        opacity: 0,
+        y: -60,
+        ease: "power3.inOut",
+        duration: 2,
+      });
 
-    gsap.from(".blob", {
-      scale: 0,
-      ease: "power3.inOut",
-      delay: 1.5,
-      duration: 2,
-      stagger: { amount: 0.5 },
-    });
+      gsap.from(".hero > *", {
+        scrollTrigger: triggerConfig,
+        opacity: 0,
+        y: 60,
+        ease: "power3.inOut",
+        duration: 1,
+        stagger: { amount: 0.5 },
+        delay: 0.5, // 相對於觸發點的延遲
+      });
 
-    gsap.from(".bg-gradient", {
-      scale: 0,
-      ease: "power3.inOut",
-      delay: 2,
-      duration: 2,
-    });
+      gsap.from(".blob", {
+        scrollTrigger: triggerConfig,
+        scale: 0,
+        ease: "power3.inOut",
+        duration: 2,
+        stagger: { amount: 0.5 },
+        delay: 1,
+      });
+
+      gsap.from(".bg-gradient", {
+        scrollTrigger: triggerConfig,
+        scale: 0,
+        ease: "power3.inOut",
+        duration: 2,
+        delay: 1.5,
+      });
+    }, containerRef); // 鎖定選擇器範圍在 containerRef 內
+
+    return () => ctx.revert(); // 清理動畫
   }, []);
 
   return (
-    <div className="relative w-full h-screen bg-[#dfe3e9] overflow-hidden">
+    // 綁定 ref 到最外層 div
+    <div ref={containerRef} className="relative overflow-hidden">
       {/* Blob elements */}
       <div className="blob-1 blob"></div>
       <div className="blob-2 blob"></div>
@@ -71,62 +96,67 @@ const HeroComponent = () => {
       </div>
 
       <div className="hero-container relative z-10 w-full">
-        <div className="hero w-1/3 mx-auto text-center py-16">
-          <h1 className="font-voyage font-medium text-[5vw] leading-tight">
-            海洋，台灣。美麗的寶島
+        {/* 修正了原本的 typo: f;ex -> flex */}
+        <div className="hero w-1/3 mx-auto flex flex-col justify-center items-center text-center py-16">
+          <h1 className="font-voyage font-medium text-[5vw] xl:text-[3.5vw] leading-tight">
+            連線。快速 <br></br>在全世界各個角落
           </h1>
           <div className="cta">
             <button className="bg-black text-white border-none mt-16 py-6 px-12 uppercase text-sm">
-              Write us a letter
+              探索更多方案
             </button>
           </div>
-          <p className="mt-16 leading-[32px] text-sm font-neue">
-            探索隱秘的海灣、品味世界級美食、感受熱情好客的風土人情，台灣不僅是旅行的目的地，更是一段美麗的故事。來一場心靈的療癒之旅，讓台灣的每一個角落都成為你難忘的回憶。
-          </p>
         </div>
         <Marquee>
+          {/* 圖片部分保持不變 */}
           <Image
             width={300}
             height={300}
             placeholder="empty"
             loading="lazy"
             src="/images/4098341.png"
-          ></Image>
+            alt="img"
+          />
           <Image
             width={300}
             height={300}
             placeholder="empty"
             loading="lazy"
             src="/images/4098341.png"
-          ></Image>
+            alt="img"
+          />
           <Image
             width={300}
             height={300}
             placeholder="empty"
             loading="lazy"
             src="/images/4098341.png"
-          ></Image>
+            alt="img"
+          />
           <Image
             width={300}
             height={300}
             placeholder="empty"
             loading="lazy"
             src="/images/4098341.png"
-          ></Image>
+            alt="img"
+          />
           <Image
             width={300}
             height={300}
             placeholder="empty"
             loading="lazy"
             src="/images/4098341.png"
-          ></Image>
+            alt="img"
+          />
           <Image
             width={300}
             height={300}
             placeholder="empty"
             loading="lazy"
             src="/images/4098341.png"
-          ></Image>
+            alt="img"
+          />
         </Marquee>
 
         <div></div>

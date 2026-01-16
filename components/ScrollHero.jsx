@@ -5,7 +5,7 @@ import { ReactLenis } from "lenis/react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
+import SVGIMAGE from "../components/SVGImage";
 // 註冊 GSAP Plugin
 gsap.registerPlugin(ScrollTrigger);
 
@@ -193,17 +193,31 @@ export default function ScrollHero() {
             <p className="marker-label">eSIM</p>
           </div>
 
-          <div className="hero-content" ref={heroContentRef}>
+          <div
+            className="hero-content sm:pt-20 pt-[250px]"
+            ref={heroContentRef}
+          >
+            {" "}
+            <SVGIMAGE />
             {/* ... (內容省略) ... */}
-            <div className="hero-content-block">
+            <div className="hero-content-block ">
+              <br></br>
               <div className="hero-content-copy">
-                <h1>Location Framework</h1>
+                <h2>讓您的目的地保持無縫連接</h2>
+                <p>
+                  歡迎來到我們的單地eSIM系列，旨在為您的特定目的地提供靈活且實惠的移動連接服務。通過單地eSIM，您可以輕鬆地訪問當地的數據、語音和短信服務，無需實體SIM卡，是旅行者在訪問熱門國家和地區時，實現平滑、無煩憂體驗的最佳選擇。
+                </p>
               </div>
             </div>
-            <div className="hero-content-block">
+            <div className="hero-content-block pl-20">
               <div className="hero-content-copy">
-                <h2>Coordinate Mapping</h2>
-                <p>Currently using external SVG as mask.</p>
+                <h2 className="!text-[30px]">
+                  無論你去哪裡旅行，<br></br>保持連線不斷網
+                </h2>
+                <p>
+                  在極客eSIM 探索經濟高效的旅遊和商務數據計劃，<br></br>
+                  隨時隨地無縫連接，無需昂貴的國際漫遊費
+                </p>
               </div>
             </div>
             <div className="hero-content-block">
@@ -229,8 +243,10 @@ export default function ScrollHero() {
           </div>
         </section>
 
-        <section className="outro">
-          <p>The system has reached its final spatial state.</p>
+        <section className="  h-auto bg-black">
+          <p className="!text-[4vw] text-white font-bold">
+            The system has reached its final spatial state.
+          </p>
         </section>
 
         {/* CSS Scoped to this component */}
