@@ -1,9 +1,12 @@
-// next.config.js
+/** @type {import('next').NextConfig} */
 const path = require("path");
 
-module.exports = {
+const nextConfig = {
+  reactStrictMode: true, // 建議開啟，有助於抓出 React 錯誤
+  trailingSlash: true,
+
   images: {
-    // ✅ 允許所有外部圖片網域
+    // ✅ 允許所有外部圖片網域 (Next.js 14+ 寫法)
     remotePatterns: [
       {
         protocol: "https",
@@ -14,20 +17,10 @@ module.exports = {
         hostname: "**",
       },
     ],
-    // 或者直接用下面這行（Next.js 14+ 支援）
+    // 允許 SVG 圖像
     dangerouslyAllowSVG: true,
     contentDispositionType: "inline",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-  },
-
-  trailingSlash: true,
-
-  webpackDevMiddleware: (config) => {
-    config.watchOptions = {
-      poll: 1000,
-      aggregateTimeout: 300,
-    };
-    return config;
   },
 
   sassOptions: {
@@ -44,10 +37,16 @@ module.exports = {
   },
 
   webpack(config) {
+    // 針對 GLSL shader 檔案的處理
+    // 注意：如果你沒有安裝 'raw-loader'，請先執行 `npm install raw-loader --save-dev`
     config.module.rules.push({
-      test: /\.(glsl|vs|fs)$/,
-      use: ["babel-loader", "babel-plugin-glsl"],
+      test: /\.(glsl|vs|fs|vert|frag)$/,
+      exclude: /node_modules/,
+      use: ["raw-loader"], 
     });
+
     return config;
   },
 };
+
+module.exports = nextConfig;

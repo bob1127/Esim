@@ -24,17 +24,17 @@ function useScrollParallax(ref: RefObject<HTMLElement>) {
   const y1 = useTransform(
     smoothProgress,
     [0, 0.5, 1],
-    ["120px", "0px", "-20px"]
+    ["120px", "0px", "-20px"],
   );
   const y2 = useTransform(
     smoothProgress,
     [0, 0.5, 1],
-    ["80px", "0px", "-20px"]
+    ["80px", "0px", "-20px"],
   );
   const y3 = useTransform(
     smoothProgress,
     [0, 0.5, 1],
-    ["40px", "0px", "-20px"]
+    ["40px", "0px", "-20px"],
   );
 
   return { y1, y2, y3 };

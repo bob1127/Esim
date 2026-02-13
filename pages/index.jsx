@@ -12,6 +12,7 @@ import AccordionEsim from "../components/AccordionEsim.jsx";
 import Carousel from "../components/EmblaCarouselTravel/index.jsx";
 import Project from "../components/ServiceSection.jsx";
 import Link from "next/link";
+import SvgCard from "../components/SvgHoverCard.jsx";
 const VuckoScroll = dynamic(() => import("@/components/CodegridScroll"), {
   ssr: false,
 });
@@ -389,7 +390,9 @@ export default function Home() {
             </div>
           </div>
         </section>
-
+        <section className="relative h-auto">
+          <SvgCard />
+        </section>
         <div className="relative">
           <div className="absolute w-[300px] h-[400px]"></div>
         </div>

@@ -64,7 +64,7 @@ export default () => {
           <SwiperSlide className="  ">
             <div className="relative w-full aspect-[21/9] hidden sm:block">
               <Image
-                src="/images/banner04.png"
+                src="/images/hero-img.png"
                 alt="hero-img"
                 fill
                 className="object-cover"
@@ -75,7 +75,7 @@ export default () => {
           <SwiperSlide className="  ">
             <div className="relative w-full aspect-[21/9] hidden sm:block">
               <Image
-                src="/images/banner04.png"
+                src="/images/hero-img.png"
                 alt="hero-img"
                 fill
                 className="object-cover"
@@ -86,7 +86,7 @@ export default () => {
           <SwiperSlide className="  ">
             <div className="relative w-full aspect-[21/9] hidden sm:block">
               <Image
-                src="/images/banner04.png"
+                src="/images/hero-img.png"
                 alt="hero-img"
                 fill
                 className="object-cover"

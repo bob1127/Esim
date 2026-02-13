@@ -180,6 +180,8 @@ export default function ProductPage({ product, variations = [] }) {
         .map((a) => a.option)
         .join(" / ")}`;
     }
+    
+    // ✅ 這裡補上了 slug 參數
     addToCart({
       id: finalProduct.id,
       parentId: product.id,
@@ -189,7 +191,9 @@ export default function ProductPage({ product, variations = [] }) {
       planId,
       image,
       quantity,
+      slug: product.slug, // <--- 關鍵修改：傳入商品 slug
     });
+
     setTimeout(() => {
       const event = new Event("open-cart-sidebar");
       window.dispatchEvent(event);
@@ -243,11 +247,11 @@ export default function ProductPage({ product, variations = [] }) {
         />
       </Head>
 
-      <div className="max-w-6xl mx-auto py-10 px-4 md:px-8">
+      <div className="max-w-6xl  mx-auto py-10 px-4 md:px-8">
         {/* 上半部：圖片 + 購買資訊 */}
-        <div className="flex flex-col lg:flex-row gap-12 mb-20">
+        <div className="flex flex-col lg:flex-row pt-20 gap-12 mb-20">
           {/* 左側：圖片輪播 (經典配置：左縮圖 + 右大圖) */}
-          <div className="w-full lg:w-3/5 flex lg:flex-row flex-col-reverse gap-4 items-start h-[500px]">
+          <div className="w-full lg:w-3/5  flex lg:flex-row flex-col-reverse gap-4 items-start h-[500px]">
             {/* 1. 垂直縮圖列表 (Desktop) */}
             <div className="hidden lg:flex flex-col items-center gap-3 w-[80px] shrink-0 h-full">
               <button
@@ -495,4 +499,4 @@ export default function ProductPage({ product, variations = [] }) {
       </div>
     </Layout>
   );
-}
+} 
