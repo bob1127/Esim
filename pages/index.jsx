@@ -131,7 +131,7 @@ export default function Home() {
         </section>
 
         {/* 如何使用區塊：手機版 padding 減少，寬度改 w-full，flex-col */}
-        <section className="pt-[60px] lg:pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[50px] lg:mt-[150px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px]">
+        <section className="pt-[60px] relative lg:pt-[150px] rounded-[32px] z-[999999999] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[50px] lg:mt-[150px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px]">
           <div className="main-title max-w-[1000px] mx-auto flex justify-center flex-col items-center text-center">
             <h2 className="text-3xl lg:text-5xl font-bold">如何使用 eSIM?</h2>
             <p className="text-slate-700 text-lg mt-3">How to use</p>
@@ -343,56 +343,48 @@ export default function Home() {
           alt=""
         />
 
-        {/* Blog & CTA 區塊 */}
-        <section className="pt-[60px] lg:pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[-80px] lg:mt-[-150px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px] relative z-20">
-          <div className="main-title flex flex-col max-w-[650px] mx-auto justify-center items-center text-center">
-            <h2 className="text-3xl lg:text-5xl font-bold">旅遊精選文章</h2>
-            <p className="text-slate-700 mt-2">Travel Blog</p>
-
-            <span className="tracking-widest text-sm lg:text-[14px] text-center mt-3 leading-relaxed text-gray-600 px-4 lg:px-0">
-              精選全球熱門旅遊目的地攻略，從上網設定到必去景點，
-              為您的旅程提供最實用的資訊與建議，讓自由行變得更簡單。
-            </span>
-          </div>
+        <section className="bg-[#147AD7] py-20">
+          {" "}
           <div className="mt-8 lg:mt-5">
             <Carousel />
           </div>
-
-          {/* CTA Button: 手機版改為 flex-col 確保文字不被擠壓 */}
-          <div className="cta-btn bg-[#1C82E0] max-w-[1160px] mx-auto rounded-[20px] lg:rounded-[33px] p-6 lg:p-10 mt-10">
-            <div className="w-full lg:w-[90%] flex mx-auto flex-col">
-              <div className="title flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 lg:gap-0">
-                <h3 className="text-white font-bold tracking-wider text-xl lg:text-[26px]">
-                  遇到問題需要協助？
-                </h3>
-                <span className="text-white text-sm lg:text-[14px] opacity-80 lg:opacity-100">
-                  Customer Support
-                </span>
-              </div>
-              <div className="cta-btn-wrapper w-full">
-                <div className="cta-btn group bg-[#0069CA] mt-6 lg:mt-4 rounded-[10px] p-2 cursor-pointer w-full">
-                  <div className="inner group-hover:bg-white bg-transparent duration-500 p-6 lg:p-8 rounded-[10px] flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-0">
-                    <div className="w-full lg:w-1/2">
-                      <h3 className="text-white group-hover:ml-0 lg:group-hover:ml-6 group-hover:text-[#0069CA] duration-300 font-bold text-xl lg:text-2xl">
-                        LINE 官方客服
-                      </h3>
-                    </div>
-                    {/* 手機版分隔線改為上方 border-t，桌機版維持左側 border-l */}
-                    <div className="border-t lg:border-t-0 lg:border-l-1 w-full lg:w-[55%] flex justify-start lg:justify-end !group-hover:w-full lg:!group-hover:w-[55%] duration-300 border-gray-50/30 lg:border-gray-50 pt-4 lg:pt-0 pl-0 lg:pl-5 group-hover:border-[#0069CA]">
-                      <span className="text-white group-hover:mr-0 lg:group-hover:mr-10 duration-500 w-full lg:w-[300px] group-hover:text-[#0069CA] text-sm lg:text-[14px] leading-relaxed">
-                        直接使用 LINE 與我們聯繫，真人客服即時在線。
-                        如有使用問題請直接加入好友詢問。
-                      </span>
-                    </div>
+          <section className="relative h-auto">
+            <SvgCard />
+          </section>
+        </section>
+        {/* Blog & CTA 區塊 */}
+        <section className="pt-[60px] lg:pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[-80px] lg:mt-[-150px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px] relative z-20"></section>
+        {/* CTA Button: 手機版改為 flex-col 確保文字不被擠壓 */}
+        <div className="cta-btn bg-[#1C82E0] max-w-[1160px] mx-auto rounded-[20px] lg:rounded-[33px] p-6 lg:p-10 mt-10">
+          <div className="w-full lg:w-[90%] flex mx-auto flex-col">
+            <div className="title flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 lg:gap-0">
+              <h3 className="text-white font-bold tracking-wider text-xl lg:text-[26px]">
+                遇到問題需要協助？
+              </h3>
+              <span className="text-white text-sm lg:text-[14px] opacity-80 lg:opacity-100">
+                Customer Support
+              </span>
+            </div>
+            <div className="cta-btn-wrapper w-full">
+              <div className="cta-btn group bg-[#0069CA] mt-6 lg:mt-4 rounded-[10px] p-2 cursor-pointer w-full">
+                <div className="inner group-hover:bg-white bg-transparent duration-500 p-6 lg:p-8 rounded-[10px] flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-0">
+                  <div className="w-full lg:w-1/2">
+                    <h3 className="text-white group-hover:ml-0 lg:group-hover:ml-6 group-hover:text-[#0069CA] duration-300 font-bold text-xl lg:text-2xl">
+                      LINE 官方客服
+                    </h3>
+                  </div>
+                  {/* 手機版分隔線改為上方 border-t，桌機版維持左側 border-l */}
+                  <div className="border-t lg:border-t-0 lg:border-l-1 w-full lg:w-[55%] flex justify-start lg:justify-end !group-hover:w-full lg:!group-hover:w-[55%] duration-300 border-gray-50/30 lg:border-gray-50 pt-4 lg:pt-0 pl-0 lg:pl-5 group-hover:border-[#0069CA]">
+                    <span className="text-white group-hover:mr-0 lg:group-hover:mr-10 duration-500 w-full lg:w-[300px] group-hover:text-[#0069CA] text-sm lg:text-[14px] leading-relaxed">
+                      直接使用 LINE 與我們聯繫，真人客服即時在線。
+                      如有使用問題請直接加入好友詢問。
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
-        <section className="relative h-auto">
-          <SvgCard />
-        </section>
+        </div>
         <div className="relative">
           <div className="absolute w-[300px] h-[400px]"></div>
         </div>

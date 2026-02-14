@@ -23,18 +23,13 @@ export default function Home({ slides }) {
         <title>首頁輪播展示</title>
       </Head>
 
-      <main className="min-h-screen bg-white flex flex-col justify-center relative z-10">
+      <main className=" py-8  flex flex-col justify-center relative z-10">
         {/* 背景裝飾 (保留你的風格) */}
         <div className="bg-svg fixed left-1/2 w-[70vw] -translate-x-1/2 pointer-events-none z-0 opacity-50">
           {/* 這裡可以放你的背景圖 */}
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-slate-800">精選文章</h2>
-            <p className="text-slate-500 mt-2">探索我們的最新動態與旅遊資訊</p>
-          </div>
-
           {/* 傳入處理好的 slides 資料 */}
           <EmblaCarousel slides={slides} options={OPTIONS} />
         </div>

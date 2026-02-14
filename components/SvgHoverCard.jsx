@@ -118,7 +118,7 @@ const Card = ({ id, title, img }) => {
 
   return (
     <div
-      className="card-container"
+      className="card-container mt-8"
       id={id}
       ref={containerRef}
       onMouseEnter={handleMouseEnter} // 使用 React 原生事件
@@ -256,7 +256,7 @@ export default function SVGCardCarousel() {
           font-family: "Google Sans", sans-serif;
           width: 100%;
           min-height: 100vh;
-          background: #fff;
+      
           color: black;
           display: flex;
           flex-direction: column;
@@ -304,6 +304,7 @@ export default function SVGCardCarousel() {
           overflow: hidden;
           background-color: #f0f0f0;
           cursor: pointer;
+          margin-top: 43px;
         }
 
         .card-container .svg-stroke {
@@ -349,11 +350,18 @@ export default function SVGCardCarousel() {
         }
       `}</style>
 
-      <header>
-        <h1>NEWS</h1>
-      </header>
-
       <div className="swiper-container-box">
+        <div className="main-title max-w-[1500px] flex flex-col  mx-auto  ">
+          <h2 className="text-3xl lg:text-5xl text-white font-bold">
+            旅遊精選文章
+          </h2>
+          <p className="text-slate-300 text-lg mt-2">Travel Blog</p>
+
+          <span className="tracking-widest   text-md  mt-3 leading-relaxed text-slate-50 px-4 lg:px-0">
+            精選全球熱門旅遊目的地攻略，從上網設定到必去景點，<br></br>
+            為您的旅程提供最實用的資訊與建議，讓自由行變得更簡單。
+          </span>
+        </div>
         <Swiper
           modules={[Pagination, Autoplay]}
           spaceBetween={20}

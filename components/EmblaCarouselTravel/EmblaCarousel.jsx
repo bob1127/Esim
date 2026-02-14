@@ -187,14 +187,24 @@ const EmblaCarousel = ({ options = { dragFree: true, loop: true } }) => {
         `}
       </style>
 
-      {/* 自定義 SCROLL 游標 
-        1. fixed: 固定在視窗，不隨內容捲動
-        2. top-0 left-0: 起始位置
-        3. pointer-events-none: 讓滑鼠點擊穿透，不會擋住連結
-        4. z-[9999]: 確保在最上層
-        5. transform: 預設置中
-        6. opacity-0: 預設隱藏，避免一開始出現在左上角
-      */}
+      <div className="main-title relative flex flex-col  w-screen pl-3   ">
+        <div className="big-txt absolute z-10 left-0 bottom-[-55%]">
+          <p className="font-extrabold text-[220px] text-white/10 tracking-normal">
+            JEKO NOTE
+          </p>
+        </div>
+        <div className="static z-50">
+          <h2 className="text-3xl lg:text-5xl font-bold text-white">
+            旅遊精選文章
+          </h2>
+          <p className="text-slate-300 text-lg mt-2">Travel Blog</p>
+
+          <span className="tracking-widest  text-md mt-3 leading-relaxed text-slate-50  px-4 lg:px-0">
+            精選全球熱門旅遊目的地攻略，從上網設定到必去景點，
+            為您的旅程提供最實用的資訊與建議，讓自由行變得更簡單。
+          </span>
+        </div>
+      </div>
       <div
         ref={cursorRef}
         className="fixed botom-0 left-1/2 -translate-x-1/2  pointer-events-none z-[9999] flex flex-col items-center justify-center bg-blue-600 text-white rounded-full shadow-lg backdrop-blur-sm bg-opacity-90"
@@ -227,7 +237,10 @@ const EmblaCarousel = ({ options = { dragFree: true, loop: true } }) => {
                 onMouseEnter={handleCardMouseEnter}
                 onMouseLeave={handleCardMouseLeave}
               >
-                <Link href={slide.link} className="block h-full group">
+                <Link
+                  href={slide.link}
+                  className="block  bg-[#f3f3f2] rounded-[30px] px-5 py-10 h-full group"
+                >
                   <div
                     className="superellipse-card w-full bg-white"
                     style={{ aspectRatio: "16 / 10" }}
