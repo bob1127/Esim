@@ -194,10 +194,8 @@ const EmblaCarousel = ({ options = { dragFree: true, loop: true } }) => {
           </p>
         </div>
         <div className="static z-50">
-          <h2 className="text-3xl lg:text-5xl font-bold text-white">
-            旅遊精選文章
-          </h2>
-          <p className="text-slate-300 text-lg mt-2">Travel Blog</p>
+          <h2 className="text-3xl lg:text-5xl font-bold text-white">NEWS</h2>
+          <p className="text-slate-300 text-lg mt-2">事項及相關文章</p>
 
           <span className="tracking-widest  text-md mt-3 leading-relaxed text-slate-50  px-4 lg:px-0">
             精選全球熱門旅遊目的地攻略，從上網設定到必去景點，

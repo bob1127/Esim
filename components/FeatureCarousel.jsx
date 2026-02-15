@@ -63,7 +63,7 @@ export default function FadeCarousel() {
 
   const labels = useMemo(
     () => slides.map((_, i) => String(i + 1).padStart(2, "0")),
-    []
+    [],
   );
 
   return (
@@ -76,7 +76,7 @@ export default function FadeCarousel() {
         </h2>
       </div>
 
-      <div className="bg-[#f4f4f7] rounded-[20px]  max-w-[1500px] p-5 lg:p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full overflow-hidden relative">
+      <div className="bg-[#f4f4f7] rounded-[20px]  max-w-[1500px] p-5 lg:p-10 mx-auto xl:w-[55%] sm:w-[85%] w-full overflow-hidden relative">
         {/* ---------- 導航區 (電腦版顯示 / 手機版隱藏) ---------- */}
         {/* 加入 hidden lg:flex，只在電腦版顯示垂直導航，以免手機版遮擋內容 */}
         <div className="navgation hidden lg:flex absolute left-8 top-1/2 -translate-y-1/2 z-10 flex-col items-center">
