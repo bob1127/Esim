@@ -255,7 +255,8 @@ export default function SVGCardCarousel() {
         .carousel-wrapper {
           font-family: "Google Sans", sans-serif;
           width: 100%;
-          min-height: 100vh;
+           margin-bottom: 180px;
+      
       
           color: black;
           display: flex;

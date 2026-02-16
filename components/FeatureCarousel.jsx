@@ -69,13 +69,6 @@ export default function FadeCarousel() {
   return (
     // 手機版 p-5 / 電腦版 p-10
     <section className="p-5 lg:p-10 relative">
-      <div className="title max-w-[1500px]   p-5 lg:p-10 mx-auto xl:w-[85%] sm:w-[85%] w-full">
-        {/* 手機版文字稍小 text-3xl / 電腦版 text-4xl */}
-        <h2 className="text-3xl lg:text-4xl font-bold lg:font-normal">
-          最新動態
-        </h2>
-      </div>
-
       <div className="bg-[#f4f4f7] rounded-[20px]  max-w-[1500px] p-5 lg:p-10 mx-auto xl:w-[55%] sm:w-[85%] w-full overflow-hidden relative">
         {/* ---------- 導航區 (電腦版顯示 / 手機版隱藏) ---------- */}
         {/* 加入 hidden lg:flex，只在電腦版顯示垂直導航，以免手機版遮擋內容 */}
