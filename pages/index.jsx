@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Layout from "./Layout";
 import FeatureCarousel from "../components/FeatureCarousel.jsx";
@@ -10,6 +10,7 @@ import Project from "../components/ServiceSection.jsx";
 import SvgCard from "../components/SvgHoverCard.jsx";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image.js";
+import MaskText from "../components/MaskText.jsx";
 // GSAP & Lenis Imports
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -19,85 +20,43 @@ const VuckoScroll = dynamic(() => import("@/components/CodegridScroll"), {
   ssr: false,
 });
 
+// 輔助組件：快速連結按鈕
+function QuickLinkButton({ text, active = false, link = "#" }) {
+  return (
+    <a href={link} className="group block">
+      <div className="flex justify-center lg:justify-end items-center">
+        <div
+          className={`py-2 lg:py-2 flex items-center px-5 rounded-[30px] w-full lg:w-auto shadow-sm transition-all duration-200 ${
+            active ? "bg-white" : "bg-white lg:bg-transparent lg:hover:bg-white"
+          }`}
+        >
+          <div
+            className={`w-[8px] h-[8px] rounded-full shrink-0 transition-all duration-300 ${
+              active
+                ? "bg-[#2d7ee7]"
+                : "bg-[#2d7ee7] lg:hidden lg:group-hover:block"
+            }`}
+          ></div>
+          <div className="ml-3 tracking-widest font-bold text-[14px] text-slate-700 group-hover:text-[#147AD7]">
+            {text}
+          </div>
+        </div>
+      </div>
+    </a>
+  );
+}
+
 export default function Home() {
   const containerRef = useRef(null);
 
-  // --- 動畫邏輯開始 ---
-  useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    const ctx = gsap.context(() => {
-      // Lenis 初始化 (平滑滾動)
-      const lenis = new Lenis();
-      lenis.on("scroll", ScrollTrigger.update);
-      gsap.ticker.add((time) => {
-        lenis.raf(time * 1000);
-      });
-      gsap.ticker.lagSmoothing(0);
+  // ★ Notification 區塊狀態
+  const [activeTab, setActiveTab] = useState(0);
+  const newsContainerRef = useRef(null);
 
-      // 抓取元素
-      const windowContainer = document.querySelector(".jesko-window-container");
-      const skyContainer = document.querySelector(".jesko-sky-container");
-      const heroCopy = document.querySelector(".jesko-hero-copy");
-      const heroHeader = document.querySelector(".jesko-hero-header");
+  // ★ 安裝教學區塊狀態 (iOS/Android 切換)
+  const [activeSystem, setActiveSystem] = useState("ios");
 
-      // 確保元素存在才執行
-      if (!windowContainer || !skyContainer) return;
-
-      const skyContainerHeight = skyContainer.offsetHeight;
-      const viewportHeight = window.innerHeight;
-      const skyMoveDistance = skyContainerHeight - viewportHeight;
-
-      // 初始設定
-      gsap.set(heroCopy, { yPercent: 100 });
-
-      // ScrollTrigger 動畫
-      ScrollTrigger.create({
-        trigger: ".jesko-hero",
-        start: "top top",
-        end: `+=${window.innerHeight * 3}px`,
-        pin: true,
-        pinSpacing: true,
-        scrub: 1,
-        onUpdate: (self) => {
-          const progress = self.progress;
-
-          // 窗口縮放邏輯
-          let windowScale;
-          if (progress <= 0.5) {
-            windowScale = 1 + (progress / 0.5) * 3;
-          } else {
-            windowScale = 4;
-          }
-          gsap.set(windowContainer, { scale: windowScale });
-          gsap.set(heroHeader, { scale: windowScale, z: progress * 500 });
-
-          // 天空移動邏輯 (因為雲層包在裡面，所以會跟著一起動)
-          gsap.set(skyContainer, {
-            y: -progress * skyMoveDistance,
-          });
-
-          // 文字移動邏輯
-          let heroCopyY;
-          if (progress <= 0.66) {
-            heroCopyY = 100;
-          } else if (progress >= 1) {
-            heroCopyY = 0;
-          } else {
-            heroCopyY = 100 * (1 - (progress - 0.66) / 0.34);
-          }
-          gsap.set(heroCopy, { yPercent: heroCopyY });
-        },
-      });
-    }, containerRef);
-
-    return () => {
-      ctx.revert();
-      // lenis.destroy();
-    };
-  }, []);
-  // --- 動畫邏輯結束 ---
-
-  // 資料數據
+  // --- 資料數據 (Notification) ---
   const newsItems = [
     {
       id: 1,
@@ -137,13 +96,208 @@ export default function Home() {
     },
   ];
 
-  const filters = [
-    "すべてのお知らせ",
-    "コラム",
-    "プレスリリース",
-    "補助金・助成金",
-    "新着情報",
+  const promoItems = [
+    {
+      id: 101,
+      date: "2025.10.01",
+      tag: "限時優惠",
+      title: "【秋季旅展】日本 eSIM 買一送一，限時 3 天搶購！",
+      link: "#",
+    },
+    {
+      id: 102,
+      date: "2025.09.15",
+      tag: "會員專屬",
+      title: "加入官方 LINE 好友，即刻領取 $50 折扣碼",
+      link: "#",
+    },
+    {
+      id: 103,
+      date: "2025.08.30",
+      tag: "新品上市",
+      title: "歐洲 33 國通用 eSIM 全新上線，早鳥優惠價實施中",
+      link: "#",
+    },
   ];
+
+  const filters = ["最新消息/公告", "特價/優惠"];
+  const displayItems = activeTab === 0 ? newsItems : promoItems;
+
+  // --- 資料數據 (安裝步驟) ---
+  const iosSteps = [
+    {
+      step: 1,
+      title: "進入設定",
+      desc: "前往「設定」>「行動服務」> 點擊「加入 eSIM」。",
+    },
+    {
+      step: 2,
+      title: "掃描 QR Code",
+      desc: "選擇「使用行動條碼」，掃描我們寄給您的 QR Code。若無法掃描，可手動輸入啟用碼。",
+    },
+    {
+      step: 3,
+      title: "設定標籤",
+      desc: "將此 eSIM 標籤設為「旅遊」或「Jeko」，並將其設為「行動數據」的預設號碼 (僅在抵達目的地後切換)。",
+    },
+    {
+      step: 4,
+      title: "抵達後啟用",
+      desc: "抵達目的地後，開啟此 eSIM 的「數據漫遊」，即可開始上網。",
+    },
+  ];
+
+  const androidSteps = [
+    {
+      step: 1,
+      title: "進入設定",
+      desc: "前往「設定」>「網路和網際網路」>「SIM 卡」> 點擊「下載 SIM 卡」。",
+    },
+    {
+      step: 2,
+      title: "掃描 QR Code",
+      desc: "掃描我們寄給您的 QR Code。若無法掃描，點擊「需要協助」手動輸入啟用碼。",
+    },
+    {
+      step: 3,
+      title: "下載並確認",
+      desc: "確認下載 Jeko eSIM，下載過程需保持網路連線。",
+    },
+    {
+      step: 4,
+      title: "抵達後啟用",
+      desc: "抵達目的地後，開啟此 eSIM 並開啟「數據漫遊」，將其設為上網專用卡。",
+    },
+  ];
+
+  const currentSteps = activeSystem === "ios" ? iosSteps : androidSteps;
+
+  const ArrowIcon = () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="transition-transform group-hover:translate-x-[2px]"
+    >
+      <path
+        d="M8 5l8 7-8 7"
+        stroke="#fff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // --- 動畫邏輯 (Hero Scroll) ---
+  useLayoutEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const ctx = gsap.context(() => {
+      // Lenis 初始化 (平滑滾動)
+      const lenis = new Lenis();
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+
+      // 抓取元素
+      const windowContainer = document.querySelector(".jesko-window-container");
+      const skyContainer = document.querySelector(".jesko-sky-container");
+      const heroCopy = document.querySelector(".jesko-hero-copy");
+      const heroHeader = document.querySelector(".jesko-hero-header");
+      const handContainer = document.querySelector(".jesko-hand-container");
+
+      // 確保元素存在才執行
+      if (!windowContainer || !skyContainer) return;
+
+      const skyContainerHeight = skyContainer.offsetHeight;
+      const viewportHeight = window.innerHeight;
+      const skyMoveDistance = skyContainerHeight - viewportHeight;
+
+      // 初始設定
+      gsap.set(heroCopy, { yPercent: 100 });
+
+      // ScrollTrigger 動畫
+      ScrollTrigger.create({
+        trigger: ".jesko-hero",
+        start: "top top",
+        end: `+=${window.innerHeight * 3}px`,
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+          const progress = self.progress;
+
+          // 窗口縮放邏輯
+          let windowScale;
+          if (progress <= 0.5) {
+            windowScale = 1 + (progress / 0.5) * 3;
+          } else {
+            windowScale = 4;
+          }
+          gsap.set(windowContainer, { scale: windowScale });
+          gsap.set(heroHeader, { scale: windowScale, z: progress * 500 });
+
+          // 天空移動邏輯
+          gsap.set(skyContainer, {
+            y: -progress * skyMoveDistance,
+          });
+
+          // 手部向左滑出邏輯
+          if (handContainer) {
+            gsap.set(handContainer, {
+              x: -progress * window.innerWidth * 1.2,
+              opacity: 1 - progress * 1.2,
+            });
+          }
+
+          // 文字移動邏輯
+          let heroCopyY;
+          if (progress <= 0.66) {
+            heroCopyY = 100;
+          } else if (progress >= 1) {
+            heroCopyY = 0;
+          } else {
+            heroCopyY = 100 * (1 - (progress - 0.66) / 0.34);
+          }
+          gsap.set(heroCopy, { yPercent: heroCopyY });
+        },
+      });
+    }, containerRef);
+
+    return () => {
+      ctx.revert();
+    };
+  }, []);
+
+  // --- 動畫邏輯 (Notification List Switch) ---
+  useLayoutEffect(() => {
+    if (!newsContainerRef.current) return;
+    const ctx = gsap.context(() => {
+      // 列表項目進場動畫 (Fade Up + Blur)
+      gsap.fromTo(
+        ".news-item",
+        {
+          y: 30,
+          opacity: 0,
+          filter: "blur(4px)", // 模糊起始
+        },
+        {
+          y: 0,
+          opacity: 1,
+          filter: "blur(0px)", // 模糊結束
+          duration: 0.5,
+          stagger: 0.08, // 階梯式出現
+          ease: "power2.out",
+          clearProps: "all",
+        },
+      );
+    }, newsContainerRef);
+
+    return () => ctx.revert();
+  }, [activeTab]); // 依賴 activeTab 變化觸發
 
   return (
     <Layout>
@@ -312,36 +466,61 @@ export default function Home() {
         `}</style>
 
         {/* --- Animation HTML Structure --- */}
-        <section className="jesko-hero relative">
-          <div className="hand  absolute left-[23%]  top-[13%] -translate-y-1/2 z-[999]">
-            <Image
-              src="/即買即用.png"
-              className="w-[230px]"
-              width={1000}
-              height={1000}
-            ></Image>
+        <section className="jesko-hero relative h-sreen">
+          <div className="jesko-hand-container will-change-transform absolute max-w-[700px] md:h-[60vh] h-[50vh] xl:h-screen z-[99999] left-[-30%] md:left-0 top-[60%] md:top-0 md:w-[80vw] w-[80vw] xl:w-[40vw]">
+            <div className="relative h-full">
+              <div className="hand absolute left-[60%] top-[23%] -translate-y-1/2 z-[999]">
+                <Image
+                  src="/即買即用.png"
+                  className="w-[230px]"
+                  width={1000}
+                  height={1000}
+                  alt="即買即用"
+                ></Image>
+              </div>
+              <div className="hand absolute left-[25%] top-[18%] -translate-y-1/2 z-[999]">
+                <Image
+                  src="/掃qrcode.png"
+                  className="w-[230px]"
+                  width={1000}
+                  height={1000}
+                  alt="掃qrcode"
+                ></Image>
+              </div>
+              <div className="hand absolute left-0 bottom-0 z-50">
+                <Image
+                  src="/hand01.png"
+                  className="w-[600px]"
+                  width={1000}
+                  height={1000}
+                  alt="hand"
+                ></Image>
+              </div>
+            </div>
           </div>
-          <div className="hand  absolute left-[8%]  top-[13%] -translate-y-1/2 z-[999]">
-            <Image
-              src="/掃qrcode.png"
-              className="w-[230px]"
-              width={1000}
-              height={1000}
-            ></Image>
-          </div>
-          <div className="hand  absolute left-0  top-1/2 -translate-y-1/2 z-50">
-            <Image
-              src="/hand01.png"
-              className="w-[600px]"
-              width={1000}
-              height={1000}
-            ></Image>
-          </div>
+
           <div className="logo-txt absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50">
             <div className="flex flex-col items-center">
               <p className="text-[40px]">Jeko eSIM</p>
-              <div className="bg-[#e46e2a] rounded-full px-4 py-2 shadow-sm shadow-stone-600 text-gray-50 text-md">
-                出國旅遊的好夥伴
+              <div className="group relative inline-flex cursor-default">
+                {/* 1. 影子/立體層 (Shadow Layer) */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-400 to-white opacity-0 transition-all duration-300 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-hover:opacity-100 shadow-inner" />
+
+                {/* 2. 按鈕本體層 (Main Layer) */}
+                <div className="relative z-10 inline-flex items-center justify-center overflow-hidden rounded-full bg-[#e46e2a] px-4 py-2 text-md text-gray-50 shadow-sm shadow-stone-600 transition-all duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-none">
+                  {/* 3. 文字動畫層 (Text Swap) */}
+                  <span className="relative inline-flex overflow-hidden">
+                    {/* 顯示文字 A: Hover 時往右飛走並傾斜 */}
+                    <span className="translate-x-0 skew-x-0 transition-transform duration-500 group-hover:translate-x-[150%] group-hover:skew-x-12">
+                      出國旅遊的好夥伴
+                    </span>
+
+                    {/* 顯示文字 B: Hover 時從左邊飛入並回正 */}
+                    <span className="absolute inset-0 -translate-x-[150%] skew-x-12 transition-transform duration-500 group-hover:translate-x-0 group-hover:skew-x-0">
+                      出國旅遊的好夥伴
+                    </span>
+                  </span>
+                </div>
               </div>
               <div className="flex mt-4 justify-center items-center">
                 <span>方便 ｜</span>
@@ -350,12 +529,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          {/* <div className="title absolute left-[10%] top-[15%] z-50">
-            <h1 className="text-[4em]">WHERE YOU GO ? </h1>
-            <h2 className="text-[2.3em]">
-              你的口袋旅遊神隊友，<br></br>出國上網真簡單
-            </h2>
-          </div> */}
+
           {/* 天空容器 (包含天空圖 + 雲層) */}
           <div className="jesko-sky-container">
             {/* 1. 天空背景圖 */}
@@ -384,8 +558,7 @@ export default function Home() {
         {/* --- End of Animation Section --- */}
 
         {/* --- 下方原本的內容 --- */}
-        <section className="relative w-full mt-[-20px] overflow-hidden bg-[#147AD7]">
-          {/* ... 保持原本代碼 ... */}
+        <section className="relative w-full mt-[-20px] overflow-hidden  ">
           <div className="z-[9999]  relative">
             <FeatureCarousel />
           </div>
@@ -452,45 +625,45 @@ export default function Home() {
           </div>
         </section>
 
-        <img
-          src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-1300x100_2d2c9e2f-293f-4f46-8b79-fed8dc5fa5bb.svg"
-          alt=""
-          className="w-full relative z-10"
-        />
-
-        {/* 熱門國家, 如何使用, Features, Blog, CTA 等區塊 (請直接使用原本的內容，此處為了簡潔省略重複顯示) */}
-        {/* 請保留您原本下方所有的 section 代碼 */}
-
-        <section className="bg-[#147AD7] min-h-screen lg:h-screen rounded-br-[60px] rounded-bl-[60px] lg:rounded-br-[130px] lg:rounded-bl-[130px] py-10 lg:py-0">
-          <div className="flex flex-col lg:flex-row max-w-[1000px] mx-auto justify-between px-6 lg:px-0">
+        <section className="   rounded-br-[60px] rounded-bl-[60px] lg:rounded-br-[130px] lg:rounded-bl-[130px] py-10  ">
+          <div className="flex flex-col pt-20 lg:flex-row max-w-[1000px] mx-auto justify-between px-6 lg:px-0">
             <div className="txt">
-              <h2 className="text-white tracking-widest text-3xl lg:text-4xl font-bold lg:font-normal">
-                熱門國家&地區
-              </h2>
-              <h3 className="text-white tracking-widest mt-2 text-xl lg:text-2xl">
-                快速找到您想去的旅遊目的地的 eSIM 卡
-              </h3>
-              <p className="text-slate-100 text-base lg:text-xl mt-6 leading-relaxed lg:leading-snug tracking-widest">
-                在 Re.MEDIA 探索<br className="hidden lg:block"></br>
-                經濟高效的旅遊數據方案<br className="hidden lg:block"></br>
-                隨時隨地無縫連接<br className="hidden lg:block"></br>
-                告別昂貴的國際漫遊費
-              </p>
+              <MaskText blockColor="#30AE99">
+                <h2 className="text-stone-900 tracking-widest text-3xl lg:text-6xl font-extrabold ">
+                  快速找到您想去的<br></br> <br></br>{" "}
+                  <h2 className="text-stone-900 tracking-widest mt-5 text-3xl lg:text-6xl font-extrabold ml-[100px]">
+                    旅遊目的地的 eSIM 卡
+                  </h2>
+                </h2>
+              </MaskText>
+              <MaskText blockColor="#30AE99">
+                {" "}
+                <p className="text-slate-900 text-base lg:text-[16px] mt-6 leading-loose  tracking-widest">
+                  在 Jeko 探索 經濟高效的旅遊數據方案
+                  <br className="hidden lg:block"></br>
+                  隨時隨地無縫連接 告別昂貴的國際漫遊費
+                </p>
+              </MaskText>
             </div>
             <div></div>
           </div>
           <Project />
         </section>
 
-        <section className="pt-[60px] relative lg:pt-[150px] rounded-[32px] z-[999999999] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[50px] lg:mt-[150px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px]">
+        <section className="relative rounded-[32px] z-[999999999] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[50px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px]">
           {/* 如何使用 eSIM 內容 */}
-          <div className="main-title max-w-[1000px] mx-auto flex justify-center flex-col items-center text-center">
-            <h2 className="text-3xl lg:text-5xl font-bold">如何使用 eSIM?</h2>
-            <p className="text-slate-700 text-lg mt-3">How to use</p>
-          </div>
-          {/* ... (省略部分代碼以節省篇幅，請保留您原本的代碼) ... */}
+          <MaskText blockColor="#30AE99">
+            <div className="main-title max-w-[1000px] mx-auto flex justify-center flex-col items-center text-center">
+              <h2 className="text-3xl lg:text-5xl font-bold">如何使用 eSIM?</h2>
+              <p className="text-slate-700 text-lg mt-3">
+                How to use / Installation
+              </p>
+            </div>
+          </MaskText>
+
+          {/* 灰色背景大區塊 */}
           <div className="rounded-2xl bg-[#EBEEEF] py-10 lg:py-20 max-w-[1500px] mx-auto flex justify-center flex-col items-center mt-8">
-            {/* Step 1, 2, Check Step 等內容保持不變 */}
+            {/* --- Part 1: 什麼是 eSIM (維持原樣) --- */}
             <div className="mb-10 w-full flex justify-around">
               <div className="flex flex-col lg:flex-row w-[90%] lg:w-[80%] mx-auto gap-8 lg:gap-0">
                 <div className="w-full lg:w-1/2 flex lg:pr-10 items-center flex-col text-center lg:text-left">
@@ -522,86 +695,156 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            {/* Step 2 */}
-            <div className="border-t lg:border-t-0 lg:border-l-5 border-[#147AD7] w-full flex justify-around pt-10 lg:pt-0">
+
+            {/* --- Part 2: 裝置相容性 & 快速連結 (維持原樣) --- */}
+            <div className="border-t lg:border-t-0 lg:border-l-4 border-[#147AD7] w-full flex justify-around pt-10 lg:pt-0">
               <div className="flex flex-col lg:flex-row w-[90%] lg:w-[80%] mx-auto gap-8 lg:gap-0">
                 <div className="w-full lg:w-1/2 flex items-center flex-col text-center lg:text-left">
                   <div>
-                    <h3 className="text-2xl lg:text-3xl font-bold">
-                      請確保您的手機運營商已解鎖
-                      <br className="hidden lg:block"></br>且與 eSIM 相容
+                    <h3 className="text-2xl lg:text-3xl font-bold leading-snug">
+                      請確保您的手機
+                      <br className="hidden lg:block" />
+                      已解鎖且支援 eSIM
                     </h3>
-                    <p className="text-center lg:text-left font-bold mt-2">
-                      eSIM 相容裝置列表
+                    <p className="text-center lg:text-left font-bold mt-2 text-[#147AD7]">
+                      Before You Buy
                     </p>
                     <p className="mt-4 leading-relaxed text-gray-700 text-sm lg:text-base">
                       在購買前，請務必確認您的裝置支援 eSIM
-                      功能且未被電信商鎖定（Sim-Lock Free）。目前市面上新款
+                      功能且未被電信商鎖定（Sim-Lock Free）。 目前市面上新款
                       iPhone （XR/XS 以後機型）及多數 Android 旗艦機種皆已支援。
                     </p>
                   </div>
                 </div>
                 <div className="w-full lg:w-1/2">
-                  <div className="flex flex-col gap-2">
-                    <a href="#">
-                      <div className="flex justify-center lg:justify-end items-center">
-                        <div className="bg-white py-2 lg:py-1 flex items-center px-4 rounded-[30px] w-full lg:w-auto shadow-sm">
-                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] rounded-full shrink-0"></div>
-                          <div className="ml-3 tracking-widest font-bold text-[14px]">
-                            使用 eSIM 快速教學
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                    <a href="#" className="group">
-                      <div className="flex justify-center lg:justify-end items-center lg:mt-2">
-                        <div className="py-2 lg:py-1 flex group-hover:bg-white bg-white lg:bg-transparent duration-200 items-center px-4 rounded-[30px] w-full lg:w-auto shadow-sm lg:shadow-none">
-                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] lg:hidden lg:group-hover:block duration-300 transition-all rounded-full shrink-0"></div>
-                          <div className="ml-3 tracking-widest font-bold text-[14px]">
-                            產品相關政策及規範
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                    <a href="/shopee-qrcode" className="group">
-                      <div className="flex justify-center lg:justify-end items-center lg:mt-2">
-                        <div className="py-2 lg:py-1 flex group-hover:bg-white bg-white lg:bg-transparent duration-200 items-center px-4 rounded-[30px] w-full lg:w-auto shadow-sm lg:shadow-none">
-                          <div className="w-[7px] h-[7px] bg-[#2d7ee7] lg:hidden lg:group-hover:block duration-300 transition-all rounded-full shrink-0"></div>
-                          <div className="ml-3 tracking-widest font-bold text-[14px]">
-                            蝦皮訂單編號快速兌換
-                          </div>
-                        </div>
-                      </div>
-                    </a>
+                  <div className="flex flex-col gap-3">
+                    {/* 按鈕組 */}
+                    <QuickLinkButton text="查看支援裝置列表" active />
+                    <QuickLinkButton text="產品相關政策及規範" />
+                    <QuickLinkButton
+                      text="蝦皮訂單編號快速兌換"
+                      link="/shopee-qrcode"
+                    />
                   </div>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-[10px] w-[90%] lg:w-[80%] mx-auto p-6 lg:p-10 mt-10 shadow-sm">
-              <div className="step border-b lg:border-b-1 border-gray-200 lg:border-gray-400 py-2 lg:py-5">
-                <div className="w-full lg:w-1/2 flex items-center">
-                  <div className="w-[40px] h-[40px] lg:w-[50px] lg:h-[50px] bg-[#428aef] rounded-full text-white flex justify-center items-center font-bold text-lg lg:text-xl shrink-0">
-                    1
+
+            {/* --- Part 3: 安裝步驟教學 (新設計內容) --- */}
+            <div className="bg-white rounded-[20px] w-[90%] lg:w-[80%] mx-auto p-6 lg:p-10 mt-16 shadow-sm border border-slate-100">
+              {/* iOS / Android 切換 Tab */}
+              <div className="flex justify-center mb-10">
+                <div className="bg-[#EBEEEF] p-1 rounded-full inline-flex">
+                  <button
+                    onClick={() => setActiveSystem("ios")}
+                    className={`px-8 py-3 rounded-full font-bold transition-all duration-300 ${
+                      activeSystem === "ios"
+                        ? "bg-[#147AD7] text-white shadow-md"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    iOS (iPhone)
+                  </button>
+                  <button
+                    onClick={() => setActiveSystem("android")}
+                    className={`px-8 py-3 rounded-full font-bold transition-all duration-300 ${
+                      activeSystem === "android"
+                        ? "bg-[#30ae99] text-white shadow-md"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    Android
+                  </button>
+                </div>
+              </div>
+
+              {/* 步驟列表 */}
+              <div className="flex flex-col gap-6">
+                {currentSteps.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`step group border-b border-gray-100 py-4 lg:py-6 last:border-b-0 transition-all duration-300 hover:bg-slate-50 rounded-xl px-2 lg:px-4`}
+                  >
+                    <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-8">
+                      {/* 數字圈圈 */}
+                      <div
+                        className={`w-[40px] h-[40px] lg:w-[50px] lg:h-[50px] rounded-full text-white flex justify-center items-center font-bold text-lg lg:text-xl shrink-0 transition-colors duration-300 ${
+                          activeSystem === "ios"
+                            ? "bg-[#428aef]"
+                            : "bg-[#30ae99]"
+                        }`}
+                      >
+                        {item.step}
+                      </div>
+
+                      {/* 文字內容 */}
+                      <div className="flex flex-col justify-center w-full">
+                        <h3 className="text-lg lg:text-xl font-bold text-slate-800 mb-1 group-hover:text-[#147AD7] transition-colors">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm lg:text-base text-slate-600 leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+
+                      {/* 裝飾箭頭 (僅桌面顯示) */}
+                      <div className="hidden lg:block text-gray-300 group-hover:text-[#147AD7] group-hover:translate-x-2 transition-all">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M5 12h14" />
+                          <path d="m12 5 7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-col justify-center">
-                    <h3 className="text-lg lg:text-2xl font-bold ml-3">
-                      確認手機是否有支援
-                    </h3>
-                  </div>
+                ))}
+              </div>
+
+              {/* 底部提醒 */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="flex items-start gap-3 bg-blue-50 p-4 rounded-lg">
+                  <svg
+                    className="w-6 h-6 text-[#147AD7] shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    <span className="font-bold text-[#147AD7]">貼心提醒：</span>
+                    請務必在有 WiFi 或網路的環境下掃描安裝。掃描後請勿刪除 eSIM
+                    方案，一旦刪除將無法再次掃描使用。
+                    如果在安裝過程遇到問題，請截圖並聯繫客服。
+                  </p>
                 </div>
               </div>
             </div>
+
             <div className="tutorial p-10"></div>
           </div>
         </section>
 
         <img
-          src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-1300x100_601d1578-d35b-424a-bd5b-dcee64d6b25f.svg"
-          className="w-full mt-[-80px] lg:mt-[-150px] relative z-10"
+          src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-1300x100_2d2c9e2f-293f-4f46-8b79-fed8dc5fa5bb.svg"
           alt=""
+          className="w-full relative  mt-[-130px] z-10"
         />
 
-        <section className="bg-[#07b53b] p-6 lg:p-20 relative z-0">
+        <section className="bg-[#147AD7]  p-6 lg:p-20 relative z-0">
           {/* Features 內容保持不變 */}
           <div className="max-w-[1400px] mx-auto xl:w-[70%] sm:w-[85%] w-full">
             <div className="main-title text-center lg:text-left">
@@ -679,12 +922,6 @@ export default function Home() {
           </div>
         </section>
 
-        <img
-          src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-1300x100_601d1578-d35b-424a-bd5b-dcee64d6b25f.svg"
-          className="w-full rotate-180 mt-[0px] relative z-10"
-          alt=""
-        />
-
         <section className="bg-[#147AD7] py-20">
           <div className="mt-8 lg:mt-5">
             <Carousel />
@@ -693,8 +930,12 @@ export default function Home() {
             <SvgCard />
           </section>
         </section>
-
-        <section className="pt-[60px] max-w-[80%] lg:pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[-80px] lg:mt-[-150px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px] relative z-20 overflow-hidden">
+        <img
+          src="https://storage.googleapis.com/studio-design-asset-files/projects/8dO8NkVvan/s-1300x100_2d2c9e2f-293f-4f46-8b79-fed8dc5fa5bb.svg"
+          alt=""
+          className="w-full rotate-180 mt-[0px] relative z-10"
+        />
+        <section className="pt-[60px] max-w-[80%] lg:pt-[150px] rounded-[32px] bg-white/40 border border-white/30 backdrop-blur-[25px] shadow-[0_30px_80px_rgba(36,57,69,0.15)] px-4 sm:px-10 mx-auto mt-[-80px] lg:mt-[-220px] w-[95%] lg:w-[96%] py-[60px] lg:py-[100px] relative z-20 overflow-hidden">
           {/* Notification 內容保持不變 */}
           <div className="flex flex-col max-w-[1450px] mx-auto lg:flex-row gap-12 lg:gap-20">
             <div className="w-full lg:w-1/4 flex flex-col justify-between">
@@ -702,37 +943,76 @@ export default function Home() {
                 <h2 className="text-6xl font-serif font-bold text-[#0F356B] mb-10 tracking-wide">
                   Notification
                 </h2>
+                {/* ★ 修改：Tab 切換邏輯 (綁定 onClick 與動態樣式) */}
                 <ul className="space-y-5 mb-10">
                   {filters.map((filter, index) => (
                     <li
                       key={index}
-                      className={`cursor-pointer text-sm font-bold tracking-wide transition-colors duration-300 ${index === 0 ? "text-[#0F356B]" : "text-gray-500 hover:text-[#0F356B]"}`}
+                      onClick={() => setActiveTab(index)} // 點擊切換 Tab
+                      className={`cursor-pointer text-sm font-bold tracking-wide transition-all duration-300 ${
+                        activeTab === index
+                          ? "text-[#0F356B] translate-x-2" // 選中樣式
+                          : "text-gray-500 hover:text-[#0F356B] hover:translate-x-1" // 一般樣式
+                      }`}
                     >
                       <span className="relative inline-block pb-1">
                         {filter}
-                        {index === 0 && (
-                          <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#0F356B]"></span>
-                        )}
+                        {/* 動態底線動畫 */}
+                        <span
+                          className={`absolute bottom-0 left-0 h-[2px] bg-[#0F356B] transition-all duration-300 ${
+                            activeTab === index ? "w-full" : "w-0"
+                          }`}
+                        ></span>
                       </span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div>
+              <div className="mt-8 flex  ">
+                {/* 外層容器：設定 group 以便控制內部所有動畫 */}
                 <a
-                  href="#"
-                  className="inline-flex items-center justify-center bg-[#2E68C0] text-white text-sm font-bold py-4 px-8 rounded-full shadow-lg hover:bg-[#1a54a8] transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1"
+                  href="/category/all-product/"
+                  className="group relative inline-flex items-center justify-center"
                 >
-                  聯絡我們
+                  {/* 動畫效果 3 (背景影子層) */}
+                  <div className="absolute inset-0 h-full w-full rounded-full bg-[#0891b2] opacity-0 transition-all duration-300 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-hover:opacity-100" />
+
+                  {/* 主按鈕層 */}
+                  <div className="relative z-10 inline-flex items-center justify-center overflow-hidden rounded-full bg-[#2E68C0] px-8 py-3.5 font-bold text-white shadow-lg shadow-[#384a72] first-letter:transition-all duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[#0960c3]">
+                    {/* 動畫效果 2 (文字傾斜滑動) */}
+                    <span className="relative inline-flex overflow-hidden">
+                      {/* 第一組內容：原本顯示的。Hover 時向右滑出並傾斜 */}
+                      <div className="flex items-center gap-3 transition-transform duration-500 group-hover:translate-x-[150%] group-hover:skew-x-12">
+                        聯絡我們
+                        <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20">
+                          <ArrowIcon />
+                        </span>
+                      </div>
+
+                      {/* 第二組內容：原本隱藏在左側。Hover 時歸位並取消傾斜 */}
+                      <div className="absolute inset-0 flex items-center gap-3 transition-transform duration-500 -translate-x-[150%] skew-x-12 group-hover:translate-x-0 group-hover:skew-x-0">
+                        聯絡我們
+                        <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20">
+                          <ArrowIcon />
+                        </span>
+                      </div>
+                    </span>
+                  </div>
                 </a>
               </div>
             </div>
-            <div className="w-full lg:w-3/4 flex flex-col gap-4">
-              {newsItems.map((item) => (
+
+            {/* ★ 修改：列表容器綁定 Ref 且使用 displayItems */}
+            <div
+              ref={newsContainerRef} // 綁定 Ref
+              className="w-full lg:w-3/4 flex flex-col gap-4 min-h-[400px]" // min-h 防止塌陷
+            >
+              {displayItems.map((item) => (
                 <a
                   key={item.id}
                   href={item.link}
-                  className="group relative flex flex-col md:flex-row items-start md:items-center bg-[#F2F2F2] border border-transparent hover:border-gray-200 hover:bg-white transition-all duration-500 rounded-xl p-6 cursor-pointer"
+                  // 加入 news-item 供 GSAP 抓取，移除 transform 相關 class 以免衝突
+                  className="news-item group relative flex flex-col md:flex-row items-start md:items-center bg-[#F2F2F2] border border-transparent hover:border-gray-200 hover:bg-white transition-colors duration-300 rounded-xl p-6 cursor-pointer"
                 >
                   <div className="flex items-center gap-4 mb-3 md:mb-0 md:w-[220px] flex-shrink-0">
                     <span className="text-[#2E68C0] font-bold text-sm font-sans tracking-wider">

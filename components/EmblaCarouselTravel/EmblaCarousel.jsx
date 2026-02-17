@@ -21,7 +21,23 @@ function extractFirstImageFromContent(content) {
 function stripHtml(html) {
   return html.replace(/<[^>]+>/g, "");
 }
-
+const ArrowIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    className="transition-transform group-hover:translate-x-[2px]"
+  >
+    <path
+      d="M8 5l8 7-8 7"
+      stroke="#fff"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 const EmblaCarousel = ({ options = { dragFree: true, loop: true } }) => {
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -201,6 +217,38 @@ const EmblaCarousel = ({ options = { dragFree: true, loop: true } }) => {
             精選全球熱門旅遊目的地攻略，從上網設定到必去景點，
             為您的旅程提供最實用的資訊與建議，讓自由行變得更簡單。
           </span>
+        </div>
+        <div className="mt-8 flex  ">
+          {/* 外層容器：設定 group 以便控制內部所有動畫 */}
+          <a
+            href="/category/all-product/"
+            className="group relative inline-flex items-center justify-center"
+          >
+            {/* 動畫效果 3 (背景影子層) */}
+            <div className="absolute inset-0 h-full w-full rounded-full bg-[#0891b2] opacity-0 transition-all duration-300 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-hover:opacity-100" />
+
+            {/* 主按鈕層 */}
+            <div className="relative z-10 inline-flex items-center justify-center overflow-hidden rounded-full bg-[#30AE99] px-8 py-3.5 font-bold text-white shadow-lg shadow-[#384a72] first-letter:transition-all duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[#0960c3]">
+              {/* 動畫效果 2 (文字傾斜滑動) */}
+              <span className="relative inline-flex overflow-hidden">
+                {/* 第一組內容：原本顯示的。Hover 時向右滑出並傾斜 */}
+                <div className="flex items-center gap-3 transition-transform duration-500 group-hover:translate-x-[150%] group-hover:skew-x-12">
+                  More
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20">
+                    <ArrowIcon />
+                  </span>
+                </div>
+
+                {/* 第二組內容：原本隱藏在左側。Hover 時歸位並取消傾斜 */}
+                <div className="absolute inset-0 flex items-center gap-3 transition-transform duration-500 -translate-x-[150%] skew-x-12 group-hover:translate-x-0 group-hover:skew-x-0">
+                  Read
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20">
+                    <ArrowIcon />
+                  </span>
+                </div>
+              </span>
+            </div>
+          </a>
         </div>
       </div>
       <div

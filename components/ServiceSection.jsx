@@ -47,7 +47,23 @@ const LabelPill = ({ text, color = "#2E4457" }) => (
     {text}
   </span>
 );
-
+const ArrowIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    className="transition-transform group-hover:translate-x-[2px]"
+  >
+    <path
+      d="M8 5l8 7-8 7"
+      stroke="#fff"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 /* ========== 卡片（已套用 FadeUp） ========== */
 function JobCard({ title, desc, pills = [], tags = [], delay = 0 }) {
   return (
@@ -182,7 +198,7 @@ export default function PickUpJobsSection() {
         },
       ],
     }),
-    []
+    [],
   );
 
   const cards = DATA[active];
@@ -274,28 +290,43 @@ export default function PickUpJobsSection() {
           {/* CTA */}
           <FadeUp delay={0.12}>
             <div className="mt-8 flex items-center justify-center">
+              {/* 外層容器：設定 group 以便控制內部所有動畫 */}
               <a
                 href="/category/all-product/"
-                className="group inline-flex items-center gap-3 rounded-full bg-[#0BAFD7] px-8 py-3.5 font-bold text-white shadow-lg shadow-[#0BAFD7]/30 transition-all hover:bg-[#099EC3] hover:shadow-[#099EC3]/40 hover:-translate-y-0.5"
+                className="group relative inline-flex items-center justify-center"
               >
-                查看所有方案
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="transition-transform group-hover:translate-x-[2px]"
-                  >
-                    <path
-                      d="M8 5l8 7-8 7"
-                      stroke="#fff"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
+                {/* 動畫效果 3 (背景影子層)：
+            這層固定在底部，當上方按鈕移動時，這層會露出來形成「殘影」或「立體厚度」。
+            顏色設定為比主色稍深的 Cyan (#0891b2) 
+          */}
+                <div className="absolute inset-0 h-full w-full rounded-full bg-[#0891b2] opacity-0 transition-all duration-300 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-hover:opacity-100" />
+
+                {/* 主按鈕層 (Button 1 的樣式基礎)：
+            包含背景色 #0BAFD7、陰影、圓角。
+            Hover 時會向左上方移動 (-translate)，配合下方的影子層創造立體感。
+          */}
+                <div className="relative z-10 inline-flex items-center justify-center overflow-hidden rounded-full bg-[#0BAFD7] px-8 py-3.5 font-bold text-white shadow-lg shadow-[#0BAFD7]/30 transition-all duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[#099EC3]/40">
+                  {/* 動畫效果 2 (文字傾斜滑動)：
+              包含兩組完全相同的內容 (文字+Icon)。
+            */}
+                  <span className="relative inline-flex overflow-hidden">
+                    {/* 第一組內容：原本顯示的。Hover 時向右滑出並傾斜 (+150%, skew) */}
+                    <div className="flex items-center gap-3 transition-transform duration-500 group-hover:translate-x-[150%] group-hover:skew-x-12">
+                      查看所有方案
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20">
+                        <ArrowIcon />
+                      </span>
+                    </div>
+
+                    {/* 第二組內容：原本隱藏在左側。Hover 時歸位並取消傾斜 (0%, no skew) */}
+                    <div className="absolute inset-0 flex items-center gap-3 transition-transform duration-500 -translate-x-[150%] skew-x-12 group-hover:translate-x-0 group-hover:skew-x-0">
+                      查看所有方案
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20">
+                        <ArrowIcon />
+                      </span>
+                    </div>
+                  </span>
+                </div>
               </a>
             </div>
           </FadeUp>

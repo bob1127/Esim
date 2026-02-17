@@ -171,7 +171,7 @@ export default function FadeCarousel() {
                 <span className="text-gray-500 text-sm lg:text-base">
                   {slides[index].date}
                 </span>
-                <p className="text-2xl lg:text-3xl leading-snug font-bold lg:font-normal">
+                <p className="text-xl lg:text-3xl leading-snug font-bold lg:font-normal">
                   {slides[index].title}
                 </p>
 
@@ -202,7 +202,7 @@ export default function FadeCarousel() {
           {/* 手機版比例設為 aspect-video (16:9) 避免太高 */}
           {/* 修改處 3：使用 Link 包覆圖片容器，並使用自定義連結 */}
           <Link href={slides[index].link} passHref legacyBehavior>
-            <a className="relative overflow-hidden aspect-[3/3.8] lg:aspect-[3/3.8] w-full lg:w-1/2 lg:rounded-[16px] rounded-[16px] block cursor-pointer">
+            <a className="relative overflow-hidden aspect-[3/3.3] lg:aspect-[3/3.8] w-full lg:w-1/2 lg:rounded-[16px] rounded-[16px] block cursor-pointer">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={slides[index].img}

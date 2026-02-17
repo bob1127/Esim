@@ -233,7 +233,7 @@ export default function IntroHero() {
             {/* Card 1: 設備相容性 (加上連結 - 檢查設備) */}
             <Link
               href="/blog/如何檢查您的iphone-ipad-ios手機設備是否支援esim？/"
-              className="md:col-span-2 block h-full" // 確保跨兩欄並填滿高度
+              className="  block h-full" // 確保跨兩欄並填滿高度
             >
               <CardItem
                 step="1"

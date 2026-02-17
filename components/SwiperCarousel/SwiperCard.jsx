@@ -62,9 +62,9 @@ export default () => {
           onSlideChange={() => console.log("slide change")}
         >
           <SwiperSlide className="  ">
-            <div className="relative w-full aspect-[21/9] hidden sm:block">
+            <div className="relative w-full aspect-[16/9] ">
               <Image
-                src="/images/hero-img.png"
+                src="/images/product/日本-banner-01.png"
                 alt="hero-img"
                 fill
                 className="object-cover"
@@ -73,7 +73,18 @@ export default () => {
             </div>
           </SwiperSlide>
           <SwiperSlide className="  ">
-            <div className="relative w-full aspect-[21/9] hidden sm:block">
+            <div className="relative w-full aspect-[16/9] ">
+              <Image
+                src="/images/product/泰國-banner-01.png"
+                alt="hero-img"
+                fill
+                className="object-cover"
+                sizes="100vw"
+              />
+            </div>
+          </SwiperSlide>
+          {/* <SwiperSlide className="  ">
+            <div className="relative w-full aspect-[16/9] ">
               <Image
                 src="/images/hero-img.png"
                 alt="hero-img"
@@ -82,18 +93,7 @@ export default () => {
                 sizes="100vw"
               />
             </div>
-          </SwiperSlide>
-          <SwiperSlide className="  ">
-            <div className="relative w-full aspect-[21/9] hidden sm:block">
-              <Image
-                src="/images/hero-img.png"
-                alt="hero-img"
-                fill
-                className="object-cover"
-                sizes="100vw"
-              />
-            </div>
-          </SwiperSlide>
+          </SwiperSlide> */}
         </Swiper>
       </div>
     </>

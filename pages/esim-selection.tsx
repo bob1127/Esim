@@ -1,63 +1,219 @@
-// pages/esim-selection.tsx
 import React, { useState, useEffect, useMemo } from "react";
 
-// --- 國家設定檔 (擴充自您的篩選邏輯) ---
+// --- 1. 國家設定檔 ---
 const COUNTRIES: Record<string, any> = {
   JP: {
     emoji: "🇯🇵",
     name: "日本",
-    codes: ["JP"],
-    keywords: ["Japan", "Osaka", "Tokyo"],
-    nativeKeywords: ["vmobile.jp", "iij", "docomo", "softbank", "kddi"],
+    codes: ["JP", "JPN", "JAPAN"],
+    keywords: [
+      "Japan",
+      "Osaka",
+      "Tokyo",
+      "Kyoto",
+      "日本",
+      "SoftBank",
+      "Docomo",
+    ],
+    nativeKeywords: ["iij", "docomo"],
+    nativeApns: ["vmobile.jp", "ppsim.jp", "m-air.jp", "so-net.jp", "plus.4g"],
   },
   KR: {
     emoji: "🇰🇷",
     name: "韓國",
-    codes: ["KR"],
-    keywords: ["Korea", "Seoul"],
-    nativeKeywords: ["sk telecom", "skt", "kt", "lgu+", "lg u+"],
+    codes: ["KR", "KOR", "KOREA"],
+    keywords: ["Korea", "Seoul", "Jeju", "韓國"],
+    nativeKeywords: ["skt", "kt", "lgu"],
+    nativeApns: ["lte.sktelecom.com", "alwayson.kt.com"],
   },
   TH: {
     emoji: "🇹🇭",
     name: "泰國",
-    codes: ["TH"],
-    keywords: ["Thailand", "Bangkok"],
-    nativeKeywords: ["ais", "dtac", "true", "truemove"],
+    codes: ["TH", "THA", "THAILAND"],
+    keywords: ["Thailand", "Bangkok", "Phuket", "泰國"],
+    nativeKeywords: ["ais", "dtac", "true"],
+    nativeApns: ["internet"],
   },
   CN: {
     emoji: "🇨🇳",
     name: "中國",
-    codes: ["CN"],
-    keywords: ["China"],
-    nativeKeywords: ["china unicom", "china mobile", "china telecom"],
+    codes: ["CN", "CHN", "CHINA"],
+    keywords: ["China", "Shanghai", "Beijing", "中國"],
+    nativeKeywords: [],
+    nativeApns: ["cmnet", "3gnet"],
   },
   HK: {
     emoji: "🇭🇰",
     name: "香港",
-    codes: ["HK"],
-    keywords: ["Hong Kong", "HK"],
-    nativeKeywords: ["csl", "smartone", "3hk", "china mobile hk", "cmhk"],
-  },
-  VN: {
-    emoji: "🇻🇳",
-    name: "越南",
-    codes: ["VN"],
-    keywords: ["Vietnam"],
-    nativeKeywords: ["viettel", "vinaphone", "mobifone"],
-  },
-  MY: {
-    emoji: "🇲🇾",
-    name: "馬來西亞",
-    codes: ["MY"],
-    keywords: ["Malaysia"],
-    nativeKeywords: ["celcom", "maxis", "digi", "umobile"],
+    codes: ["HK", "HKG", "HONG KONG"],
+    keywords: ["Hong Kong", "HK", "香港"],
+    nativeKeywords: ["csl", "smartone", "3hk", "cmhk"],
+    nativeApns: ["mobile.three.com.hk", "hkcsl", "smartone"],
   },
 };
 
-// --- 匯率設定 ---
-const RATES = {
-  USD: 33.0,
-  HKD: 4.5, // 港幣轉台幣
+const RATES = { USD: 33.0, HKD: 4.5 };
+
+// --- 2. 輔助函式：將技術名稱翻譯成「白話文」 ---
+const getSimpleDesc = (name: string, day: number) => {
+  const n = name.toLowerCase();
+  let dataPart = "規格詳見內容";
+
+  // 判斷邏輯：抓取關鍵字與數字
+  if (n.includes("total")) {
+    // 抓取 Total 後面的數字 (e.g., Total10GB, Total 3GB)
+    const match = n.match(/total\s*(\d+\.?\d*[g|m]b)/);
+    if (match) {
+      dataPart = `總量 ${match[1].toUpperCase()}`;
+    } else {
+      dataPart = "總量型";
+    }
+  } else if (n.includes("daily") || n.includes("day")) {
+    // 抓取 Daily 後面的數字 (e.g., Daily1GB)
+    const match = n.match(/daily\s*(\d+\.?\d*[g|m]b)/);
+    if (match) {
+      dataPart = `每日 ${match[1].toUpperCase()}`;
+    } else {
+      dataPart = "每日定量";
+    }
+  } else if (n.includes("unlimited")) {
+    dataPart = "吃到飽";
+  }
+
+  return `${dataPart} · ${day}天`;
+};
+
+// --- 3. 核心解析邏輯 (電信商/原生/App支援) ---
+const parsePlanDetails = (
+  p: any,
+  countryConfig: any,
+  targetCountryCode: string,
+) => {
+  const name = (p.name || "").toLowerCase();
+  const desc = (p.rule_desc || "").toLowerCase();
+  const apn = (p.apn || "").toLowerCase().trim();
+
+  // --- A. 判斷原生 (Native) vs 漫遊 ---
+  let isNative = false;
+  if (
+    countryConfig?.nativeApns?.some(
+      (key: string) => apn === key || apn.includes(key),
+    )
+  ) {
+    isNative = true;
+  } else if (
+    countryConfig?.nativeKeywords?.some((key: string) => name.includes(key))
+  ) {
+    isNative = true;
+  }
+  const roamingApns = [
+    "3gnet",
+    "globaldata",
+    "cuniq",
+    "cmhk",
+    "mobile.three.com.hk",
+    "plus.4g",
+    "internet",
+    "ctm-mobile",
+  ];
+  if (!isNative && roamingApns.some((key) => apn === key)) {
+    isNative = false;
+  }
+
+  // --- B. 解析電信商 (Carrier) ---
+  let carrier = "自動切換 (Auto)";
+
+  // 1. 雙網/特殊方案判斷 (最優先)
+  if (
+    (name.includes("softbank") &&
+      (name.includes("kddi") || name.includes("au"))) ||
+    (desc.includes("softbank") &&
+      (desc.includes("kddi") || desc.includes("au")))
+  ) {
+    carrier = "📶 SoftBank / KDDI (雙網)";
+  } else if (
+    name.includes("docomo") &&
+    (name.includes("kddi") || name.includes("au"))
+  ) {
+    carrier = "📶 Docomo / KDDI (雙網)";
+  } else if (
+    apn.includes("vmobile.jp") ||
+    (name.includes("docomo") && isNative)
+  ) {
+    carrier = "🇯🇵 Docomo (附日本 IP)"; // IIJ 方案
+  } else if (name.includes("kddi") && !name.includes("softbank")) {
+    carrier = "🇯🇵 KDDI 單網 (含5G)";
+  }
+
+  // 2. APN 反推
+  else if (apn.includes("lte.sktelecom.com")) carrier = "🇰🇷 SK Telecom (原生)";
+  else if (apn.includes("alwayson.kt.com")) carrier = "🇰🇷 KT Olleh (原生)";
+  else if (apn.includes("mobile.three.com.hk")) carrier = "📶 3HK 漫遊 (雙網)";
+  else if (apn.includes("3gnet")) carrier = "中國聯通 (漫遊)";
+  // 3. 單一名稱判斷
+  else if (name.includes("docomo")) carrier = "🇯🇵 NTT Docomo";
+  else if (name.includes("softbank")) carrier = "📶 SoftBank";
+  else if (name.includes("kddi") || name.includes("au"))
+    carrier = "🇯🇵 KDDI (au)";
+  else if (name.includes("skt")) carrier = "🇰🇷 SK Telecom";
+  else if (name.includes("kt") || name.includes("olleh"))
+    carrier = "🇰🇷 KT (Olleh)";
+  else if (name.includes("ais")) carrier = "🇹🇭 AIS";
+  else if (name.includes("dtac")) carrier = "🇹🇭 DTAC";
+  else if (name.includes("true")) carrier = "🇹🇭 TrueMove H";
+
+  // --- C. 解析 App 支援度 ---
+  let supportChatGPT = true;
+  let supportTikTok = true;
+  let ipRegion = "當地 IP";
+
+  if (["CN", "HK", "MO"].includes(targetCountryCode)) {
+    supportChatGPT = false;
+    supportTikTok = false;
+    ipRegion = targetCountryCode === "CN" ? "中國 IP" : "香港 IP";
+  }
+  if (
+    apn.includes("mobile.three.com.hk") ||
+    apn.includes("cmhk") ||
+    apn.includes("3gnet") ||
+    carrier.includes("3HK")
+  ) {
+    supportChatGPT = false;
+    supportTikTok = false;
+    ipRegion = "🇭🇰 香港 IP (漫遊)";
+  }
+  if (carrier.includes("日本 IP")) {
+    ipRegion = "🇯🇵 日本原生 IP";
+  }
+
+  // --- D. 解析降速規則 ---
+  let throttle = "未知";
+  const speedMatch = desc.match(/(\d+)\s*kbps/i) || name.match(/(\d+)\s*kbps/i);
+
+  if (
+    desc.includes("terminate") ||
+    desc.includes("stop") ||
+    name.includes("斷網")
+  ) {
+    throttle = "🚫 用完斷網";
+  } else if (speedMatch) {
+    throttle = `⬇️ 降速至 ${speedMatch[1]}kbps`;
+  } else if (
+    name.includes("unlimited") ||
+    desc.includes("unlimited") ||
+    name.includes("吃到飽")
+  ) {
+    throttle = "♾️ 無限流量 (FUP)";
+  }
+
+  return {
+    isNative,
+    carrier,
+    throttle,
+    supportChatGPT,
+    supportTikTok,
+    ipRegion,
+  };
 };
 
 export default function GlobalPlanScanner() {
@@ -65,24 +221,19 @@ export default function GlobalPlanScanner() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // --- 篩選條件 ---
   const [selectedCountry, setSelectedCountry] = useState("JP");
-  const [filterIP, setFilterIP] = useState("ALL"); // ALL, NATIVE, ROAMING
+  const [filterIP, setFilterIP] = useState("ALL");
   const [filterDay, setFilterDay] = useState("ALL");
-  const [filterData, setFilterData] = useState("ALL"); // DAILY, TOTAL, UNLIMITED
-  const [filterApp, setFilterApp] = useState("ALL"); // ALL, GPT_TIKTOK
-  const [filterUnthrottled, setFilterUnthrottled] = useState(false); // 是否僅顯示不降速
   const [sortBy, setSortBy] = useState("PRICE_ASC");
-  const [displayCount, setDisplayCount] = useState(50); // 分頁顯示數量
+  const [displayCount, setDisplayCount] = useState(50);
 
-  // 1. 初始載入 API
   useEffect(() => {
     fetchPlans();
   }, []);
 
   const fetchPlans = async () => {
     try {
-      const res = await fetch("/api/esim/test-list"); // 使用正式帳號 API
+      const res = await fetch("/api/esim/test-list");
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
       const data = await res.json();
       setRawPlans(data.result || []);
@@ -93,390 +244,272 @@ export default function GlobalPlanScanner() {
     }
   };
 
-  // 2. 資料清洗與標籤化 (針對 12,000 筆資料的高效處理)
   const processedPlans = useMemo(() => {
-    if (rawPlans.length === 0) return [];
+    if (!rawPlans || rawPlans.length === 0) return [];
 
     const config = COUNTRIES[selectedCountry] || {
       codes: [selectedCountry],
-      keywords: [selectedCountry],
-      nativeKeywords: [],
+      keywords: [],
     };
 
     return rawPlans
       .filter((p) => {
-        const name = (p.name || "").toLowerCase();
-        const code = (p.code || "").toUpperCase();
-        return (
-          config.codes.includes(code) ||
-          config.keywords.some((k: string) => name.includes(k.toLowerCase()))
-        );
+        const pCode = (p.code || p.location || "").toUpperCase();
+        const pName = (p.name || "").toUpperCase();
+
+        const matchCode = config.codes
+          ? config.codes.some((c: string) => pCode.includes(c))
+          : pCode === selectedCountry;
+        const matchKeyword = config.keywords
+          ? config.keywords.some(
+              (k: string) =>
+                pName.includes(k.toUpperCase()) ||
+                pCode.includes(k.toUpperCase()),
+            )
+          : false;
+
+        return matchCode || matchKeyword;
       })
       .map((p) => {
-        const name = (p.name || "").toLowerCase();
-        const apn = (p.apn || "").toLowerCase();
-        const rule = (p.rule_desc || "").toLowerCase();
-        const tags = p.tags || [];
+        const details = parsePlanDetails(p, config, selectedCountry);
 
-        // 💰 價格換算
+        // ★★★ 呼叫白話文翻譯機 ★★★
+        const simpleDesc = getSimpleDesc(p.name, p.day);
+
         const rawPrice = parseFloat(p.price || 0);
-        let costTWD = 0;
-        if (rawPrice > 0 && rawPrice < 20) {
-          costTWD = Math.ceil(rawPrice * RATES.USD);
-        } else {
-          costTWD = Math.ceil(rawPrice * RATES.HKD);
-        }
-
-        // 🏷️ 特性判斷
-        const isNative = config.nativeKeywords.some(
-          (k: string) => apn.includes(k) || name.includes(k),
-        );
-        const isDaily = name.includes("daily") || name.includes("天");
-        const isTotal = name.includes("total") || name.includes("總量");
-        const isUnlimited =
-          name.includes("unlimited") ||
-          rule.includes("unlimited") ||
-          rule.includes("吃到飽");
-
-        // ⚡ 不降速判斷：包含吃到飽關鍵字且不包含降速速率
-        const isUnthrottled =
-          isUnlimited && !rule.includes("kbps") && !name.includes("kbps");
-
-        // 📱 App 支援度 (依照您的邏輯：中國地區原生線路通常不支援)
-        let supportChatGPT = true;
-        let supportTikTok = true;
-        if (selectedCountry === "CN") {
-          supportChatGPT = !isNative;
-          supportTikTok = !isNative;
-        } else {
-          // 其他國家優先看標籤，沒標籤預設支援
-          if (tags.length > 0) {
-            supportChatGPT = tags.includes("ChatGPT✅");
-            supportTikTok = tags.includes("TikTok✅");
-          }
-        }
-
-        const suggestedPrice =
-          Math.ceil((costTWD * (isNative ? 1.8 : 1.5)) / 10) * 10 - 1;
+        let costTWD =
+          rawPrice < 20
+            ? Math.ceil(rawPrice * RATES.USD)
+            : Math.ceil(rawPrice * RATES.HKD);
+        const margin = details.isNative ? 1.6 : 1.4;
+        const suggestedPrice = Math.ceil((costTWD * margin) / 10) * 10 - 1;
 
         return {
           ...p,
+          ...details,
+          simpleDesc, // 加入翻譯後的欄位
           costTWD,
           suggestedPrice,
-          isNative,
-          isDaily,
-          isTotal,
-          isUnlimited,
-          isUnthrottled,
-          supportChatGPT,
-          supportTikTok,
-          typeLabel: isNative ? `🔴 ${config.name}原生` : "🔵 漫遊線路",
-          typeClass: isNative
-            ? "bg-red-100 text-red-800"
-            : "bg-blue-100 text-blue-800",
+          typeLabel: details.isNative ? `🔴 ${config.name}原生` : "🔵 漫遊線路",
+          typeClass: details.isNative
+            ? "bg-red-50 text-red-700 border border-red-100"
+            : "bg-blue-50 text-blue-700 border border-blue-100",
         };
       });
   }, [rawPlans, selectedCountry]);
 
-  // 3. 多維度篩選與排序
   const filteredPlans = useMemo(() => {
     let result = processedPlans;
-
     if (filterIP === "NATIVE") result = result.filter((p) => p.isNative);
     if (filterIP === "ROAMING") result = result.filter((p) => !p.isNative);
-
     if (filterDay === "SHORT") result = result.filter((p) => p.day <= 5);
     if (filterDay === "MID")
       result = result.filter((p) => p.day > 5 && p.day <= 10);
     if (filterDay === "LONG") result = result.filter((p) => p.day > 10);
-
-    if (filterData === "DAILY") result = result.filter((p) => p.isDaily);
-    if (filterData === "TOTAL") result = result.filter((p) => p.isTotal);
-    if (filterData === "UNLIMITED")
-      result = result.filter((p) => p.isUnlimited);
-
-    if (filterUnthrottled) result = result.filter((p) => p.isUnthrottled);
-    if (filterApp === "GPT_TIKTOK")
-      result = result.filter((p) => p.supportChatGPT && p.supportTikTok);
 
     result.sort((a, b) => {
       if (sortBy === "PRICE_ASC") return a.costTWD - b.costTWD;
       if (sortBy === "DAY_ASC") return a.day - b.day;
       return 0;
     });
-
     return result;
-  }, [
-    processedPlans,
-    filterIP,
-    filterDay,
-    filterData,
-    filterApp,
-    filterUnthrottled,
-    sortBy,
-  ]);
+  }, [processedPlans, filterIP, filterDay, sortBy]);
 
   if (loading)
-    return (
-      <div className="p-10 text-center font-bold">
-        正在掃描全球 12,000+ 方案...
-      </div>
-    );
+    return <div className="p-10 text-center text-gray-500">掃描中...</div>;
   if (errorMsg)
-    return <div className="p-10 text-red-600">連線失敗：{errorMsg}</div>;
-
-  const currentConfig = COUNTRIES[selectedCountry] || {
-    emoji: "🌐",
-    name: selectedCountry,
-  };
+    return <div className="p-10 text-center text-red-500">{errorMsg}</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
-      <div className="max-w-[1440px] mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span>{currentConfig.emoji}</span>
-            <span>{currentConfig.name}方案選品神器 PRO</span>
-          </div>
-          <div className="text-sm font-normal text-gray-500 bg-white px-4 py-2 rounded-lg shadow-sm border">
-            庫存總計: {rawPlans.length.toLocaleString()} | 當前符合:{" "}
-            {filteredPlans.length} 筆
-          </div>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans text-sm">
+      <div className="max-w-[1600px] mx-auto">
+        <h1 className="text-2xl font-bold mb-2 text-gray-800">
+          eSIM 選品神器 (Pro版)
         </h1>
+        <p className="text-xs text-gray-400 mb-6">
+          資料庫: {rawPlans.length} | 符合: {filteredPlans.length}
+        </p>
 
-        {/* --- 國家切換 --- */}
-        <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
-          {Object.entries(COUNTRIES).map(([key, config]: [string, any]) => (
-            <button
-              key={key}
-              onClick={() => {
-                setSelectedCountry(key);
-                setDisplayCount(50);
-              }}
-              className={`flex-shrink-0 px-5 py-2 rounded-full font-bold transition-all ${
-                selectedCountry === key
-                  ? "bg-black text-white shadow-lg"
-                  : "bg-white text-gray-600 border hover:bg-gray-100"
-              }`}
-            >
-              {config.emoji} {config.name}
-            </button>
-          ))}
-        </div>
-
-        {/* --- 頂部篩選控制區 --- */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border mb-8 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">
-              線路類型
-            </label>
-            <select
-              value={filterIP}
-              onChange={(e) => setFilterIP(e.target.value)}
-              className="w-full border rounded-xl p-2.5 bg-gray-50 outline-none focus:ring-2 ring-blue-500"
-            >
-              <option value="ALL">全部顯示</option>
-              <option value="NATIVE">原生線路 (Native)</option>
-              <option value="ROAMING">漫遊線路 (Roaming)</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">
-              旅遊天數
-            </label>
-            <select
-              value={filterDay}
-              onChange={(e) => setFilterDay(e.target.value)}
-              className="w-full border rounded-xl p-2.5 bg-gray-50 outline-none"
-            >
-              <option value="ALL">全部</option>
-              <option value="SHORT">1-5天</option>
-              <option value="MID">6-10天</option>
-              <option value="LONG">11天以上</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">
-              流量/不降速
-            </label>
-            <select
-              value={filterData}
-              onChange={(e) => setFilterData(e.target.value)}
-              className="w-full border rounded-xl p-2.5 bg-gray-50 outline-none"
-            >
-              <option value="ALL">所有規格</option>
-              <option value="UNLIMITED">真吃到飽/不限速</option>
-              <option value="DAILY">每天定量</option>
-              <option value="TOTAL">總量型</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">
-              App 支援度
-            </label>
-            <select
-              value={filterApp}
-              onChange={(e) => setFilterApp(e.target.value)}
-              className="w-full border rounded-xl p-2.5 bg-gray-50 outline-none"
-            >
-              <option value="ALL">不限</option>
-              <option value="GPT_TIKTOK">GPT + TikTok ✅</option>
-            </select>
-          </div>
-          <div className="flex items-end">
-            <label className="flex items-center gap-2 cursor-pointer bg-amber-50 p-2.5 rounded-xl border border-amber-200 w-full justify-center">
-              <input
-                type="checkbox"
-                checked={filterUnthrottled}
-                onChange={(e) => setFilterUnthrottled(e.target.checked)}
-                className="w-4 h-4"
-              />
-              <span className="text-sm font-bold text-amber-800">
-                ⚡️ 僅看真吃到飽
-              </span>
-            </label>
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">
-              排序
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full border rounded-xl p-2.5 bg-gray-50 outline-none"
-            >
-              <option value="PRICE_ASC">💰 價格 (低-高)</option>
-              <option value="DAY_ASC">📅 天數 (短-長)</option>
-            </select>
-          </div>
-        </div>
-
-        {/* --- 方案清單表格 --- */}
-        <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-gray-50 text-[11px] text-gray-400 uppercase">
-                <tr>
-                  <th className="p-4 border-b">類型 / ID</th>
-                  <th className="p-4 border-b">天數</th>
-                  <th className="p-4 border-b">方案名稱與規則</th>
-                  <th className="p-4 border-b text-center">App 支援</th>
-                  <th className="p-4 border-b text-right">成本 (TWD)</th>
-                  <th className="p-4 border-b text-right text-blue-600">
-                    建議售價
-                  </th>
-                  <th className="p-4 border-b text-center">操作</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredPlans.slice(0, displayCount).map((p) => (
-                  <tr
-                    key={p.id}
-                    className="hover:bg-blue-50/50 transition-colors group"
-                  >
-                    <td className="p-4">
-                      <span
-                        className={`inline-block px-2 py-1 rounded text-[10px] font-black mb-1 ${p.typeClass}`}
-                      >
-                        {p.typeLabel}
-                      </span>
-                      <div className="text-[10px] text-gray-300 font-mono">
-                        {p.id}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-xl font-black text-gray-900">
-                        {p.day}
-                        <span className="text-xs font-normal text-gray-400 ml-1">
-                          天
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="font-bold text-gray-800 mb-1">
-                        {p.data || p.name}
-                      </div>
-                      <div className="text-xs text-gray-400 line-clamp-1 mb-2 italic">
-                        {p.rule_desc}
-                      </div>
-                      <div className="flex gap-2">
-                        {p.isUnthrottled && (
-                          <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold border border-amber-200">
-                            ⚡️ 不降速
-                          </span>
-                        )}
-                        {p.isUnlimited && (
-                          <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
-                            ♾️ 吃到飽
-                          </span>
-                        )}
-                        <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                          APN: {p.apn || "auto"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex flex-col items-center gap-1">
-                        <span
-                          className={`text-[10px] font-bold ${p.supportChatGPT ? "text-green-600" : "text-gray-300"}`}
-                        >
-                          {p.supportChatGPT ? "✅ ChatGPT" : "❌ ChatGPT"}
-                        </span>
-                        <span
-                          className={`text-[10px] font-bold ${p.supportTikTok ? "text-green-600" : "text-gray-300"}`}
-                        >
-                          {p.supportTikTok ? "✅ TikTok" : "❌ TikTok"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="font-bold text-gray-600">
-                        ${p.costTWD}
-                      </div>
-                      <div className="text-[9px] text-gray-300">
-                        {p.price} {p.rawPrice < 20 ? "USD" : "HKD"}
-                      </div>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="text-2xl font-black text-blue-600">
-                        ${p.suggestedPrice}
-                      </div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(p.id);
-                          alert("已複製 ID");
-                        }}
-                        className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-gray-200 transition-all shadow-sm active:scale-95"
-                      >
-                        📋
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredPlans.length > displayCount && (
-            <div className="p-6 bg-gray-50 text-center">
+        {/* 篩選區 */}
+        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-wrap gap-4 items-center">
+          <div className="flex gap-2 p-1 bg-gray-100 rounded-lg overflow-x-auto">
+            {Object.keys(COUNTRIES).map((c) => (
               <button
-                onClick={() => setDisplayCount((c) => c + 50)}
-                className="bg-white border-2 border-black text-black px-8 py-2 rounded-xl font-bold hover:bg-black hover:text-white transition-all"
+                key={c}
+                onClick={() => setSelectedCountry(c)}
+                className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${selectedCountry === c ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
               >
-                載入更多符合條件的方案
+                {COUNTRIES[c].emoji} {COUNTRIES[c].name}
               </button>
-            </div>
-          )}
+            ))}
+          </div>
+          <select
+            value={filterIP}
+            onChange={(e) => setFilterIP(e.target.value)}
+            className="border p-2 rounded-lg bg-white font-bold"
+          >
+            <option value="ALL">全部線路 (含漫遊)</option>
+            <option value="NATIVE">🔴 原生線路</option>
+            <option value="ROAMING">🔵 漫遊線路</option>
+          </select>
+          <select
+            value={filterDay}
+            onChange={(e) => setFilterDay(e.target.value)}
+            className="border p-2 rounded-lg bg-white"
+          >
+            <option value="ALL">所有天數</option>
+            <option value="SHORT">短 (1-5天)</option>
+            <option value="MID">中 (6-10天)</option>
+            <option value="LONG">長 (11天+)</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="border p-2 rounded-lg bg-white"
+          >
+            <option value="PRICE_ASC">💰 成本低→高</option>
+            <option value="DAY_ASC">📅 天數短→長</option>
+          </select>
+        </div>
 
+        {/* 列表 */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50 text-gray-500 text-[11px] uppercase tracking-wider border-b border-gray-200">
+              <tr>
+                <th className="p-4 w-28">類型 / 天數</th>
+                <th className="p-4 w-48">電信商 (Carrier)</th>
+                <th className="p-4 w-24">APP 支援</th>
+                <th className="p-4 w-1/5">方案名稱 (ID)</th>
+                {/* ★★★ 新增欄位 ★★★ */}
+                <th className="p-4 w-32 bg-yellow-50 text-yellow-800">
+                  方案說明 (白話)
+                </th>
+                <th className="p-4 w-32">降速規則</th>
+                <th className="p-4 w-32">APN / IP</th>
+                <th className="p-4 w-20 text-right">成本</th>
+                <th className="p-4 w-24 text-right">售價</th>
+                <th className="p-4 w-16 text-center">操作</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filteredPlans.slice(0, displayCount).map((p) => (
+                <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                  {/* 類型/天數 */}
+                  <td className="p-4 align-top">
+                    <span
+                      className={`inline-block px-2 py-1 rounded text-[10px] font-bold mb-1 ${p.typeClass}`}
+                    >
+                      {p.typeLabel}
+                    </span>
+                    <div className="text-lg font-bold text-gray-900">
+                      {p.day}
+                      <span className="text-xs font-normal">天</span>
+                    </div>
+                  </td>
+
+                  {/* 電信商 */}
+                  <td className="p-4 align-top">
+                    <div className="font-bold text-sm text-gray-800">
+                      {p.carrier}
+                    </div>
+                    {p.carrier.includes("雙網") && (
+                      <div className="text-[10px] text-blue-500 mt-1">
+                        ✨ 訊號自動切換
+                      </div>
+                    )}
+                  </td>
+
+                  {/* App 支援 */}
+                  <td className="p-4 align-top">
+                    <div className="flex flex-col gap-1 text-[10px] font-bold">
+                      <span
+                        className={
+                          p.supportChatGPT ? "text-green-600" : "text-red-400"
+                        }
+                      >
+                        {p.supportChatGPT ? "✅ GPT" : "❌ GPT"}
+                      </span>
+                      <span
+                        className={
+                          p.supportTikTok ? "text-green-600" : "text-red-400"
+                        }
+                      >
+                        {p.supportTikTok ? "✅ TikTok" : "❌ TikTok"}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* 方案名稱 (原始) */}
+                  <td className="p-4 align-top">
+                    <div className="font-medium text-xs text-gray-900 mb-1 break-all">
+                      {p.name}
+                    </div>
+                    <div className="text-[10px] text-gray-400 font-mono">
+                      {p.id}
+                    </div>
+                  </td>
+
+                  {/* ★★★ 方案說明 (白話文) ★★★ */}
+                  <td className="p-4 align-top bg-yellow-50/30">
+                    <div className="text-sm font-bold text-yellow-900">
+                      {p.simpleDesc}
+                    </div>
+                  </td>
+
+                  {/* 降速規則 */}
+                  <td className="p-4 align-top">
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${p.throttle.includes("斷網") ? "bg-red-100 text-red-700" : "bg-yellow-50 text-yellow-700"}`}
+                    >
+                      {p.throttle}
+                    </span>
+                  </td>
+
+                  {/* APN / IP */}
+                  <td className="p-4 align-top">
+                    <div className="text-xs text-gray-500 font-mono mb-1">
+                      {p.apn || "Manual"}
+                    </div>
+                    <div className="text-[10px] text-gray-400 border border-gray-100 px-1 rounded inline-block">
+                      {p.ipRegion}
+                    </div>
+                  </td>
+
+                  {/* 價格 */}
+                  <td className="p-4 align-top text-right font-bold text-gray-600">
+                    ${p.costTWD}
+                  </td>
+                  <td className="p-4 align-top text-right text-xl font-bold text-blue-600">
+                    ${p.suggestedPrice}
+                  </td>
+
+                  {/* 操作 */}
+                  <td className="p-4 align-top text-center">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(p.id);
+                        alert("ID Copied");
+                      }}
+                      className="text-gray-400 hover:text-black"
+                    >
+                      📋
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           {filteredPlans.length === 0 && (
-            <div className="p-20 text-center text-gray-300 flex flex-col items-center">
-              <div className="text-6xl mb-4">🔍</div>
-              <p className="font-bold">
-                找不到符合條件的方案，請嘗試放寬篩選條件
-              </p>
-            </div>
+            <div className="p-10 text-center text-gray-400">無符合資料</div>
+          )}
+          {filteredPlans.length > displayCount && (
+            <button
+              onClick={() => setDisplayCount((c) => c + 50)}
+              className="w-full py-4 text-center text-sm font-bold text-gray-500 hover:bg-gray-50"
+            >
+              載入更多...
+            </button>
           )}
         </div>
       </div>
