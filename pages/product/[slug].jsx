@@ -619,7 +619,7 @@ export async function getStaticProps({ params }) {
     if (product.type === "variable") {
       const varRes = await fetch(
         getWooCommerceUrl(`products/${product.id}/variations`, {
-          per_page: 50,
+          per_page: 100, // ★★★ 關鍵修正：將上限調高至 100，確保能讀取所有 72 個變體 ★★★
         }),
       );
       if (varRes.ok) variations = await varRes.json();
@@ -647,18 +647,29 @@ export default function ProductPage({ product, variations = [] }) {
 
   useEffect(() => {
     if (product?.type === "variable" && variations.length > 0) {
+      // 檢查是否所有屬性都已選取
       const allSelected = product.attributes.every(
         (attr) => selectedAttributes[attr.name],
       );
+
       if (allSelected) {
+        // console.log("Selected Attributes:", selectedAttributes); // 偵錯用：查看目前選了什麼
+
+        // 尋找匹配的變體
         const match = variations.find((v) =>
           v.attributes.every(
             (vAttr) => vAttr.option === selectedAttributes[vAttr.name],
           ),
         );
+
         if (match) {
+          // console.log("Match Found:", match); // 偵錯用：確認有找到變體
           setCurrentVariation(match);
           setDisplayPrice(match.price);
+        } else {
+          // console.log("No Match Found"); // 偵錯用：找不到對應變體
+          setCurrentVariation(null);
+          // 找不到變體時，維持顯示原價或可選擇重置
         }
       }
     }
@@ -711,7 +722,6 @@ export default function ProductPage({ product, variations = [] }) {
 
   if (router.isFallback) return <Layout>載入中...</Layout>;
 
-  // ★★★ 安全檢查：防止 product 為 undefined 時崩潰 ★★★
   if (!product) {
     return (
       <Layout>
@@ -722,7 +732,6 @@ export default function ProductPage({ product, variations = [] }) {
     );
   }
 
-  // Images 處理 (使用 Optional Chaining 防止崩潰)
   const seoImage = product.images?.[0]?.src || "/default-image.jpg";
   const images = product.images?.length
     ? product.images
@@ -852,8 +861,11 @@ export default function ProductPage({ product, variations = [] }) {
 
             {product.type === "variable" && product.attributes && (
               <div className="mb-6 space-y-5">
-                {product.attributes.map((attr) => (
-                  <div key={attr.id} className="flex flex-col">
+                {product.attributes.map((attr, index) => (
+                  /* FIX: Change key={attr.id} to key={attr.name || index}.
+         WooCommerce custom attributes often share id: 0. 
+      */
+                  <div key={attr.name || index} className="flex flex-col">
                     <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                       {attr.name}
                     </span>
