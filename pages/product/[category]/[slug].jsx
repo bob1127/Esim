@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { useCart } from "../../components/context/CartContext";
-import Layout from "../Layout";
+import { useCart } from "../../../components/context/CartContext";
+import Layout from "../../Layout";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
@@ -10,7 +10,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
-import PLAN_ID_MAP from "../../lib/esim/planMap";
 
 // --- Chart.js ---
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -133,7 +132,7 @@ const CARRIER_INFO_MAP = {
       borderColor: "border-red-100",
       couponText: "支援 TikTok / Netflix 跨區解鎖",
       policyTitle: "流量規範:",
-      policyDesc: "總量型方案，用完斷網。",
+      policyDesc: "本方案為原生日網，支援多數日本限定服務。",
       note: "注意：此線路為日本 IP。",
     },
     summaryPrefix: "IIJ Docomo",
@@ -181,15 +180,100 @@ const CARRIER_SPECS_DATA = {
     },
   ],
   "AU(KDDI)": [
-    { label: "訊號覆蓋範圍", value: "全日本覆蓋，偏遠地區信號優良。" },
-    { label: "電信業者", value: "AU KDDI (5G)" },
-    { label: "速度", value: "5G / 4G LTE" },
+    {
+      label: "訊號覆蓋範圍",
+      value: "東京、京都、廣島、關東、長崎、大阪等日本各城市及旅遊目的地。",
+    },
+    { label: "電信業者", value: "KDDI 5G" },
+    { label: "速度", value: "4G / LTE / 5G" },
     { label: "方案類型", value: "僅數據流量" },
-    { label: "網路共用 / 熱點功能", value: "支持 (無限流量方案公平使用)" },
+    { label: "網路共用／熱點功能", value: "支持" },
+    { label: "電話號碼", value: "無" },
+    { label: "通話", value: "不支持，只能透過應用程式（網路通話，即 VoIP）。" },
+    { label: "簡訊", value: "無" },
     { label: "eKYC (身分驗證)", value: "不需要" },
-    { label: "交付", value: "Email 即時發送" },
-    { label: "數據路由", value: "日本原生 IP (低延遲)" },
-    { label: "效期政策", value: "插卡即啟用，以自然日計算。", fullWidth: true },
+    {
+      label: "交付",
+      value: "eSIM 的 QR 碼會在付款完成後的幾分鐘內透過電子郵件發送給您。",
+    },
+    { label: "數據路由", value: "本地" },
+    { label: "充值選項", value: "無" },
+    {
+      label: "效期政策",
+      value:
+        "一旦 eSIM 連接到支援的網路並開始產生數據訪問互聯網，有效期限即開始。我們建議您在到達目的地後添加 eSIM。您也可以提前安裝 eSIM，但請記得安裝後立即將其關閉，以避免有效期提前開始。",
+      fullWidth: true,
+    },
+    {
+      label: "其他資訊",
+      fullWidth: true,
+      isHtml: true,
+      value: `
+        <div class="space-y-4">
+          <p>⚠️ <strong>重要:</strong> 一旦刪除，此eSIM無法重新安裝。</p>
+          <p>📅 <strong>服務天數:</strong> 以日本時間（UTC +9）計算，從啟動日開始。</p>
+          <div>
+            <p class="font-bold mb-2">APN設置:</p>
+            <p class="mb-2">大多數情況下，APN會自動設置。如果需要手動配置，請按照以下步驟操作：</p>
+            <div class="bg-gray-100 p-3 rounded text-sm font-mono text-gray-700">
+              APN: uad5gn.au-net.ne.jp<br/>
+              用戶名: au@uad5gn.au-net.ne.jp<br/>
+              密碼: au<br/>
+              身份驗證類型: CHAP
+            </div>
+            <p class="my-2">或者</p>
+            <div class="bg-gray-100 p-3 rounded text-sm font-mono text-gray-700">
+              APN: au.5g.au-net.ne.jp<br/>
+              用戶名: user@au.5g.au-net.ne.jp<br/>
+              密碼: au<br/>
+              身份驗證類型: CHAP
+            </div>
+            <p class="my-2">如果在應用上述設置後仍無法連接數據，請嘗試以下4G專用APN：</p>
+            <div class="bg-gray-100 p-3 rounded text-sm font-mono text-gray-700">
+              APN: uno.au-net.ne.jp<br/>
+              用戶名: 685840734641020@uno.au-net.ne.jp<br/>
+              密碼: KpyrR6BP<br/>
+              身份驗證類型: CHAP
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 pt-4 border-t border-gray-200 leading-relaxed">
+            這個eSIM由當地運營商提供，MicroEsim 作為授權經銷商進行銷售。購買後，該方案是不可取消且不可退款。發行運營商保留在不通知的情況下修改套餐細節的權利，MicroEsim 可能無法及時通知客戶這些變更。感謝您的理解。
+          </div>
+        </div>
+      `,
+    },
+  ],
+  "IIJ Docomo": [
+    {
+      label: "訊號覆蓋範圍",
+      value: "東京、京都、廣島、關東、長崎、大阪等日本各城市及旅遊目的地。",
+    },
+    { label: "電信業者", value: "IIJ(Docomo) LTE" },
+    { label: "速度", value: "4G / LTE" },
+    { label: "方案類型", value: "僅數據流量" },
+    { label: "網路共用／熱點功能", value: "支持" },
+    { label: "電話號碼", value: "無" },
+    { label: "通話", value: "不支持，只能透過應用程式（網路通話，即 VoIP）。" },
+    { label: "簡訊", value: "無" },
+    { label: "eKYC (身分驗證)", value: "不需要" },
+    {
+      label: "交付",
+      value: "eSIM 的 QR 碼會在付款完成後的幾分鐘內透過電子郵件發送給您。",
+    },
+    { label: "數據路由", value: "本地" },
+    { label: "充值選項", value: "無" },
+    {
+      label: "效期政策",
+      value:
+        "有效期於eSIM下載到您的裝置後立即開始計算。請在準備好使用時再安裝eSIM。",
+      fullWidth: true,
+    },
+    {
+      label: "其他資訊",
+      value: `Manually set the APN as "vmobile.jp" to access the internet in Japan.`,
+      fullWidth: true,
+      isHtml: true,
+    },
   ],
   default: [
     {
@@ -211,12 +295,147 @@ const CARRIER_INTRO_DATA = {
     ],
   },
   "AU(KDDI)": {
-    bullets: [
-      "連接到本地的 KDDI (au) 網絡，以獲得快速穩定的日本 IP 連接。",
-      "享受無限、高速的 5G/4G 數據，沒有數據上限或限速 (視方案而定)。",
-      "相容於 TikTok、ChatGPT 和 Google 等應用程式，以及日本獨有的應用程式（例如 TVer、U-NEXT）。",
-      "在極少數情況下，可能需要手動 APN 設定。",
-    ],
+    customContent: (
+      <div className="space-y-6 text-slate-700 leading-relaxed">
+        <p>
+          <strong>本方案由日本主要電信商 au（KDDI）提供</strong>
+        </p>
+        <p>
+          作為日本領先的電信運營商之一，日本 KDDI 的 eSIM
+          解決方案特別適合經常前往日本的旅客或短期訪客。包含多種規格可選：
+        </p>
+
+        <div className="overflow-x-auto rounded-xl border border-gray-200 my-6 shadow-sm">
+          <table className="w-full text-sm text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="bg-slate-50 border-b border-gray-200">
+                <th className="p-4 font-bold text-slate-800">方案</th>
+                <th className="p-4 font-bold text-slate-800">描述</th>
+                <th className="p-4 font-bold text-slate-800">熱點分享</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              <tr>
+                <td className="p-4 font-bold text-blue-600 whitespace-nowrap">
+                  總計 XX GB
+                </td>
+                <td className="p-4">
+                  固定高速數據量，直到數據用完前沒有速度限制。
+                </td>
+                <td className="p-4">
+                  熱點分享將消耗您分配的總GB數據量，沒有其他限制。
+                </td>
+              </tr>
+              <tr>
+                <td className="p-4 font-bold text-blue-600 whitespace-nowrap">
+                  無限流量10Mbps
+                </td>
+                <td className="p-4">以10Mbps速度提供無限數據。</td>
+                <td
+                  className="p-4 align-top border-l border-gray-100 bg-slate-50/50"
+                  rowSpan={2}
+                >
+                  熱點分享可使用的總 GB 數，依所選天數計算，公式為
+                  <strong>「天數 - 1」GB</strong>。<br />
+                  <br />
+                  例如，7 天方案可分享 6 GB。
+                </td>
+              </tr>
+              <tr>
+                <td className="p-4 font-bold text-blue-600 whitespace-nowrap">
+                  無限流量
+                </td>
+                <td className="p-4">真正的無限高速數據</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-5">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-slate-700">
+            <li>
+              例如，如果您購買了7天的 <strong>[無限流量]</strong> 或{" "}
+              <strong>[無限流量10Mbps]</strong> 方案，可供分享的熱點數據為 7天 -
+              1 = <strong>6GB</strong>。
+            </li>
+            <li>
+              對於 <strong>[總計 XX GB]</strong>{" "}
+              方案，熱點分享沒有限制，您可以根據購買的總數據量自由使用熱點數據，直到用完為止。
+            </li>
+          </ul>
+        </div>
+
+        <p>
+          您可以根據自己的需求選擇最適合的方案，所有方案都以實惠的價格提供。
+        </p>
+
+        <div className="bg-gray-50 rounded-lg p-5 border border-gray-100 space-y-4">
+          <p>
+            遊客只需掃描 QR Code 即可輕鬆啟動日本
+            eSIM，並享受高品質的語音和數據服務。此方案直接連接到 KDDI
+            的本地訊號塔，確保低延遲。下載 ping 低至 <strong>僅 40ms</strong>
+            ，這是一個優異的分數。在 5G 模式下，您還可以體驗高達{" "}
+            <strong>500Mbps</strong> 的下載速度。
+          </p>
+          <p>
+            使用日本 eSIM 遊覽日本 13
+            個最值得一遊的地方。在整個旅程中保持訊號暢通，不用擔心拍下的美照無法發送到社群媒體或與朋友分享。
+          </p>
+          <p className="font-bold text-blue-700">
+            ✅ 此日本 eSIM 方案支援
+            Google、YouTube、Facebook、Instagram、ChatGPT 和 TikTok 等應用程式。
+          </p>
+        </div>
+
+        <p>
+          儘管 5G 覆蓋範圍可能因地而異，但此 eSIM 在日本全境提供可靠的 4G/LTE
+          服務。在東京、大阪和京都等主要城市，您將獲得出色的 5G
+          速度。如果您在多個城市旅行並想要最穩定、最無縫的網路，我們推薦我們的雙網路日本
+          eSIM 5G SoftBank / KDDI。有了它，您可以在 Softbank 和 KDDI
+          網路之間切換，以找到最佳訊號。
+        </p>
+        <p>
+          作為日本領先的電信運營商之一，日本 KDDI 的 eSIM
+          解決方案特別適合經常前往日本的旅客或短期訪客。
+        </p>
+        <p>
+          遊客只需掃描 QR Code 即可輕鬆啟動日本
+          eSIM，並享受高品質的語音和數據服務。
+        </p>
+      </div>
+    ),
+  },
+  "IIJ Docomo": {
+    customContent: (
+      <div className="space-y-5 text-slate-700 leading-relaxed">
+        <p>
+          隆重介紹日本 Docomo eSIM，您在日本輕鬆連結的終極旅伴。此 eSIM 是純數據
+          eSIM，具有日本本地 IP 位址，讓您無需設定漫遊即可保持連線。憑藉 Docomo
+          提供的超低延遲和可靠的覆蓋範圍，您可以在整個旅程中享受無縫的高速網路存取。多種預付費
+          eSIM
+          數據套餐可供選擇，無論您探索東京繁華的街道、在社交媒體上分享您的旅行冒險，還是與家人和朋友保持聯繫，日本Docomo
+          eSIM 都提供便利和便利，讓您隨時保持連結。
+        </p>
+
+        <div className="bg-orange-50 border border-orange-100 rounded-lg p-4 text-sm text-orange-800">
+          <p>
+            <strong>*注意：</strong>此日本eSIM IIJ NTT
+            Docomo套餐需要手動設定APN。您也可以考慮其他日本eSIM。
+          </p>
+        </div>
+
+        <p>
+          此eSIM將在安裝後啟動（開始計算使用有效期），僅限於日本使用。請在安裝有效期內安裝，並在準備使用時進行安裝，因為使用天數將從安裝時開始計算。
+        </p>
+
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm">
+          <p>
+            <strong>注意：</strong>
+            根據電信業者，無限流量方案在正常使用下沒有流量限制。然而，有部分客戶反映在高用量情況下可能會被限速，通常約每天10GB左右。每日使用量會重置，以自動解除任何限速。感謝您的理解。
+          </p>
+        </div>
+      </div>
+    ),
   },
   default: {
     bullets: ["請選擇電信商以查看介紹。"],
@@ -234,11 +453,6 @@ const getWooCommerceUrl = (endpoint, params = {}) => {
     ...params,
   }).toString();
   return `${baseUrl}/wp-json/wc/v3/${endpoint}?${queryString}`;
-};
-
-const extractImageFromDescription = (html) => {
-  const match = html?.match(/<img[^>]+src="([^">]+)"/);
-  return match?.[1] || null;
 };
 
 const stripHtml = (html) =>
@@ -586,7 +800,6 @@ const DataEstimatorModal = ({ isOpen, onClose }) => {
               <span className="text-sm font-bold text-slate-500">GB</span>
             </div>
           </div>
-
           <div className="bg-slate-50 rounded-xl p-4 text-center mb-4 border border-slate-100">
             <p className="text-xs text-slate-500 mb-1">建議購買</p>
             <p className="font-bold text-slate-900 text-lg">
@@ -594,10 +807,8 @@ const DataEstimatorModal = ({ isOpen, onClose }) => {
               <span className="text-sm font-normal">以上方案</span>
             </p>
           </div>
-
           <div
-            className={`rounded-xl p-4 text-center mb-4 border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95
-              ${recommendation.type === "unlimited" ? "bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200" : "bg-white border-gray-200"}`}
+            className={`rounded-xl p-4 text-center mb-4 border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 ${recommendation.type === "unlimited" ? "bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200" : "bg-white border-gray-200"}`}
             onClick={onClose}
           >
             <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
@@ -608,7 +819,6 @@ const DataEstimatorModal = ({ isOpen, onClose }) => {
             </p>
             <span className="text-xs text-blue-400">點擊去選購 ➔</span>
           </div>
-
           <button
             onClick={onClose}
             className="w-full mt-auto bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors"
@@ -625,7 +835,7 @@ const ComparisonTable = () => (
   <div className="overflow-x-auto rounded-xl border shadow-sm my-8">
     <table className="w-full text-sm text-left border-collapse min-w-[700px]">
       <thead>
-        <tr className="bg-[#147AD7] text-white">
+        <tr className="bg-slate-900 text-white">
           <th className="p-4 w-1/4">產品</th>
           <th className="p-4 w-1/6">運營商</th>
           <th className="p-4 w-1/6">最適合</th>
@@ -678,7 +888,6 @@ const ProductTabs = ({ product, selectedCarrier }) => {
     { id: "install", label: "安裝/激活" },
   ];
 
-  // 取得當前電信商的數據 (如果沒選，使用 SoftBank 或 Default)
   const safeCarrier = selectedCarrier || "SoftBank / KDDI";
   const specs =
     CARRIER_SPECS_DATA[safeCarrier] || CARRIER_SPECS_DATA["default"];
@@ -702,26 +911,27 @@ const ProductTabs = ({ product, selectedCarrier }) => {
         {activeTab === "desc" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-              關於 {safeCarrier} 方案
+              <span className="text-3xl">🇯🇵</span>關於 {safeCarrier} 方案
             </h3>
-
-            <div className="prose max-w-none mb-10 text-slate-600 space-y-2">
-              {intro.bullets.map((point, idx) => (
-                <div key={idx} className="flex gap-2">
-                  <span className="text-blue-500">•</span>
-                  <span>{point}</span>
+            <div className="mb-10">
+              {intro.bullets && intro.bullets.length > 0 && (
+                <div className="prose max-w-none text-slate-600 space-y-2">
+                  {intro.bullets.map((point, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <span className="text-blue-500">•</span>
+                      <span>{point}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
+              {intro.customContent && intro.customContent}
             </div>
-
             <h4 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-              哪款日本 eSIM 最適合您？
+              <span>🔍</span> 哪款日本 eSIM 最適合您？
             </h4>
             <ComparisonTable />
           </motion.div>
         )}
-
-        {/* ★★★ 參數 Tab：卡片式網格設計 ★★★ */}
         {activeTab === "specs" && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -737,15 +947,21 @@ const ProductTabs = ({ product, selectedCarrier }) => {
                   <span className="text-sm font-bold text-slate-900 mb-1">
                     {item.label}
                   </span>
-                  <span className="text-sm text-slate-600 leading-relaxed">
-                    {item.value}
-                  </span>
+                  {item.isHtml ? (
+                    <div
+                      className="text-sm text-slate-600 leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: item.value }}
+                    />
+                  ) : (
+                    <span className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+                      {item.value}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
           </motion.div>
         )}
-
         {activeTab === "install" && (
           <div className="text-center py-10 text-gray-500">
             <h4 className="text-lg font-bold mb-4 text-slate-800">安裝步驟</h4>
@@ -762,13 +978,26 @@ const ProductTabs = ({ product, selectedCarrier }) => {
   );
 };
 
-// --- Main Page Logic ---
+// ★★★ 修正點：在這裡將 category 也加入到 params 中 ★★★
 export async function getStaticPaths() {
   try {
     const res = await fetch(getWooCommerceUrl("products", { per_page: 100 }));
     const products = await res.json();
     return {
-      paths: products.map((p) => ({ params: { slug: p.slug } })),
+      paths: products.map((p) => {
+        // 如果商品有分類，就取第一個分類的 slug，否則給預設值 'uncategorized'
+        const categorySlug =
+          p.categories && p.categories.length > 0
+            ? p.categories[0].slug
+            : "uncategorized";
+
+        return {
+          params: {
+            category: categorySlug, // 解決 "A required parameter (category) was not provided" 的關鍵
+            slug: p.slug,
+          },
+        };
+      }),
       fallback: "blocking",
     };
   } catch {
@@ -820,7 +1049,6 @@ const PARAM_MAP = {
   "總計 30GB": "30gb-total",
 };
 
-// 產生反向對照表 (從英文找回中文)
 const REVERSE_PARAM_MAP = Object.entries(PARAM_MAP).reduce(
   (acc, [key, value]) => {
     acc[value] = key;
@@ -829,10 +1057,8 @@ const REVERSE_PARAM_MAP = Object.entries(PARAM_MAP).reduce(
   {},
 );
 
-// 編碼：中文 -> 英文短網址
 const encodeParam = (val) => {
   if (!val) return val;
-  // 動態處理 "X天" 變成 "X"
   if (
     typeof val === "string" &&
     val.endsWith("天") &&
@@ -843,10 +1069,8 @@ const encodeParam = (val) => {
   return PARAM_MAP[val] || val;
 };
 
-// 解碼：英文短網址 -> 中文
 const decodeParam = (val, attrName) => {
   if (!val) return val;
-  // 動態處理 "X" 變回 "X天"
   if (attrName === "天數" && !isNaN(val)) {
     return `${val}天`;
   }
@@ -874,15 +1098,11 @@ export default function ProductPage({ product, variations = [] }) {
       let hasUrlParams = false;
 
       product.attributes.forEach((attr) => {
-        // 先取得網址中對應的「英文 Key」，如果沒有則嘗試原來的「中文 Key」做備用
         const encodedKey = encodeParam(attr.name);
         const urlValue = router.query[encodedKey] || router.query[attr.name];
 
         if (urlValue) {
-          // 將網址裡的英文值轉換回中文
           const decodedValue = decodeParam(urlValue, attr.name);
-
-          // 檢查這個轉換回來的值，是否真的存在於商品的選項中
           if (attr.options.includes(decodedValue)) {
             initialAttributes[attr.name] = decodedValue;
             hasUrlParams = true;
@@ -922,29 +1142,83 @@ export default function ProductPage({ product, variations = [] }) {
     }
   }, [selectedAttributes, product, variations]);
 
-  // 3. 更新規格時，同步更新網址 (Shallow Routing)
-  const handleAttributeSelect = (name, option) => {
-    // 更新狀態
-    const newAttributes = { ...selectedAttributes, [name]: option };
-    setSelectedAttributes(newAttributes);
+  // ★★★ 提取並處理從 functions.php 存入的自訂標籤資料 ★★★
+  const customTagsMeta = currentVariation?.meta_data?.find(
+    (meta) => meta.key === "_custom_tags",
+  );
+  const customTagsString = customTagsMeta ? customTagsMeta.value : "";
+  const customTagsArray = customTagsString
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 
-    // 準備要推送到 URL 的參數
-    const queryParams = { slug: product.slug };
-    Object.entries(newAttributes).forEach(([key, val]) => {
-      const encodedKey = encodeParam(key);
-      const encodedVal = encodeParam(val);
-      queryParams[encodedKey] = encodedVal;
+  // 動態過濾有效選項
+  const getAvailableOptions = (attrName, attrIndex) => {
+    if (!variations || variations.length === 0)
+      return product.attributes[attrIndex].options;
+
+    const optionsSet = new Set();
+
+    variations.forEach((v) => {
+      let matchesHigher = true;
+
+      for (let i = 0; i < attrIndex; i++) {
+        const higherAttrName = product.attributes[i].name;
+        const selectedValue = selectedAttributes[higherAttrName];
+
+        if (selectedValue) {
+          const vAttr = v.attributes.find((a) => a.name === higherAttrName);
+          if (vAttr && vAttr.option !== "" && vAttr.option !== selectedValue) {
+            matchesHigher = false;
+            break;
+          }
+        }
+      }
+
+      if (matchesHigher) {
+        const thisAttr = v.attributes.find((a) => a.name === attrName);
+        if (thisAttr && thisAttr.option && thisAttr.option !== "") {
+          optionsSet.add(thisAttr.option);
+        } else {
+          product.attributes[attrIndex].options.forEach((opt) =>
+            optionsSet.add(opt),
+          );
+        }
+      }
     });
 
-    // 僅更新網址參數，不重新整理頁面
-    router.push(
-      {
-        pathname: router.pathname,
-        query: queryParams,
-      },
-      undefined,
-      { shallow: true },
-    );
+    return Array.from(optionsSet);
+  };
+
+  const handleAttributeSelect = (name, option) => {
+    const attrIndex = product.attributes.findIndex((a) => a.name === name);
+
+    const newAttributes = {};
+    product.attributes.forEach((attr, idx) => {
+      if (idx < attrIndex) {
+        if (selectedAttributes[attr.name]) {
+          newAttributes[attr.name] = selectedAttributes[attr.name];
+        }
+      } else if (idx === attrIndex) {
+        newAttributes[attr.name] = option;
+      }
+    });
+
+    setSelectedAttributes(newAttributes);
+
+    // ★★★ 注意：這裡也要保留 category 參數，才能讓網址正確切換 ★★★
+    const queryParams = {
+      category: router.query.category, // 保留當前網址的目錄
+      slug: product.slug,
+    };
+
+    Object.entries(newAttributes).forEach(([key, val]) => {
+      if (val) queryParams[encodeParam(key)] = encodeParam(val);
+    });
+
+    router.push({ pathname: router.pathname, query: queryParams }, undefined, {
+      shallow: true,
+    });
   };
 
   const carrierName = selectedAttributes["電信商"] || "default";
@@ -1008,8 +1282,6 @@ export default function ProductPage({ product, variations = [] }) {
     ? product.images
     : [{ src: seoImage, alt: product.name }];
 
-  // ★★★ 產生供 SEO 使用的標準網址 (Canonical URL) ★★★
-  // 請根據您實際的網域替換 https://www.fegoesim.com
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://www.fegoesim.com";
   const canonicalUrl = `${baseUrl}/product/${product?.slug}`;
@@ -1022,7 +1294,6 @@ export default function ProductPage({ product, variations = [] }) {
           name="description"
           content={stripHtml(product.short_description || "")}
         />
-        {/* ★★★ 加入 Canonical 標籤保護 SEO ★★★ */}
         <link rel="canonical" href={canonicalUrl} />
       </Head>
 
@@ -1035,7 +1306,7 @@ export default function ProductPage({ product, variations = [] }) {
         onClose={() => setIsEstimatorOpen(false)}
       />
 
-      <div className="max-w-6xl mx-auto pt-[120px] pb-20 px-4 bg-white">
+      <div className="max-w-6xl mx-auto py-10 px-4 bg-white">
         <div className="text-xs text-gray-400 mb-6">
           首頁 / 日本 eSIM / {product.name}
         </div>
@@ -1079,7 +1350,7 @@ export default function ProductPage({ product, variations = [] }) {
                   ▼
                 </button>
               </div>
-              <div className="w-full relative bg-gray-50 overflow-hidden   aspect-[4/3]">
+              <div className="w-full relative bg-gray-50 rounded-2xl overflow-hidden border aspect-[3/4]">
                 <Swiper
                   onSwiper={setMainSwiper}
                   loop={true}
@@ -1107,7 +1378,7 @@ export default function ProductPage({ product, variations = [] }) {
             <div
               className={`p-5 rounded-xl border ${marketingConfig.bgColor} ${marketingConfig.borderColor} transition-colors duration-300`}
             >
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 ">
                 <span className="bg-black text-white text-[10px] px-2 py-0.5 rounded font-bold">
                   優惠
                 </span>
@@ -1115,20 +1386,6 @@ export default function ProductPage({ product, variations = [] }) {
                   {marketingConfig.couponText}
                 </span>
               </div>
-              <ul className="text-sm text-slate-600 space-y-1.5 list-disc pl-4">
-                <li>
-                  <strong>{marketingConfig.policyTitle}</strong>{" "}
-                  {displayPolicyDesc}
-                </li>
-                <li className="text-slate-500">
-                  {displayNote}
-                  {displayNote.includes("查看啟用政策") && (
-                    <span className="ml-1 text-blue-500 underline cursor-pointer">
-                      查看政策
-                    </span>
-                  )}
-                </li>
-              </ul>
             </div>
           </div>
 
@@ -1181,32 +1438,70 @@ export default function ProductPage({ product, variations = [] }) {
             </div>
 
             {product.type === "variable" &&
-              product.attributes.map((attr, index) => (
-                <div key={attr.name || index} className="mb-6">
-                  <span className="text-xs font-bold text-slate-900 block mb-2">
-                    {attr.name}
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {attr.options.map((opt) => (
-                      <button
-                        key={opt}
-                        onClick={() => handleAttributeSelect(attr.name, opt)}
-                        className={`px-4 py-2 text-sm rounded-lg border transition-all relative overflow-visible
-                        ${
-                          selectedAttributes[attr.name] === opt
-                            ? "border-cyan-500 text-cyan-600 bg-cyan-50 font-bold shadow-sm"
-                            : "border-gray-200 text-gray-600 hover:border-gray-300 bg-white"
-                        }`}
-                      >
-                        {opt}
-                        {getAttributeBadge(attr.name, opt)}
-                      </button>
-                    ))}
+              product.attributes.map((attr, index) => {
+                const availableOptions = getAvailableOptions(attr.name, index);
+
+                if (availableOptions.length === 0) return null;
+
+                return (
+                  <div key={attr.name || index} className="mb-6">
+                    <span className="text-xs font-bold text-slate-900 block mb-2">
+                      {attr.name}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {attr.options.map((opt) => {
+                        if (!availableOptions.includes(opt)) return null;
+
+                        return (
+                          <button
+                            key={opt}
+                            onClick={() =>
+                              handleAttributeSelect(attr.name, opt)
+                            }
+                            className={`px-4 py-2 text-sm rounded-lg border transition-all relative overflow-visible
+                            ${
+                              selectedAttributes[attr.name] === opt
+                                ? "border-cyan-500 text-cyan-600 bg-cyan-50 font-bold shadow-sm"
+                                : "border-gray-200 text-gray-600 hover:border-gray-300 bg-white"
+                            }`}
+                          >
+                            {opt}
+                            {getAttributeBadge(attr.name, opt)}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
             <div className="border-t border-gray-100 my-4 pt-4">
+              {/* ★★★ 動態顯示後台填寫的「變體專屬標籤」 ★★★ */}
+              {customTagsArray.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {customTagsArray.map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {currentVariation?.description && (
+                <div className="mb-4 bg-[#147AD7] border border-orange-100 p-4 rounded-xl shadow-sm">
+                  <div
+                    className="text-sm text-white leading-relaxed whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{
+                      __html: currentVariation.description,
+                    }}
+                  />
+                </div>
+              )}
+
               <div className="flex justify-between items-end mb-4">
                 <div>
                   <div className="text-xs text-gray-400 mb-1">
@@ -1241,8 +1536,7 @@ export default function ProductPage({ product, variations = [] }) {
                 <button
                   onClick={handleAddToCart}
                   disabled={!displayPrice}
-                  className={`flex-1 font-bold rounded-lg transition-all shadow-lg shadow-cyan-100 
-                        ${!displayPrice ? "bg-gray-200 text-gray-400" : "bg-[#147AD7] text-white hover:bg-slate-800"}`}
+                  className={`flex-1 font-bold rounded-lg transition-all shadow-lg shadow-cyan-100 ${!displayPrice ? "bg-gray-200 text-gray-400" : "bg-slate-900 text-white hover:bg-slate-800"}`}
                 >
                   {displayPrice ? "加入購物車" : "請選擇規格"}
                 </button>

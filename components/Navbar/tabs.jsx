@@ -21,7 +21,7 @@ export const SlideTabsExample = () => {
   const { userInfo, isHydrated, logout } = useUser();
 
   const navLinks = [
-    { label: "日本", href: "/category/japan/" },
+    { label: "日本", href: "/product/japan/" },
     { label: "韓國", href: "/category/korea/" },
     { label: "中國", href: "/category/china/" },
     { label: "東南亞", href: "/category/malaysia/" },

@@ -173,7 +173,7 @@ export default function Home() {
                   <option disabled selected value="">
                     請選擇旅遊國家
                   </option>
-                  <option value="/category/japan/">日本 Japan</option>
+                  <option value="/product/japan/">日本 Japan</option>
                   <option value="/category/korea/">韓國 Korea</option>
                   <option value="/category/malaysia/">馬來西亞 Malaysia</option>
                   <option value="/category/thailand/">泰國 Thailand</option>

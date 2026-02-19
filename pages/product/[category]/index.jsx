@@ -1,13 +1,16 @@
-// pages/product/index.js
+// 檔案路徑：pages/product/[category]/index.js
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Layout from "../Layout.js"; // 請確認路徑是否正確，可能只需要 ../Layout
-import CountryFilter from "../../components/NavbarTestSideBarToggle.jsx";
 import { useRouter } from "next/router";
-import SwiperCarousel from "../../components/SwiperCarousel/SwiperCard.jsx";
-import FilterSideBar from "../../components/FilterSideBar";
 import { motion } from "framer-motion";
+import Head from "next/head.js";
+// ★★★ 注意：因為檔案往下移了一層，這裡的相對路徑多了一個 ../ ★★★
+import Layout from "../../Layout.js";
+import CountryFilter from "../../../components/NavbarTestSideBarToggle.jsx";
+import SwiperCarousel from "../../../components/SwiperCarousel/SwiperCard.jsx";
+import FilterSideBar from "../../../components/FilterSideBar";
 
 // --- API 輔助函式 ---
 const getWooCommerceUrl = (endpoint, params = {}) => {
@@ -24,44 +27,73 @@ const getWooCommerceUrl = (endpoint, params = {}) => {
   return `${baseUrl}/wp-json/wc/v3/${endpoint}?${queryString}`;
 };
 
-// --- getStaticProps (抓取所有商品) ---
-export async function getStaticProps() {
+// --- getStaticPaths (產生所有分類的網址) ---
+export async function getStaticPaths() {
   try {
-    // 1. 抓取所有分類 (給側邊欄用)
-    const categoryUrl = getWooCommerceUrl("products/categories", {
-      per_page: 100,
-    });
-    const catRes = await fetch(categoryUrl);
-    const categories = await catRes.json();
+    const res = await fetch(
+      getWooCommerceUrl("products/categories", { per_page: 100 }),
+    );
+    const categories = await res.json();
 
-    // 2. 抓取「所有」商品 (不篩選 Category)
-    // 這裡 per_page 設為 50 或更多，看你首頁想顯示多少
+    // 產生如 /product/japan, /product/korea 等路徑
+    const paths = categories.map((cat) => ({
+      params: { category: cat.slug },
+    }));
+
+    return { paths, fallback: "blocking" };
+  } catch (error) {
+    return { paths: [], fallback: "blocking" };
+  }
+}
+
+// --- getStaticProps (抓取特定分類的商品) ---
+export async function getStaticProps({ params }) {
+  try {
+    const { category: categorySlug } = params;
+
+    // 1. 先用 slug 找出這個分類的 ID 與詳細資料
+    const catRes = await fetch(
+      getWooCommerceUrl("products/categories", { slug: categorySlug }),
+    );
+    const categoriesData = await catRes.json();
+
+    // 如果找不到這個分類，回傳 404
+    if (!categoriesData || categoriesData.length === 0) {
+      return { notFound: true };
+    }
+    const currentCategory = categoriesData[0];
+
+    // 2. 用找出的分類 ID，去抓取該分類下的所有商品
     const productUrl = getWooCommerceUrl("products", {
+      category: currentCategory.id, // ★ 這裡指定了只抓該分類的商品
       per_page: 50,
-      status: "publish", // 只抓公開的商品
+      status: "publish",
     });
-
     const productRes = await fetch(productUrl);
     const products = await productRes.json();
 
+    // 3. 為了讓側邊欄依然能顯示所有分類，我們還是要抓一次所有分類表
+    const allCatRes = await fetch(
+      getWooCommerceUrl("products/categories", { per_page: 100 }),
+    );
+    const allCategories = await allCatRes.json();
+
     return {
       props: {
-        categories: Array.isArray(categories) ? categories : [],
+        currentCategory, // 將當前分類資料傳給前端 (用來顯示標題)
+        categories: Array.isArray(allCategories) ? allCategories : [],
         initialProducts: Array.isArray(products) ? products : [],
       },
       revalidate: 60, // ISR: 每 60 秒更新一次
     };
   } catch (e) {
     console.error("❌ getStaticProps 錯誤：", e);
-    return {
-      props: { categories: [], initialProducts: [] },
-      revalidate: 60,
-    };
+    return { notFound: true };
   }
 }
 
-// --- 主要元件 (邏輯與 CategoryPage 幾乎一樣) ---
-const AllProductsPage = ({ categories, initialProducts }) => {
+// --- 主要元件 ---
+const CategoryPage = ({ currentCategory, categories, initialProducts }) => {
   const router = useRouter();
   const [filteredProducts, setFilteredProducts] = useState(initialProducts);
   const [activeTags, setActiveTags] = useState([]);
@@ -74,7 +106,7 @@ const AllProductsPage = ({ categories, initialProducts }) => {
     setActiveTags(tagsFromQuery);
   }, [router.query.tags]);
 
-  // 前端篩選邏輯
+  // 前端篩選邏輯 (針對 Tags 進行二次篩選)
   useEffect(() => {
     if (!initialProducts) return;
 
@@ -82,18 +114,9 @@ const AllProductsPage = ({ categories, initialProducts }) => {
       setFilteredProducts(initialProducts);
     } else {
       const filtered = initialProducts.filter((product) => {
-        // 檢查 Tags
-        const tagMatch = activeTags.every((tag) =>
+        return activeTags.every((tag) =>
           product.tags?.some((t) => t.slug === tag || t.name === tag),
         );
-        // 檢查 Categories (因為這是總覽頁，側邊欄篩選分類也要能運作)
-        const categoryMatch = activeTags.some((tag) =>
-          product.categories?.some((cat) => cat.slug === tag),
-        );
-
-        // 這裡邏輯依你的需求調整：是要 Tag 和 Category 同時符合，還是擇一
-        // 目前是：如果標籤符合 OR 分類符合
-        return tagMatch || categoryMatch;
       });
       setFilteredProducts(filtered);
       setCurrentPage(1);
@@ -105,11 +128,31 @@ const AllProductsPage = ({ categories, initialProducts }) => {
   const currentProducts = filteredProducts.slice(startIndex, endIndex);
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
 
+  // 如果正在產生新頁面，顯示載入中
+  if (router.isFallback)
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          載入中...
+        </div>
+      </Layout>
+    );
+
   return (
     <Layout>
+      <Head>
+        <title>{currentCategory?.name} eSIM 推薦 | FeGo</title>
+        <meta
+          name="description"
+          content={
+            currentCategory?.description ||
+            `精選 ${currentCategory?.name} 旅遊 eSIM，隨插即用。`
+          }
+        />
+      </Head>
+
       <div className="flex flex-col bg-[#f9f9fa]">
         <section className="section_Hero w-full mx-auto">
-          {/* 如果總覽頁想換標題，可以在這裡改 */}
           <SwiperCarousel />
         </section>
 
@@ -122,10 +165,10 @@ const AllProductsPage = ({ categories, initialProducts }) => {
               setActiveTags={(tags) => {
                 setActiveTags(tags);
                 const tagQuery = tags.join(",");
-                // 這裡 push 到當前路徑 (/product)
+                // ★★★ 確保點擊標籤時，網址停留在當前分類底下 ★★★
                 router.push(
                   {
-                    pathname: "/product",
+                    pathname: `/product/${currentCategory.slug}`,
                     query: { ...router.query, tags: tagQuery },
                   },
                   undefined,
@@ -138,10 +181,24 @@ const AllProductsPage = ({ categories, initialProducts }) => {
           {/* 右側商品列表 */}
           <div className="bottom-content mt-[30px] rounded-xl overflow-hidden w-full lg:w-[75%] flex flex-col">
             <div className="top-navgation bg-white max-w-[1920px] border-b border-gray-200 py-5 flex flex-col sm:flex-row items-center pl-4 sm:pl-10">
-              <div className="bread_crumb w-full">
-                <Link href="/">Home</Link> ←{" "}
-                <span className="text-[16px] font-bold">
-                  所有商品 (All Products)
+              <div className="bread_crumb w-full text-gray-500">
+                <Link
+                  href="/"
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  Home
+                </Link>
+                <span className="mx-2">/</span>
+                <Link
+                  href="/product"
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  所有商品
+                </Link>
+                <span className="mx-2">/</span>
+                {/* 動態顯示當前分類名稱 (例如: 日本 Japan) */}
+                <span className="text-[16px] font-bold text-slate-800">
+                  {currentCategory?.name}
                 </span>
               </div>
               <CountryFilter />
@@ -167,15 +224,8 @@ const AllProductsPage = ({ categories, initialProducts }) => {
                   const regularPrice =
                     product?.prices?.regular_price || product.regular_price;
 
-                  // ★★★ 修改這裡：動態抓取該商品的第一個分類作為 URL 的一部分 ★★★
-                  // 如果商品沒有分類，預設給 'uncategorized' 避免網址出錯
-                  const categorySlug =
-                    product?.categories && product.categories.length > 0
-                      ? product.categories[0].slug
-                      : "uncategorized";
-
-                  // 組合成新的階層式網址：/product/japan/japan-esim-total
-                  const productLink = `/product/${categorySlug}/${product.slug}`;
+                  // ★★★ 組合階層式網址： /product/分類slug/商品slug ★★★
+                  const productLink = `/product/${currentCategory.slug}/${product.slug}`;
 
                   return (
                     <motion.div
@@ -185,34 +235,34 @@ const AllProductsPage = ({ categories, initialProducts }) => {
                       transition={{ duration: 0.5, delay: index * 0.05 }}
                       className="group"
                     >
-                      {/* ★★★ 將原本的 /product/slug 改為動態生成的 productLink ★★★ */}
                       <Link
                         href={productLink}
                         className="hover:scale-105 duration-200 block"
                       >
                         <div className="card overflow-hidden rounded-xl p-4 bg-white">
-                          <Image
-                            src={productImage}
-                            alt={product.name}
-                            width={300}
-                            height={300}
-                            className="w-full rounded-[30px] border-2 border-gray-300 group-hover:shadow-lg object-contain mb-3"
-                          />
-                          <span className="font-bold text-[16px] block mb-1">
+                          <div className="relative w-full aspect-[3/4] mb-3">
+                            <Image
+                              src={productImage}
+                              alt={product.name}
+                              fill
+                              className="rounded-[20px] border-2 border-gray-100 group-hover:shadow-lg group-hover:border-blue-100 object-cover transition-all"
+                            />
+                          </div>
+                          <span className="font-bold text-sm text-slate-800 block mb-1 line-clamp-2 min-h-[40px]">
                             {product.name}
                           </span>
-                          <div className="text-gray-700">
+                          <div className="text-gray-700 mt-2">
                             {price && (
-                              <>
+                              <div className="flex items-end gap-2">
+                                <span className="text-blue-600 font-bold text-lg">
+                                  NT${price}
+                                </span>
                                 {regularPrice && regularPrice !== price && (
-                                  <del className="mr-1 text-gray-400 text-sm">
+                                  <del className="text-gray-400 text-xs mb-0.5">
                                     NT${regularPrice}
                                   </del>
                                 )}
-                                <span className="text-blue-600 font-bold">
-                                  NT${price}
-                                </span>
-                              </>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -222,8 +272,9 @@ const AllProductsPage = ({ categories, initialProducts }) => {
                 })}
               </div>
             ) : (
-              <div className="text-center text-gray-500 p-10 bg-white rounded-b-xl">
-                暫無商品。
+              <div className="text-center text-gray-500 p-10 bg-white rounded-b-xl flex flex-col items-center justify-center min-h-[300px]">
+                <span className="text-4xl mb-3">📭</span>
+                <p>這個分類目前還沒有商品喔！</p>
               </div>
             )}
 
@@ -234,10 +285,10 @@ const AllProductsPage = ({ categories, initialProducts }) => {
                   <button
                     key={i}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`px-3 py-1 rounded border ${
+                    className={`px-3 py-1 rounded border transition-colors ${
                       currentPage === i + 1
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white text-blue-600 border-gray-300 hover:bg-gray-100"
+                        ? "bg-blue-600 text-white border-blue-600 font-bold"
+                        : "bg-white text-blue-600 border-gray-300 hover:bg-gray-50"
                     }`}
                   >
                     {i + 1}
@@ -252,4 +303,4 @@ const AllProductsPage = ({ categories, initialProducts }) => {
   );
 };
 
-export default AllProductsPage;
+export default CategoryPage;

@@ -203,7 +203,7 @@ export default function Navbar({ className }: NavbarProps) {
                         <FeaturedCard
                           key={cat.id}
                           // 連結到分類頁面
-                          href={`/category/${cat.slug}`}
+                          href={`/product/${cat.slug}`}
                           // 圖片處理：若 API 回傳 null，使用預設圖片
                           img={cat.image?.src || "/images/default-category.jpg"}
                           title={cat.name}
@@ -464,7 +464,7 @@ export default function Navbar({ className }: NavbarProps) {
                   categories.map((cat) => (
                     <MobileLink
                       key={cat.id}
-                      href={`/category/${cat.slug}`}
+                      href={`/product/${cat.slug}`}
                       onClick={() => setMobileOpen(false)}
                     >
                       {cat.name}
@@ -588,7 +588,7 @@ export default function Navbar({ className }: NavbarProps) {
             </p>
             <div className="space-y-1.5">
               <MobileLink
-                href="/esim/japan-7days"
+                href="/product/japan/japan-esim-unlimited/?carrier=au&days=4&data=unlimited"
                 onClick={() => setMobileHotOpen(false)}
               >
                 日本 5 日吃到飽 (NT$399)
