@@ -625,7 +625,7 @@ const ComparisonTable = () => (
   <div className="overflow-x-auto rounded-xl border shadow-sm my-8">
     <table className="w-full text-sm text-left border-collapse min-w-[700px]">
       <thead>
-        <tr className="bg-slate-900 text-white">
+        <tr className="bg-[#147AD7] text-white">
           <th className="p-4 w-1/4">產品</th>
           <th className="p-4 w-1/6">運營商</th>
           <th className="p-4 w-1/6">最適合</th>
@@ -702,7 +702,6 @@ const ProductTabs = ({ product, selectedCarrier }) => {
         {activeTab === "desc" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-              <span className="text-3xl">🇯🇵</span>
               關於 {safeCarrier} 方案
             </h3>
 
@@ -716,7 +715,7 @@ const ProductTabs = ({ product, selectedCarrier }) => {
             </div>
 
             <h4 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span>🔍</span> 哪款日本 eSIM 最適合您？
+              哪款日本 eSIM 最適合您？
             </h4>
             <ComparisonTable />
           </motion.div>
@@ -799,33 +798,105 @@ export async function getStaticProps({ params }) {
   }
 }
 
+// ==========================================
+// ★★★ URL 參數轉換字典與輔助函式 ★★★
+// ==========================================
+const PARAM_MAP = {
+  電信商: "carrier",
+  天數: "days",
+  數據: "data",
+  "SoftBank / KDDI": "softbank",
+  "AU(KDDI)": "au",
+  "IIJ Docomo": "docomo",
+  無限流量: "unlimited",
+  無限流量10Mbps: "unlimited-10mbps",
+  無限流量5Mbps: "unlimited-5mbps",
+  "每天 500MB": "500mb-daily",
+  "每天 1GB": "1gb-daily",
+  "每天 2GB": "2gb-daily",
+  "每天 3GB": "3gb-daily",
+  "總計 12GB": "12gb-total",
+  "總計 21GB": "21gb-total",
+  "總計 30GB": "30gb-total",
+};
+
+// 產生反向對照表 (從英文找回中文)
+const REVERSE_PARAM_MAP = Object.entries(PARAM_MAP).reduce(
+  (acc, [key, value]) => {
+    acc[value] = key;
+    return acc;
+  },
+  {},
+);
+
+// 編碼：中文 -> 英文短網址
+const encodeParam = (val) => {
+  if (!val) return val;
+  // 動態處理 "X天" 變成 "X"
+  if (
+    typeof val === "string" &&
+    val.endsWith("天") &&
+    !isNaN(val.replace("天", ""))
+  ) {
+    return val.replace("天", "");
+  }
+  return PARAM_MAP[val] || val;
+};
+
+// 解碼：英文短網址 -> 中文
+const decodeParam = (val, attrName) => {
+  if (!val) return val;
+  // 動態處理 "X" 變回 "X天"
+  if (attrName === "天數" && !isNaN(val)) {
+    return `${val}天`;
+  }
+  return REVERSE_PARAM_MAP[val] || val;
+};
+
 export default function ProductPage({ product, variations = [] }) {
   const { addToCart } = useCart();
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [mainSwiper, setMainSwiper] = useState(null);
+
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [currentVariation, setCurrentVariation] = useState(null);
   const [displayPrice, setDisplayPrice] = useState(product?.price);
+
   const [isCompatOpen, setIsCompatOpen] = useState(false);
   const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
 
-  const carrierName = selectedAttributes["電信商"] || "default";
-  const currentData = selectedAttributes["數據"] || "";
-  const currentDay = selectedAttributes["天數"] || "";
+  // 1. 初始化：從網址讀取參數並設定初始規格
+  useEffect(() => {
+    if (router.isReady && product?.type === "variable") {
+      const initialAttributes = {};
+      let hasUrlParams = false;
 
-  const activeCarrierInfo =
-    CARRIER_INFO_MAP[carrierName] ||
-    CARRIER_INFO_MAP["SoftBank / KDDI"] ||
-    CARRIER_INFO_MAP["default"];
-  const marketingConfig = activeCarrierInfo.marketingBox;
+      product.attributes.forEach((attr) => {
+        // 先取得網址中對應的「英文 Key」，如果沒有則嘗試原來的「中文 Key」做備用
+        const encodedKey = encodeParam(attr.name);
+        const urlValue = router.query[encodedKey] || router.query[attr.name];
 
-  const specialRule = marketingConfig.specialRules?.[currentData];
-  const displayPolicyDesc =
-    specialRule?.policyDesc || marketingConfig.policyDesc;
-  const displayNote = specialRule?.note || marketingConfig.note;
+        if (urlValue) {
+          // 將網址裡的英文值轉換回中文
+          const decodedValue = decodeParam(urlValue, attr.name);
 
+          // 檢查這個轉換回來的值，是否真的存在於商品的選項中
+          if (attr.options.includes(decodedValue)) {
+            initialAttributes[attr.name] = decodedValue;
+            hasUrlParams = true;
+          }
+        }
+      });
+
+      if (hasUrlParams) {
+        setSelectedAttributes(initialAttributes);
+      }
+    }
+  }, [router.isReady, product]);
+
+  // 2. 匹配變體邏輯
   useEffect(() => {
     if (product?.type === "variable" && variations.length > 0) {
       const allSelected = product.attributes.every(
@@ -844,13 +915,52 @@ export default function ProductPage({ product, variations = [] }) {
           setCurrentVariation(null);
           setDisplayPrice(null);
         }
+      } else {
+        setCurrentVariation(null);
+        setDisplayPrice(null);
       }
     }
   }, [selectedAttributes, product, variations]);
 
+  // 3. 更新規格時，同步更新網址 (Shallow Routing)
   const handleAttributeSelect = (name, option) => {
-    setSelectedAttributes((prev) => ({ ...prev, [name]: option }));
+    // 更新狀態
+    const newAttributes = { ...selectedAttributes, [name]: option };
+    setSelectedAttributes(newAttributes);
+
+    // 準備要推送到 URL 的參數
+    const queryParams = { slug: product.slug };
+    Object.entries(newAttributes).forEach(([key, val]) => {
+      const encodedKey = encodeParam(key);
+      const encodedVal = encodeParam(val);
+      queryParams[encodedKey] = encodedVal;
+    });
+
+    // 僅更新網址參數，不重新整理頁面
+    router.push(
+      {
+        pathname: router.pathname,
+        query: queryParams,
+      },
+      undefined,
+      { shallow: true },
+    );
   };
+
+  const carrierName = selectedAttributes["電信商"] || "default";
+  const currentData = selectedAttributes["數據"] || "";
+  const currentDay = selectedAttributes["天數"] || "";
+
+  const activeCarrierInfo =
+    CARRIER_INFO_MAP[carrierName] ||
+    CARRIER_INFO_MAP["SoftBank / KDDI"] ||
+    CARRIER_INFO_MAP["default"];
+  const marketingConfig = activeCarrierInfo.marketingBox;
+
+  const specialRule = marketingConfig.specialRules?.[currentData];
+  const displayPolicyDesc =
+    specialRule?.policyDesc || marketingConfig.policyDesc;
+  const displayNote = specialRule?.note || marketingConfig.note;
 
   const getAttributeBadge = (attrName, option) => {
     if (attrName === "電信商") {
@@ -898,11 +1008,24 @@ export default function ProductPage({ product, variations = [] }) {
     ? product.images
     : [{ src: seoImage, alt: product.name }];
 
+  // ★★★ 產生供 SEO 使用的標準網址 (Canonical URL) ★★★
+  // 請根據您實際的網域替換 https://www.fegoesim.com
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.fegoesim.com";
+  const canonicalUrl = `${baseUrl}/product/${product?.slug}`;
+
   return (
     <Layout>
       <Head>
         <title>{product.name} | FeGo eSIM</title>
+        <meta
+          name="description"
+          content={stripHtml(product.short_description || "")}
+        />
+        {/* ★★★ 加入 Canonical 標籤保護 SEO ★★★ */}
+        <link rel="canonical" href={canonicalUrl} />
       </Head>
+
       <CompatibilityModal
         isOpen={isCompatOpen}
         onClose={() => setIsCompatOpen(false)}
@@ -912,7 +1035,7 @@ export default function ProductPage({ product, variations = [] }) {
         onClose={() => setIsEstimatorOpen(false)}
       />
 
-      <div className="max-w-6xl mx-auto py-10 px-4 bg-white">
+      <div className="max-w-6xl mx-auto pt-[120px] pb-20 px-4 bg-white">
         <div className="text-xs text-gray-400 mb-6">
           首頁 / 日本 eSIM / {product.name}
         </div>
@@ -956,7 +1079,7 @@ export default function ProductPage({ product, variations = [] }) {
                   ▼
                 </button>
               </div>
-              <div className="w-full relative bg-gray-50  overflow-hidden   aspect-[3/3]">
+              <div className="w-full relative bg-gray-50 overflow-hidden   aspect-[4/3]">
                 <Swiper
                   onSwiper={setMainSwiper}
                   loop={true}
@@ -1119,7 +1242,7 @@ export default function ProductPage({ product, variations = [] }) {
                   onClick={handleAddToCart}
                   disabled={!displayPrice}
                   className={`flex-1 font-bold rounded-lg transition-all shadow-lg shadow-cyan-100 
-                        ${!displayPrice ? "bg-gray-200 text-gray-400" : "bg-slate-900 text-white hover:bg-slate-800"}`}
+                        ${!displayPrice ? "bg-gray-200 text-gray-400" : "bg-[#147AD7] text-white hover:bg-slate-800"}`}
                 >
                   {displayPrice ? "加入購物車" : "請選擇規格"}
                 </button>
@@ -1135,7 +1258,6 @@ export default function ProductPage({ product, variations = [] }) {
           </div>
         </div>
 
-        {/* ★★★ 修改處：傳遞 selectedCarrier 給 ProductTabs ★★★ */}
         <ProductTabs product={product} selectedCarrier={carrierName} />
       </div>
     </Layout>
