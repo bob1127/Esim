@@ -1,17 +1,23 @@
 /** @type {import('next').NextConfig} */
 const path = require("path");
 
-// ★★★ 引入 PWA 套件並進行設定 ★★★
+// ★★★ 引入 PWA 套件並進行「終極強化版」設定 ★★★
 const withPWA = require("@ducanh2912/next-pwa").default({
   dest: "public",
-  cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
-  reloadOnOnline: true,
+  cacheOnFrontEndNav: true, // 邊走邊存：客人點過的頁面自動快取
+  aggressiveFrontEndNavCaching: true, 
+  reloadOnOnline: true, // 當網路恢復時，自動重新載入頁面獲取最新資料
   swcMinify: true,
-  // 極度重要：開發環境時關閉 PWA，避免快取導致畫面不更新
-  disable: process.env.NODE_ENV === "development",
+  disable: process.env.NODE_ENV === "development", // 開發環境關閉
+  
+  // ★★★ 殺手級防護：明確指定斷線時要顯示的頁面 ★★★
+  fallbacks: {
+    document: "/_offline", // 當找不到快取且沒網路時，強制顯示這頁 (請確保您有建立 pages/_offline.js)
+  },
+  
   workboxOptions: {
     disableDevLogs: true,
+    maximumFileSizeToCacheInBytes: 5000000, // 提高單一檔案快取上限到 5MB，避免較大的靜態資源沒被存到
   },
 });
 
@@ -52,7 +58,6 @@ const nextConfig = {
 
   webpack(config) {
     // 針對 GLSL shader 檔案的處理
-    // 注意：如果你沒有安裝 'raw-loader'，請先執行 `npm install raw-loader --save-dev`
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,
       exclude: /node_modules/,
