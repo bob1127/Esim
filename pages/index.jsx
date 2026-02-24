@@ -11,6 +11,7 @@ import SvgCard from "../components/SvgHoverCard.jsx";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image.js";
 import MaskText from "../components/MaskText.jsx";
+import AlertBtn from "../components/PushButton.jsx";
 // GSAP & Lenis Imports
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -502,6 +503,7 @@ export default function Home() {
           <div className="logo-txt absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50">
             <div className="flex flex-col items-center">
               <p className="text-[40px]">Jeko eSIM</p>
+              <AlertBtn />
               <div className="group relative inline-flex cursor-default">
                 {/* 1. 影子/立體層 (Shadow Layer) */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-400 to-white opacity-0 transition-all duration-300 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-hover:opacity-100 shadow-inner" />
